@@ -78,7 +78,7 @@ if (isset($_POST['RUN']))
       {
 
         $ONumber = $_POST['OrderNumber'];
-        $Collate ["-o Collate=True","-o Collate=False"]
+        $Collate = ["-o Collate=True","-o Collate=False"];
         $speed = ["", "-o XROutputMode=HighSpeed", "-o XROutputMode=HighResolution"];
         $sides = ["", "-o sides=two-sided-long-edge","-o sides=two-sided-short-edge"];
         $staple = ["", "-o XRStapleOption=SinglePortrait", "-o XRStapleOption=DualPortrait"];
