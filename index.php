@@ -26,8 +26,8 @@ if ( window.history.replaceState ) {  //Makes Redirects After Html Forms not lea
   <h3>File Operation</h3>
   <input type="Number" name="OrderNumber" min="0" required>Order Number<br>
   <input type='hidden' value='0' name='Collation'>
-  <input type="radio" name="Collation" value="1" id="Collated" checked><label for="Collated">Collated</label>
-  <input type="radio" name="Collation" value="2" id="UnCollated"><label for="UnCollated">UnCollated (No SlipSheets)</label><br>
+  <input type="radio" name="Collation" value="0" id="Collated" checked><label for="Collated">Collated</label>
+  <input type="radio" name="Collation" value="1" id="UnCollated"><label for="UnCollated">UnCollated (No SlipSheets)</label><br>
   <input type='hidden' value='0' name='Speed'>
   <input type="radio" name="Speed" value="1" id="High Speed" checked><label for="High Speed">High Speed</label>
   <input type="radio" name="Speed" value="2" id="High Resolution"><label for="High Resolution">High Resolution</label><br>
@@ -78,9 +78,12 @@ if (isset($_POST['RUN']))
       {
 
         $ONumber = $_POST['OrderNumber'];
-        $sides = ["", "-o sides=two-sided-long-edge"];
+        $Collate ["-o Collate=True","-o Collate=False"]
+        $speed = ["", "-o XROutputMode=HighSpeed", "-o XROutputMode=HighResolution"];
+        $sides = ["", "-o sides=two-sided-long-edge","-o sides=two-sided-short-edge"];
+        $staple = ["", "-o XRStapleOption=SinglePortrait", "-o XRStapleOption=DualPortrait"];
         $punch = ["", "-o XRPunchOption=3Punch"];
-        $staple = ["", "-o XRStapleOption=SinglePortrait"];
+        $OffSet = ["-o XRRequestOffset=None", ""];
         $QTYA = [];
         $TotalQTY = $_POST['TC'];
         $SETS= (int)$_POST['SETS'];
