@@ -4,7 +4,8 @@ session_start(); #Prevents Reset of Login State
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>CPD Printer</title>
+  <title>CPD SO Printing</title>
+  <link rel='icon' href='images/favicon.ico' type='image/x-icon'/ >
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/main.css">
 <script src="js.js"></script>
