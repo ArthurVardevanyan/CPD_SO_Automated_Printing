@@ -31,7 +31,6 @@ def FilesList(folder, OName):
     return Stripped_List  # Returns the Stripped List to Main Function
 
 def main():
-while(True):
     ONumber = str(input("Type In an Order Number: "))
     # Some Input Validation Goes Here.
     OName = " "
@@ -82,14 +81,7 @@ while(True):
                 os.system('lpr -#'+str(QTYA[i])+' '+staple[S]+ ' ' +punch[HP]+ ' '+sides[Duplex]+ ' "'+folder+'/'+OName+'/'+files+'"')
 
 
-    else:
-        continue
 
-    Run = int(input("\nRun Another Order? (1) or Exit (0): "))
-    if Proof ==1:
-        continue
-    else:
-        exit()
-
+    
 if __name__ == "__main__":
     main()

@@ -6,7 +6,6 @@ from GDrive import GDownload
 import os
 import time
 import shutil
-import re
 from SchoolDataJson import SchoolDataJson
 
 IMAP_SERVER = 'imap.gmail.com'
@@ -16,30 +15,49 @@ OUTPUT_DIRECTORY = 'School_Orders/'
 
 PASSWORD = getpass.getpass()
 
+
+
 def FileM(Order, OrderN, OUTPUT_DIRECTORY,Subjects, Error):
     Files = Order[0]
     if ("Attach your file(s) in PDF format." in Files):
-        Files = str((Files.split("Number of Copies Needed per File", 1)).pop(1))
-        #Files = str(Files.pop(1))
-        Files = str((Files.split("Attach your file(s) in PDF format.", 1)).pop(0))
-        #Files = str(Files.pop(0))
-        Files = str((Files.split("File ")).pop(0))
-        #Files.pop(0)
-
-        for i in range(len(Files)):
-            Files[i] = Files[i][2:].strip()
-            Files[i] = Files[i].replace("3D", "", 1).replace("https://drive.google.com/open?id", "")
-            Files[i] = re.sub(r'[\r\n\\:*?\"<>|.;=\]]', "", Files[i])
+        Files = Files.split("Number of Copies Needed per File", 1)
+        Files.pop(1)
+        Files = str(Files)
+        Files = Files.split("Attach your file(s) in PDF format.", 1)
+        Files.pop(0)
+        Files = str(Files)
+        Files = Files.split("File ")
+        Files.pop(0)
+        i = 0
+        for x in Files:
+            Files[i] = x[2:].strip()
+            Files[i] = Files[i].replace('\\r', "")
+            Files[i] = Files[i].replace('\\n', "")
+            Files[i] = Files[i].replace("\\", "")
+            Files[i] = Files[i].replace("=", "")
+            Files[i] = Files[i].replace("3D", "", 1)
+            Files[i] = Files[i].replace(">", "")
+            Files[i] = Files[i].replace("<", "")
+            Files[i] = Files[i].replace("]", "")
+            Files[i] = Files[i].replace("'", "")
+            Files[i] = Files[i].replace('"', "")
+            Files[i] = Files[i].replace("https://drive.google.com/open?id", "")
+            Files[i] = Files[i].replace(".", "")
             print(Files[i])
-
+            i += 1
+    
         for y in Files:
             GDownload(y, OrderN, OUTPUT_DIRECTORY,Subjects,Error)
     else:
         print("This Isn't A School Order")
-
+        
 
 def process_mailbox(M):
+    """
+    Dump all emails in the folder to files in output directory.
+    """
 
+    #rv, data = M.search(None, 'SINCE 12-Mar-2019 UNSEEN')
     rv, data = M.search(None, 'UNSEEN')
     if rv != 'OK':
         print("No messages found!")
@@ -50,16 +68,28 @@ def process_mailbox(M):
         rv, data = M.fetch(num, '(UID BODY[TEXT])')
         SubjectF = M.fetch(num, '(UID BODY[HEADER.FIELDS (Subject)])')
         Subject = str(SubjectF[1][0][1])
-        Subjects = Subject.replace("Subject: ", "").replace("Copy Job - ", "")
+        Subjects = Subject.replace("Subject: ", "")
+        Subjects = Subjects.replace("Copy Job - ", "")
+        Subjects = Subjects.replace("/", "")
         Subjects = Subjects[:-9].strip()
         Subjects = Subjects[2:].strip()
-        Subjects = re.sub(r'[/\r\n\\:*?\"<>|.;]', " ", Subjects)
+        Subjects = Subjects.replace('\\r', "")
+        Subjects = Subjects.replace('\\n', "")
+        Subjects = Subjects.replace('\\', "")
+        Subjects = Subjects.replace('*', "")
+        Subjects = Subjects.replace('.', "")
+        Subjects = Subjects.replace(':', "")
+        Subjects = Subjects.replace('-', "")
+        Subjects = Subjects.replace('"', "")
+        Subjects = Subjects.replace('|', "")
+        Subjects = Subjects.replace('?', "")
+        Subjects = Subjects.replace(';', "")
         Subjects = Subjects.strip()
-        Subjects = Subjects[:75] #Keeps only the First 75 Characters of the subject.
+        Subjects = Subjects[:75]
         OrderN = ""
         Order = str(data[0][1])
         Error = ""
-        try:
+        try:            
             Order = Order.split("Order Number:", 1)
             OrderN = str(Order[1])
             OrderN = OrderN[:9].strip()
@@ -71,20 +101,20 @@ def process_mailbox(M):
         except:
             print("This Email is Not Standard, Will Still Attempt to Download Files.")
             Error = "Error"
-
-
+            
+        
         if rv != 'OK':
             print ("ERROR getting message", num)
             return
         print ("Order: ", OrderN)
         path  = os.getcwd()
         if (Error == ""):
-            try:
+            try:  
                 os.makedirs(path+ "/" +OUTPUT_DIRECTORY+OrderN+" "+Subjects)
-            except OSError:
+            except OSError:  
                 print ("Creation of the directory %s failed" % path+"/" +OUTPUT_DIRECTORY+OrderN+" "+Subjects)
                 print ("Successfully created the directory %s " % path+"/" +OUTPUT_DIRECTORY+OrderN+" "+Subjects)
-
+            
             if("Re:" in Subject):
                 print("This is a reply, not going to bother")
             else:
@@ -94,9 +124,9 @@ def process_mailbox(M):
             f.close()
         else:
             path  = os.getcwd()
-            try:
+            try:  
                 os.makedirs(path+ "/" +OUTPUT_DIRECTORY+Error+"/"+Subjects)
-            except OSError:
+            except OSError:  
                 print ("Creation of the directory %s failed" % path+"/" +OUTPUT_DIRECTORY+Error+"/"+Subjects)
                 print ("Successfully created the directory %s " % path+"/" +OUTPUT_DIRECTORY+Error+"/"+Subjects)
             if("Re:" in Subject):
@@ -120,14 +150,17 @@ def process_mailbox(M):
             shutil.copytree(OUTPUT_DIRECTORY+OrderN+" "+Subjects, NetworkP + "/" + OrderN+" "+Subjects)
         except:
             print("Sub Folder Copy Failed")
-
+            
 
     return EmailsProccessed
+       
+        
+
 
 def main():
     M = imaplib.IMAP4_SSL(IMAP_SERVER)
     M.login(EMAIL_ACCOUNT, PASSWORD)
-    rv = M.select(EMAIL_FOLDER)
+    rv, data = M.select(EMAIL_FOLDER)
     if rv == 'OK':
         print ("Processing mailbox: ", EMAIL_FOLDER)
         while(1 == 1):
@@ -135,19 +168,19 @@ def main():
                print("Running Loop")
                M = imaplib.IMAP4_SSL(IMAP_SERVER)
                M.login(EMAIL_ACCOUNT, PASSWORD)
-               rv = M.select(EMAIL_FOLDER)
+               rv, data = M.select(EMAIL_FOLDER)
                EmailsP = process_mailbox(M)
                print("\n\n\n\n\n\n\n\n\n\n\n")
                print("Emails Proccessed: ", EmailsP)
                print("Im Resting, Check Back Later:")
                time.sleep(420)
-
+               
                if rv == 'OK':
                     print("Again")
                else:
-                    print ("ERROR: Unable to open mailbox ", rv)
+                    print ("ERROR: Unable to open mailbox ", rv)      
             except:
-                print("SOMETHING WENT HORRIBLY WRONG, Check Internet Connection")
+                print("SOMETHING WENT HORRIBLY WRONG")
                 continue
         M.logout()
         M.close()
@@ -157,3 +190,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
