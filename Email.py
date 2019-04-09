@@ -9,13 +9,15 @@ import shutil
 import re
 from SchoolDataJson import SchoolDataJson
 
+Revision = "20190409"
+print("School Order Downloader Revision: ", Revision)
+
 IMAP_SERVER = 'imap.gmail.com'
 EMAIL_ACCOUNT = "@gmail.com"
 EMAIL_FOLDER = "Inbox"
 OUTPUT_DIRECTORY = 'School_Orders/'
 NetworkP = "P:/OneTimeJobs/School Orders"
 PASSWORD = getpass.getpass()
-
 
 def LinkExtractor(EmailBody, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
     FileLinks = EmailBody[0]
@@ -37,7 +39,8 @@ def LinkExtractor(EmailBody, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
             print(FileLinks[i])
 
         for y in FileLinks:
-            GoogleDriveDownload(y, OrderNumber, OUTPUT_DIRECTORY, Subject, Error)
+            GoogleDriveDownload(
+                y, OrderNumber, OUTPUT_DIRECTORY, Subject, Error)
     else:
         print("This Isn't A School Order")
 
@@ -135,6 +138,8 @@ def main():
                 print("\n\n\n\n\n\n\n\n\n\n\n")
                 print("Emails Proccessed: ", EmailsP)
                 print("Im Resting, Check Back Later:")
+                print("School Order Downloader Revision: ", Revision)
+
                 if rv == 'OK':
                     print("Again")
                 else:
