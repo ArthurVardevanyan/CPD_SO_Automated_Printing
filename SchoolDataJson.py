@@ -7,17 +7,17 @@ from files import FilesList
 
 
 
-def SchoolDataJson(ONumber, folder):
+def SchoolDataJson(OrderNumber, folder):
     SchoolData = {'Account ID':'CHANGEME'}
     OName = " "
     Folders = FolderList(folder)
     #print(*Folders,sep = "\n")
     for i in Folders:
-        if ONumber in i:
+        if OrderNumber in i:
             OName = i
     Files = FilesList(folder, OName)
 
-    SchoolData["Order Number"] = ONumber
+    SchoolData["Order Number"] = OrderNumber
     SchoolData["Order Subject"] = OName[5:]
     SchoolData["Files"] = {}
     
@@ -73,7 +73,7 @@ def SchoolDataJson(ONumber, folder):
         TestString = "Paper Size, Type, and Color "
         if  TestString in lines:
             line = lines.split(TestString)
-            SchoolData["Paper"] = line[1]
+            SchoolData["Paper"] = line[1].replace("=E2=80=93 ", "")
         TestString = "Stapling "
         if  TestString in lines:
             line = lines.split(TestString)
@@ -82,6 +82,14 @@ def SchoolDataJson(ONumber, folder):
         if  TestString in lines:
             line = lines.split(TestString)
             SchoolData["Drilling"] = line[1]
+        TestString = "Folding "
+        if  TestString in lines:
+            line = lines.split(TestString)
+            SchoolData["Folding"] = line[1]
+        TestString = "Cutting "
+        if  TestString in lines:
+            line = lines.split(TestString)
+            SchoolData["Cutting"] = line[1]
         TestString = "Slip Sheets and/or Shrink Wrap "
         if  TestString in lines:
             line = lines.split(TestString)
@@ -94,6 +102,14 @@ def SchoolDataJson(ONumber, folder):
         if  TestString in lines:
             line = lines.split(TestString)
             SchoolData["Booklets"] = line[1]
+        TestString = "Front Cover "
+        if  TestString in lines:
+            line = lines.split(TestString)
+            SchoolData["Front Cover"] = line[1].replace("=E2=80=93 ", "")
+        TestString = "Back Cover "
+        if  TestString in lines:
+            line = lines.split(TestString)
+            SchoolData["Back Cover"] = line[1].replace("=E2=80=93 ", "")
         TestString = "Deliver To: "
         if  TestString in lines:
             TestString = "Deliver to: (Staff Member's Name) "

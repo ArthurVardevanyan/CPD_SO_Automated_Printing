@@ -2,7 +2,7 @@
 import sys
 import imaplib
 import getpass
-from GDrive import GDownload
+from GDrive import GoogleDriveDownload
 import os
 import time
 import shutil
@@ -47,7 +47,7 @@ def FileM(Order, OrderN, OUTPUT_DIRECTORY,Subjects, Error):
             i += 1
     
         for y in Files:
-            GDownload(y, OrderN, OUTPUT_DIRECTORY,Subjects,Error)
+            GoogleDriveDownload(y, OrderN, OUTPUT_DIRECTORY,Subjects,Error)
     else:
         print("This Isn't A School Order")
         
@@ -160,7 +160,7 @@ def process_mailbox(M):
 def main():
     M = imaplib.IMAP4_SSL(IMAP_SERVER)
     M.login(EMAIL_ACCOUNT, PASSWORD)
-    rv, data = M.select(EMAIL_FOLDER)
+    rv, data = M.select(EMAIL_FOLDER)#pylint: disable=unused-variable
     if rv == 'OK':
         print ("Processing mailbox: ", EMAIL_FOLDER)
         while(1 == 1):
@@ -168,7 +168,7 @@ def main():
                print("Running Loop")
                M = imaplib.IMAP4_SSL(IMAP_SERVER)
                M.login(EMAIL_ACCOUNT, PASSWORD)
-               rv, data = M.select(EMAIL_FOLDER)
+               rv, data = M.select(EMAIL_FOLDER)#pylint: disable=unused-variable
                EmailsP = process_mailbox(M)
                print("\n\n\n\n\n\n\n\n\n\n\n")
                print("Emails Proccessed: ", EmailsP)
