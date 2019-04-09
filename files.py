@@ -1,6 +1,7 @@
 import os
 import glob
 
+
 def FolderList(folder):
     # Grabs the Files (Contains the Date Modifer metedata as well)
 
@@ -11,7 +12,6 @@ def FolderList(folder):
     Stripped_List = [os.path.basename(x) for x in fileList]
 
     return Stripped_List  # Returns the Stripped List to Main Function
-
 
 
 def FilesList(folder, OName):
