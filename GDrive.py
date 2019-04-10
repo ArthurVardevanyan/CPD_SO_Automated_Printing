@@ -7,7 +7,7 @@ import re
 # Source https://stackoverflow.com/questions/52211886/downloading-file-from-google-drive-using-api-nameerror-name-service-is-not-d
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = 'https://www.googleapis.com/auth/drive.readonly'
+SCOPES = 'https://www.googleapis.com/auth/drive.readonly' #Defines how much acess is given to the program.
 
 
 def GoogleDriveDownload(FileId, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
@@ -33,7 +33,7 @@ def GoogleDriveDownload(FileId, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
         request = service.files().get_media(fileId=file_id)  # pylint: disable=no-member
         result = request.execute()
         print("Downloading " + file_name)
-    
+
         # Remove Unwanted Characters from file path
         file_name = re.sub(r'[\\/:;?\"<>*|]', "", file_name)
 
