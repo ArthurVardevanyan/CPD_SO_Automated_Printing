@@ -7,7 +7,10 @@ function OrderName($Folders, $ONumber){
       if (strstr($i, $ONumber))
       {
           return $i;
-        }
+      }
+      else {
+        return "Job Does not Exist, or is not Downloaded";
+      }
     }
 }
 #Gets a list of all the Orders Downloaded

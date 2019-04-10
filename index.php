@@ -48,100 +48,104 @@ if ( window.history.replaceState ) {  //Makes Redirects After Html Forms not lea
         <input type='submit' name='RUN' value='RUN'><br>
     </form><br><br><br>
     <?php
-    include 'Functions.php';
-    $folder = "School Orders";
+include 'Functions.php';
+$folder = "School_Orders";
 
 if (isset($_POST['FI'])) #When just the INFO button is prssed, it gets the file info.
-          {
-            $ONumber = $_POST['OrderNumber'];
-            $Folders =  FolderList($folder);
-            $OName =  OrderName($Folders, $ONumber);
-            $Files = FilesList($folder, $OName);
-            File_Information($folder, $Folders,$OName,$Files);
-          }
+{
+    $ONumber = $_POST['OrderNumber'];
+    $Folders = FolderList($folder);
+    $OName = OrderName($Folders, $ONumber);
+    $Files = FilesList($folder, $OName);
+    File_Information($folder, $Folders, $OName, $Files);
+}
 if (isset($_POST['FIO'])) #Same as Info Button, but opens all the files.
-          {
-            $ONumber = $_POST['OrderNumber'];
-            $Folders =  FolderList($folder);
-            $OName =  OrderName($Folders, $ONumber);
-            $Files = FilesList($folder, $OName);
-            File_Information($folder, $Folders,$OName,$Files);
-            foreach( $Files as $files){
-                    echo '<script type="text/javascript">',
-            'openNewBackgroundTab("'.$folder."/".$OName."/".$files.'");',
+{
+    $ONumber = $_POST['OrderNumber'];
+    $Folders = FolderList($folder);
+    $OName = OrderName($Folders, $ONumber);
+    $Files = FilesList($folder, $OName);
+    File_Information($folder, $Folders, $OName, $Files);
+    foreach ($Files as $files) {
+        echo '<script type="text/javascript">',
+        'openNewBackgroundTab("' . $folder . "/" . $OName . "/" . $files . '");',
             '</script>';
-          }
-          }
+    }
+}
 
+if (isset($_POST['RUN'])) #This setups up the linux cups command with the correct paramters to send to the printer.
+{
 
-if (isset($_POST['RUN']))#This setups up the linux cups command with the correct paramters to send to the printer.
-      {
+    #Command List
+    $ONumber = $_POST['OrderNumber'];
+    $Collate = ["-o Collate=True", "-o Collate=False"];
+    $speed = ["", "-o XROutputMode=HighSpeed", "-o XROutputMode=HighResolution"];
+    $sides = ["", "-o sides=two-sided-long-edge", "-o sides=two-sided-short-edge"];
+    $staple = ["", "-o XRStapleOption=SinglePortrait", "-o XRStapleOption=DualPortrait"];
+    $punch = ["", "-o XRPunchOption=3Punch"];
+    $OffSet = ["-o XRRequestOffset=None", ""];
+    $QTYA = [];
+    $TotalQTY = $_POST['TC'];
+    $SETS = (int) $_POST['SETS'];
+    $QTY = (int) $_POST['CP'];
+    $Duplex = $_POST['Duplex'];
+    $HP = $_POST['Punch'];
+    $S = $_POST['Staple'];
+    $Speed = $_POST['Speed'];
+    $offset = $_POST['OffSet'];
+    $Collation = $_POST['Collation'];
 
-        #Command List
-        $ONumber = $_POST['OrderNumber'];
-        $Collate = ["-o Collate=True","-o Collate=False"];
-        $speed = ["", "-o XROutputMode=HighSpeed", "-o XROutputMode=HighResolution"];
-        $sides = ["", "-o sides=two-sided-long-edge","-o sides=two-sided-short-edge"];
-        $staple = ["", "-o XRStapleOption=SinglePortrait", "-o XRStapleOption=DualPortrait"];
-        $punch = ["", "-o XRPunchOption=3Punch"];
-        $OffSet = ["-o XRRequestOffset=None", ""];
-        $QTYA = [];
-        $TotalQTY = $_POST['TC'];
-        $SETS= (int)$_POST['SETS'];
-        $QTY= (int)$_POST['CP'];
-        $Duplex = $_POST['Duplex'];
-        $HP = $_POST['Punch'];
-        $S = $_POST['Staple'];
+    echo "Duplex        : " . $_POST['Duplex'] . "<br>";
+    echo "Hole Punch    : " . $_POST['Punch'] . "<br>";
+    echo "Stapling      : " . $_POST['Staple'] . "<br>";
+    echo "Speed         : " . $_POST['Speed'] . "<br>";
+    echo "OffSet        : " . $_POST['OffSet'] . "<br>";
+    echo "Collation     : " . $_POST['Collation'] . "<br>";
+    echo "Total Copies  : " . $TotalQTY . "<br>";
+    echo "Number of Sets: " . $SETS . "<br>";
+    echo "Copie(s) Per Set: " . $QTY . "<br>";
 
-        echo "Duplex        : " . $_POST['Duplex'] . "<br>";
-        echo "Hole Punch    : " . $_POST['Punch']  . "<br>";
-        echo "Stapling      : " . $_POST['Staple']  . "<br>";
-        echo "Total Copies  : " . $TotalQTY  . "<br>";
-        echo "Number of Sets: " .  $SETS.  "<br>";
-        echo "Copie(s) Per Set: " . $QTY . "<br>";
+    $Folders = FolderList($folder);
+    $OName = OrderName($Folders, $ONumber);
+    $Files = FilesList($folder, $OName);
+    File_Information($folder, $Folders, $OName, $Files);
 
-        $Folders =  FolderList($folder);
-        $OName =  OrderName($Folders, $ONumber);
-        $Files = FilesList($folder, $OName);
-        File_Information($folder, $Folders,$OName,$Files);
-
-        #Some math to determine how many times to send the job and at what quantities.
-          if($TotalQTY == $QTY*$SETS){
-              for($x = 0; $x <  $SETS ; $x++)
-              {
-              array_push($QTYA, $QTY);
-            }
-          }
-          else
-          {
-              array_push($QTYA, $QTY);
-              for ($x = 0; $x < ($SETS-1); $x++){
-                  if($TotalQTY-$QTY > 0){
-                      $TotalQTY = $TotalQTY-$QTY;
-                      array_push($QTYA, $TotalQTY);
-                    }
-                  else{
-                    array_push($QTYA, $TotalQTY);
-
-                    }
-            }
-          }
-          #Display & Sends the commands to the printer
-            for($x = 0; $x < $SETS ; $x++){
-              foreach( $Files as $files){
-                echo "<br>";
-                echo "lpr -#" . (string)$QTYA[$x] . " " . $staple[$S] . " " . $punch[$HP] . "  " . $sides[$Duplex] . "  " . '"' .$folder."/".$OName."/".$files.'"';
-              }
-              }
-
-                for($x = 0; $x < $SETS ; $x++){
-                  foreach( $Files as $files){
-                $output = "lpr -#" . (string)$QTYA[$x] . " " . $staple[$S] . " " . $punch[$HP] . "  " . $sides[$Duplex] . "  " . '"' .$folder."/".$OName."/".$files.'" > /dev/null 2>&1 &';
-                exec($output);
+    #Some math to determine how many times to send the job and at what quantities.
+    if ($TotalQTY == $QTY * $SETS) {
+        for ($x = 0; $x < $SETS; $x++) {
+            array_push($QTYA, $QTY);
+        }
+    } else {
+        array_push($QTYA, $QTY);
+        for ($x = 0; $x < ($SETS - 1); $x++) {
+            if ($TotalQTY - $QTY > 0) {
+                $TotalQTY = $TotalQTY - $QTY;
+                array_push($QTYA, $TotalQTY);
+            } else {
+                array_push($QTYA, $TotalQTY);
 
             }
-            }
-      }
+        }
+    }
+    #Display & Sends the commands to the printer
+    for ($x = 0; $x < $SETS; $x++) {
+        foreach ($Files as $files) {
+            echo "<br>";
+            $output = "lpr -#" . (string) $QTYA[$x] . " " . $staple[$S] . " " . $punch[$HP] . "  " . $sides[$Duplex] . "  " . $speed[$Speed] . "
+            " . $OffSet[$offset] . "  " . $Collate[$Collation] . " " . '"' . $folder . "/" . $OName . "/" . $files . '" > /dev/null 2>&1 &';
+            echo $output;
+        }
+    }
+
+    for ($x = 0; $x < $SETS; $x++) {
+        foreach ($Files as $files) {
+            $output = "lpr -#" . (string) $QTYA[$x] . " " . $staple[$S] . " " . $punch[$HP] . "  " . $sides[$Duplex] . "  " . $speed[$Speed] . "
+            " . $OffSet[$offset] . "  " . $Collate[$Collation] . " " . '"' . $folder . "/" . $OName . "/" . $files . '" > /dev/null 2>&1 &';
+            exec($output);
+
+        }
+    }
+}
 ?>
       </body>
       </html>
