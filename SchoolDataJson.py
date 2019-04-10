@@ -2,37 +2,36 @@ import json
 import os
 import glob
 from PyPDF2 import PdfFileReader
-from files import FolderList 
+from files import FolderList
 from files import FilesList
 
 
 
 def SchoolDataJson(OrderNumber, folder):
     SchoolData = {'Account ID':'CHANGEME'}
-    OName = " "
-    Folders = FolderList(folder)
-    #print(*Folders,sep = "\n")
-    for i in Folders:
+    OName = " " #This is the Order Name taken from the subject line.
+    Folders = FolderList(folder) #Calls a function in files.py, which gets a list of all the orders downladed
+    for i in Folders: #Searchs for Requested Order Number from list of currently downloaded orders
         if OrderNumber in i:
             OName = i
-    Files = FilesList(folder, OName)
+    Files = FilesList(folder, OName) #Calls a function in files.py, which gets all the pdf files within that order numbers folder.
 
     SchoolData["Order Number"] = OrderNumber
     SchoolData["Order Subject"] = OName[5:]
     SchoolData["Files"] = {}
-    
-    for i in range(len(Files)):
+
+    for i in range(len(Files)): #This gets the number of pages for every pdf file for the job.
         pdf = PdfFileReader(open(folder+'/'+OName+'/'+Files[i], "rb"))
         SchoolData["Files"]["File "+ str(i+1)] = {"File Name":Files[i],  "Page Count":str(pdf.getNumPages())}
-                    
-    Email = [line.rstrip('\n') for line in open(folder+'/'+OName+'/'+OName+".txt", "r")]
-    
-    for i in range(len(Email)):
+
+    Email = [line.rstrip('\n') for line in open(folder+'/'+OName+'/'+OName+".txt", "r")] #Imports the Email contents line by line.
+
+    for i in range(len(Email)): #Removes the duplicate portion of the email that contains html (form) code.
         if "IF YOU HAVE ANY QUESTIONS" in Email[i]:
             Email = Email[10:-(len(Email)-i)]
             break
 
-
+            #Searchs for required elements from the form for the JSON file.
     for lines in Email:
         TestString = "*Timestamp: *"
         if  TestString in lines:
@@ -116,11 +115,11 @@ def SchoolDataJson(OrderNumber, folder):
             if  TestString in lines:
                 line = lines.split(TestString)
                 SchoolData["Deliver To Address"] = line[1]
-            else:    
+            else:
                 TestString = "Deliver To: "
                 line = lines.split(TestString)
                 SchoolData["Deliver To Name"] = line[1]
-       
 
+                #Creates the JSON file
     with open(folder+'/'+OName+'/'+OName+'.json', 'w') as outfile:
         json.dump(SchoolData, outfile, indent=4, separators=(',', ': '))

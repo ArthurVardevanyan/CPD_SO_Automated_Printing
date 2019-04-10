@@ -51,7 +51,7 @@ if ( window.history.replaceState ) {  //Makes Redirects After Html Forms not lea
     include 'Functions.php';
     $folder = "School Orders";
 
-if (isset($_POST['FI']))
+if (isset($_POST['FI'])) #When just the INFO button is prssed, it gets the file info.
           {
             $ONumber = $_POST['OrderNumber'];
             $Folders =  FolderList($folder);
@@ -59,7 +59,7 @@ if (isset($_POST['FI']))
             $Files = FilesList($folder, $OName);
             File_Information($folder, $Folders,$OName,$Files);
           }
-if (isset($_POST['FIO']))
+if (isset($_POST['FIO'])) #Same as Info Button, but opens all the files.
           {
             $ONumber = $_POST['OrderNumber'];
             $Folders =  FolderList($folder);
@@ -74,9 +74,10 @@ if (isset($_POST['FIO']))
           }
 
 
-if (isset($_POST['RUN']))
+if (isset($_POST['RUN']))#This setups up the linux cups command with the correct paramters to send to the printer.
       {
 
+        #Command List
         $ONumber = $_POST['OrderNumber'];
         $Collate = ["-o Collate=True","-o Collate=False"];
         $speed = ["", "-o XROutputMode=HighSpeed", "-o XROutputMode=HighResolution"];
@@ -104,6 +105,7 @@ if (isset($_POST['RUN']))
         $Files = FilesList($folder, $OName);
         File_Information($folder, $Folders,$OName,$Files);
 
+        #Some math to determine how many times to send the job and at what quantities.
           if($TotalQTY == $QTY*$SETS){
               for($x = 0; $x <  $SETS ; $x++)
               {
@@ -112,7 +114,6 @@ if (isset($_POST['RUN']))
           }
           else
           {
-
               array_push($QTYA, $QTY);
               for ($x = 0; $x < ($SETS-1); $x++){
                   if($TotalQTY-$QTY > 0){
@@ -125,6 +126,7 @@ if (isset($_POST['RUN']))
                     }
             }
           }
+          #Display & Sends the commands to the printer
             for($x = 0; $x < $SETS ; $x++){
               foreach( $Files as $files){
                 echo "<br>";
@@ -136,8 +138,6 @@ if (isset($_POST['RUN']))
                   foreach( $Files as $files){
                 $output = "lpr -#" . (string)$QTYA[$x] . " " . $staple[$S] . " " . $punch[$HP] . "  " . $sides[$Duplex] . "  " . '"' .$folder."/".$OName."/".$files.'" > /dev/null 2>&1 &';
                 exec($output);
-
-
 
             }
             }
