@@ -169,6 +169,5 @@ def main():
         print("ERROR: Unable to open mailbox ", rv)
     M.logout()
 
-
 if __name__ == "__main__":
     main()
