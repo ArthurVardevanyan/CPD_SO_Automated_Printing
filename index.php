@@ -15,7 +15,7 @@ if ( window.history.replaceState ) {  //Makes Redirects After Html Forms not lea
     window.history.replaceState( null, null, window.location.href );
 }
 </script></head>
-<h2>School Order Printer Rev 20190413</h2>
+<h2>School Order Printer Rev 20190422</h2>
 <form action='index.php' method='post'>
   <h3>File Info</h3>
   <input type="Number" name="OrderNumber" min="0" required>Order Number<br>
@@ -45,8 +45,17 @@ if ( window.history.replaceState ) {  //Makes Redirects After Html Forms not lea
   <input type="Number" name="SETS" value="1" min="0" required>Sets <br>
   <input type="Number" name="CP" min="0" max="999" required>Copies Per Set<br>
 
-        <input type='submit' name='RUN' value='RUN'><br>
-    </form><br><br><br>
+        <input type='submit' name='RUN' value='RUN'>
+    </form>
+
+    <form action='index.php' method='post'><br><br><br>
+      <input type="Number" name="OrderNumber" min="0" required>Order Number<br>
+
+    <input type='submit' name='Auto' value='Auto_RUN'><br>
+    </form>
+
+
+    <br><br><br>
     <?php
 include 'Functions.php';
 $folder = "School_Orders";
@@ -58,6 +67,7 @@ if (isset($_POST['FI'])) #When just the INFO button is prssed, it gets the file 
     $OName = OrderName($Folders, $ONumber);
     $Files = FilesList($folder, $OName);
     File_Information($folder, $Folders, $OName, $Files);
+    $JobData = JSONread($folder, $OName);
 }
 if (isset($_POST['FIO'])) #Same as Info Button, but opens all the files.
 {
@@ -131,20 +141,88 @@ if (isset($_POST['RUN'])) #This setups up the linux cups command with the correc
     for ($x = 0; $x < $SETS; $x++) {
         foreach ($Files as $files) {
             echo "<br>";
-            $output = "lpr -#" . (string) $QTYA[$x] . " " . $staple[$S] . " " . $punch[$HP] . "  " . $sides[$Duplex] . "  " . $speed[$Speed] . "
-            " . $OffSet[$offset] . "  " . $Collate[$Collation] . " " . '"' . $folder . "/" . $OName . "/" . $files . '" > /dev/null 2>&1 &';
+            $output = "lpr -#" . (string) $QTYA[$x] . " " . $staple[$S] . " " . $punch[$HP] . "  " . $sides[$Duplex] . "  " . $speed[$Speed] . " " . $OffSet[$offset] . "  " . $Collate[$Collation] . " " . '"' . $folder . "/" . $OName . "/" . $files . '" > /dev/null 2>&1 &';
             echo $output;
         }
     }
 
     for ($x = 0; $x < $SETS; $x++) {
         foreach ($Files as $files) {
-            $output = "lpr -#" . (string) $QTYA[$x] . " " . $staple[$S] . " " . $punch[$HP] . "  " . $sides[$Duplex] . "  " . $speed[$Speed] . "
-            " . $OffSet[$offset] . "  " . $Collate[$Collation] . " " . '"' . $folder . "/" . $OName . "/" . $files . '" > /dev/null 2>&1 &';
+            $output = "lpr -#" . (string) $QTYA[$x] . " " . $staple[$S] . " " . $punch[$HP] . "  " . $sides[$Duplex] . "  " . $speed[$Speed] . " " . $OffSet[$offset] . "  " . $Collate[$Collation] . " " . '"' . $folder . "/" . $OName . "/" . $files . '" > /dev/null 2>&1 &';
             exec($output);
 
         }
     }
+}
+
+
+
+
+if (isset($_POST['Auto'])) #This setups up the linux cups command with the correct paramters to send to the printer.
+{
+
+    #Command List
+    $ONumber = $_POST['OrderNumber'];
+    $speed = ["", "-o XROutputMode=HighSpeed", "-o XROutputMode=HighResolution"];
+    $sides = ["", "-o sides=two-sided-long-edge", "-o sides=two-sided-short-edge"];
+    $staple = ["", "-o XRStapleOption=SinglePortrait", "-o XRStapleOption=DualPortrait"];
+    $punch = ["", "-o XRPunchOption=3Punch"];
+    $QTYA = [];
+    $TotalQTY = $_POST['TC'];
+    $SETS =  1;
+    $QTY = (int) $_POST['CP'];
+    $Duplex = 0;
+    $HP = 0;
+    $S = 1;
+    $Speed = $_POST['Speed'];
+    $offset = $_POST['OffSet'];
+    $Collation = $_POST['Collation'];
+
+    $Folders = FolderList($folder);
+    $OName = OrderName($Folders, $ONumber);
+    $Files = FilesList($folder, $OName);
+    File_Information($folder, $Folders, $OName, $Files);
+
+
+    $JobData = JSONread($folder, $OName);
+    $CanRun = CanRun($JobData);
+
+    if($CanRun == False)
+    {
+      echo"<p style='color:red'> I can't Run this automagically <p>";
+
+    }
+    else{
+        echo"<p style='color:green'> I can Run this automagically <p>";
+    if($JobData["Stapling"] == "Upper Left - portrait")
+    {
+       $S = 1;
+    }
+    if($JobData["Drilling - Three Hole Punch"] == "Yes")
+    {
+       $HP = 1;
+    }
+    if($JobData["Duplex"] == "Two-sided (back to back)")
+    {
+       $Duplex = 1;
+    }
+
+    for ($x = 0; $x < $SETS; $x++) {
+        foreach ($Files as $files) {
+            echo "<br>";
+            $output = "lpr -#" . (string) $JobData["Copies"] . " " . $staple[$S] . " " . $punch[$HP] . "  " . $sides[$Duplex] . '"' . $folder . "/" . $OName . "/" . $files . '" > /dev/null 2>&1 &';
+            echo $output;
+        }
+    }
+
+    for ($x = 0; $x < $SETS; $x++) {
+        foreach ($Files as $files) {
+          $output = "lpr -#" . (string) $JobData["Copies"] . " " . $staple[$S] . " " . $punch[$HP] . "  " . $sides[$Duplex] . '"' . $folder . "/" . $OName . "/" . $files . '" > /dev/null 2>&1 &';
+            exec($output);
+
+        }
+    }
+}
 }
 ?>
       </body>

@@ -14,6 +14,24 @@ function OrderName($Folders, $ONumber){
     }
 }
 #Gets a list of all the Orders Downloaded
+function JSONread($folder, $foldername){
+
+  // load file
+  $data = file_get_contents($folder . "/" . $foldername ."/" . $foldername . '.json');
+
+  // decode json to associative array
+  $json_arr = json_decode($data, true);
+//  var_dump($json_arr);
+
+
+  echo  $json_arr["Ran"];
+  //foreach ($json_arr as $key => $value) {
+    //  echo  $json_arr[$key] . " : " .  $json_arr[$value] . "<br/>";
+  //};
+
+return $json_arr;
+
+}
 function FolderList($folder){
       $Stripped_List = [];
       $fileList = glob($folder . "/*");  # Gathers all the Folders
@@ -48,6 +66,23 @@ function File_Information($folder, $Folders,$OName,$Files){
 }
 
 
+
+function CanRun($JobInfo)
+{
+  if($JobInfo["Ran"] == "True")
+    return false;
+  if($JobInfo["Collation"] == "UnCollated")
+    return false;
+  if($JobInfo["Special Instructions"])
+    return false;
+  if($JobInfo["Stapling"] == "Double Left - portrait")
+      return false;
+  if($JobInfo["Front Cover"])
+        return false;
+  if($JobInfo["Back Cover"])
+        return false;
+  return true;
+}
 
 
 
