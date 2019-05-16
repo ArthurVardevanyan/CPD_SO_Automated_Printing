@@ -6,7 +6,6 @@ from files import FolderList
 from files import FilesList
 
 
-
 def SchoolDataJson(OrderNumber, folder):
     SchoolData = {'Account ID':'CHANGEME'}
     OName = " " #This is the Order Name taken from the subject line.
@@ -119,7 +118,9 @@ def SchoolDataJson(OrderNumber, folder):
                 TestString = "Deliver To: "
                 line = lines.split(TestString)
                 SchoolData["Deliver To Name"] = line[1]
+        SchoolData["Ran"] = "False";
 
                 #Creates the JSON file
     with open(folder+'/'+OName+'/'+OName+'.json', 'w') as outfile:
         json.dump(SchoolData, outfile, indent=4, separators=(',', ': '))
+
