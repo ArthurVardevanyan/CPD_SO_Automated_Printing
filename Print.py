@@ -5,15 +5,13 @@ from files import FolderList
 from files import FilesList
 from files import PostList
 import json
+
+
 def CanRun(JobInfo):
-    
-    JobInfo.get('ront Cover', False)
+
     if(JobInfo.get('Ran', False) == "True"):
         return False
-    if(JobInfo.get('Collation', False) == "UnCollated"):
-        return False
-    if(JobInfo.get('Special Instructions', False)):
-        return False
+    
     if(JobInfo.get('Stapling', False) == "Double Left - portrait"):
         return False
     if(JobInfo.get('Front Cover', False)):
@@ -22,7 +20,35 @@ def CanRun(JobInfo):
         return False
     return True
 
-    
+
+def Digit(numList):
+    return int(''.join(str(i) for i in numList))
+    # https://stackoverflow.com/questions/489999/convert-list-of-ints-to-one-number
+
+
+def SuggestedPrinting(Collation, Duplex, Stapling, Punch):
+    Code = Digit([Collation, Duplex, Stapling, Punch])
+
+    InToOut = {
+        2111: 0,
+        2211: 1,
+        2121: 2,
+        2221: 3,
+        2112: 4,
+        2212: 5,
+        2122: 6,
+        2222: 7,
+        0000: 8,
+        1000: 9,
+        1111: 10,
+        1211: 11,
+        2000: 12,
+        3000: 13,
+        1112: 14,
+        1212: 15,
+
+    }
+    return InToOut.get(Code, None)
 
 
 def Printing(OrderNumber, folder):
@@ -37,17 +63,14 @@ def Printing(OrderNumber, folder):
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     Files = FilesList(folder, OName)
 
-
-    with open(folder+'/'+OName+'/'+OName+'.json') as json_file:  
+    with open(folder+'/'+OName+'/'+OName+'.json') as json_file:
         JobInfo = json.load(json_file)
-
-
 
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(Files)):
         pdf = PdfFileReader(open(folder+'/'+OName+'/'+Files[i], "rb"))
-        print("File Name:" + Files[i] +
-              " Page Count: " + str(pdf.getNumPages()))
+        print("Page Count: " + str(pdf.getNumPages()) +
+              " FileName: " + Files[i])
 
     PO = ['00 Normal.ps',
           '01 Duplex.ps',
@@ -68,8 +91,32 @@ def Printing(OrderNumber, folder):
           ]
 
     if (CanRun(JobInfo)):
-        print("We are a go for AutoRun in The Future....!...")
-
+        print("\nThis Job Is AutoRun Compatible...!...")
+        if(JobInfo.get('Duplex', False) == "Two-sided (back to back)"):
+            Duplex = 2
+        else:
+            Duplex = 1
+        if(JobInfo.get('Stapling', False) == "Upper Left - portrait"):
+            Stapling = 2
+        else:
+            Stapling = 1
+        if(JobInfo.get('Drilling', False) == "Yes"):
+            Punch = 2
+        else:
+            Punch = 1
+        if(JobInfo.get('Collation', False) == "Collated"):
+            Collation = 2
+        else:
+            Collation = 1
+        if(JobInfo.get('Collation', False) == "UnCollated"):
+            return False
+        
+        print("I Suggest: " +
+              PO[SuggestedPrinting(Collation, Duplex, Stapling, Punch)])
+        if(JobInfo.get('Special Instructions', False)):
+            print("Please Read the Special Instructions: " + JobInfo.get('Special Instructions', False))
+        if(JobInfo.get('Slip Sheets / Shrink Wrap', False)):
+            print("Please Keeping this in mind: " + JobInfo.get('Slip Sheets / Shrink Wrap', False))
     print("\nPrinting Options:\n")
     for i in PO:
         print(i)
@@ -113,16 +160,24 @@ def Printing(OrderNumber, folder):
 
     LPR = ["lpr -S 10.56.54.156 -P PS ", "lpr -S 10.56.54.162 -P PS "]
 
-
     for i in range(Sets):
         for j in range(len(Print_Files)):
             print("File Name:" + Print_Files[j])
     for i in range(Sets):
         for j in range(len(Print_Files)):
             print(LPR[LP] + Print_Files[j])
-            
-            
 
-print("REV: 20190517")
-Printing(str(input("Type In an Order Number: ")), "School_Orders")
+
+loop = True
+while(loop):
+    print("Terminal AutoPrinting REV: 20190517")
+    print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
+    Printing(str(input("Type In an Order Number: ")), "School_Orders")
+    
+    if(int(input("Submit Another Order?  Yes : 1 | No : 0 ")) == 1):
+        loop = True
+    else:
+        loop = False
+    os.system('clear')  
+    #os.system('cls')  # on windows
 
