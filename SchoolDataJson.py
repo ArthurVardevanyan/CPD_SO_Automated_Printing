@@ -118,7 +118,7 @@ def SchoolDataJson(OrderNumber, folder):
                 TestString = "Deliver To: "
                 line = lines.split(TestString)
                 SchoolData["Deliver To Name"] = line[1]
-        SchoolData["Ran"] = "False";
+        SchoolData["Ran"] = "False"
 
                 #Creates the JSON file
     with open(folder+'/'+OName+'/'+OName+'.json', 'w') as outfile:
