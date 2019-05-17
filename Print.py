@@ -11,9 +11,11 @@ def CanRun(JobInfo):
 
     if(JobInfo.get('Ran', False) == "True"):
         return False
-    
-    if(JobInfo.get('Stapling', False) == "Double Left - portrait"):
+    if(JobInfo.get('Paper', False) != "8.5 x 11 Paper White"):
         return False
+    if(JobInfo.get('Stapling', False)):
+        if(JobInfo.get('Stapling', False) != "Upper Left - portrait"):
+            return False
     if(JobInfo.get('Front Cover', False)):
         return False
     if(JobInfo.get('Back Cover', False)):
@@ -53,12 +55,21 @@ def SuggestedPrinting(Collation, Duplex, Stapling, Punch):
 
 def Printing(OrderNumber, folder):
 
-    OName = " "  # This is the Order Name taken from the subject line.
+    OName = "No Order Selected"  # This is the Order Name taken from the subject line.
     # Calls a function in files.py, which gets a list of all the orders downladed
     Folders = FolderList(folder)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
         if OrderNumber in i:
             OName = i
+
+    print(OName)
+    if(OName == "No Order Selected"):
+        print("Order Number is not Valid")
+        return
+    if(int(input("Confirm Order Yes : 1 | No : 0 ")) == 0):
+        return
+
+
 
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     Files = FilesList(folder, OName)
@@ -89,9 +100,12 @@ def Printing(OrderNumber, folder):
           '14 SS Slipt Punch Uncollated.ps',
           '15 DS Slipt Punch Uncollated.ps',
           ]
+    print("\nPrinting Options:\n")
+    for i in PO:
+        print(i)
 
     if (CanRun(JobInfo)):
-        print("\nThis Job Is AutoRun Compatible...!...")
+        print("\n!---This Job Is AutoRun Compatible---!")
         if(JobInfo.get('Duplex', False) == "Two-sided (back to back)"):
             Duplex = 2
         else:
@@ -110,20 +124,25 @@ def Printing(OrderNumber, folder):
             Collation = 1
         if(JobInfo.get('Collation', False) == "UnCollated"):
             return False
-        
-        print("I Suggest: " +
-              PO[SuggestedPrinting(Collation, Duplex, Stapling, Punch)])
+        try:
+            print("I Suggest: " +
+                  PO[SuggestedPrinting(Collation, Duplex, Stapling, Punch)])
+        except:
+            print("ERROR: Something Doesn't add up with job specs, please check instruction sheet.")
         if(JobInfo.get('Special Instructions', False)):
-            print("Please Read the Special Instructions: " + JobInfo.get('Special Instructions', False))
-        if(JobInfo.get('Slip Sheets / Shrink Wrap', False)):
-            print("Please Keeping this in mind: " + JobInfo.get('Slip Sheets / Shrink Wrap', False))
-    print("\nPrinting Options:\n")
-    for i in PO:
-        print(i)
+            print("SPECIAL INSTRUCTIONS: " + JobInfo.get('Special Instructions', False))
+    else:
+        if(int(input("\nThis Order Currently Does not Support AutoSelection, please double chek if the order requires the normal driver. Continue : 1 | Exit : 0 ") != 1)):
+            return
+    
     PC = int(input("\nChoose a Printing Option: "))
-    LP = int(input("\nChoose a Printer: 156 (0), 162 (1): "))
+    LP = int(input("Choose a Printer: 156 (0), 162 (1): "))
+    print("\nNumber of (Total) Copies Listed Per File: " + JobInfo.get('Copies', False))
+    if(JobInfo.get('Slip Sheets / Shrink Wrap', False)):
+            print("SPECIAL INSTRUCTIONS: " + JobInfo.get('Slip Sheets / Shrink Wrap', False))
+    print("If more than one set is requried, do the appriate calculation to determine correct amount of Sets and Copies per Set")
     Sets = int(input("\nHow Many Sets?: "))
-    CPS = int(input("\nHow Many Copies Per Set?: "))
+    CPS = int(input("How Many Copies Per Set?: "))
     Copies_Command = str(
         '@PJL XCPT 		<copies syntax="integer">'+str(CPS)+'</copies>')
     with open('PJL_Commands/' + PO[PC]) as f:
@@ -173,7 +192,7 @@ while(loop):
     print("Terminal AutoPrinting REV: 20190517")
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
     Printing(str(input("Type In an Order Number: ")), "School_Orders")
-    
+
     if(int(input("Submit Another Order?  Yes : 1 | No : 0 ")) == 1):
         loop = True
     else:
