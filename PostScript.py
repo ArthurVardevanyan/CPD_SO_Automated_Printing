@@ -4,7 +4,6 @@ import glob
 import sys
 from files import FolderList
 from files import FilesList
-import ghostscript
 import sys
 import locale
 
@@ -23,7 +22,7 @@ def Postscript(OrderNumber, folder):
     except OSError:
         print("Creation of the directory failed " + path + "/" +folder+"/"+OName+ "/PostScript")
     
-#    GPS = GS
+    #GSP = 'gs'
     GSP = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
 
 
