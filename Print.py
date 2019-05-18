@@ -159,33 +159,35 @@ def Printing(OrderNumber, folder):
 
     path = os.getcwd()  # Current Path
     try:
-        os.makedirs(path + "/" + folder+"/"+OName + "/PostScript_Print")
+        os.makedirs(path + "/" + folder+"/"+OName + "/PSP")
         print("Successfully created the directory " + path +
-              "/" + folder+"/"+OName + "/PostScript_Print")
+              "/" + folder+"/"+OName + "/PSP")
     except OSError:
         print("Creation of the directory failed " + path +
-              "/" + folder+"/"+OName + "/PostScript_Print")
+              "/" + folder+"/"+OName + "/PSP")
 
     for i in range(len(Files)):
         filenames = ['PJL_Commands/input.ps', folder+"/"+OName +
                      "/PostScript/"+Files[i]+".ps", 'PJL_Commands/End.ps']
-        with open(folder+"/"+OName + "/PostScript_Print/"+Files[i]+".ps", 'w') as outfile:
+        with open(folder+"/"+OName + "/PSP/"+Files[i][:15]+".ps", 'w') as outfile:
             for fname in filenames:
                 with open(fname) as infile:
                     for line in infile:
                         outfile.write(line)
 
-    Print_Files = PostList(folder, OName, "PostScript_Print")
+    Print_Files = PostList(folder, OName, "PSP")
 
-    LPR = ["lpr -S 10.56.54.156 -P PS ", "lpr -S 10.56.54.162 -P PS "]
+    LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ", "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
     for i in range(Sets):
         for j in range(len(Print_Files)):
-            print("File Name:" + Print_Files[j])
+            print("File Name: " + Print_Files[j])
     for i in range(Sets):
         for j in range(len(Print_Files)):
-            print(LPR[LP] + Print_Files[j])
-
+            LPRP = LPR[LP] + '"' + folder+"/"+OName + "/PSP/" + Print_Files[j] + '"'
+            print(LPRP)
+            os.system(LPRP)
+           
 
 loop = True
 while(loop):
@@ -197,6 +199,5 @@ while(loop):
         loop = True
     else:
         loop = False
-    os.system('clear')  
-    #os.system('cls')  # on windows
-
+    #os.system('clear')  
+    os.system('cls')  # on windows
