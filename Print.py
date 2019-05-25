@@ -5,6 +5,7 @@ from files import FolderList
 from files import FilesList
 from files import PostList
 import json
+from BannerSheet import bannerSheet
 
 
 def CanRun(JobInfo):
@@ -75,7 +76,8 @@ def Printing(OrderNumber, folder):
 
     with open(folder+'/'+OName+'/'+OName+'.json') as json_file:
         JobInfo = json.load(json_file)
-
+    
+    BannerFile = bannerSheet(JobInfo, folder+'/'+OName+'/')
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(Files)):
         pdf = PdfFileReader(open(folder+'/'+OName+'/'+Files[i], "rb"))
@@ -183,9 +185,13 @@ def Printing(OrderNumber, folder):
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
+    print(BannerFile)
     for i in range(Sets):
         for j in range(len(Print_Files)):
             print("File Name: " + Print_Files[j])
+    LPRP = LPR[LP] + '"' + BannerFile + '"'
+    print(LPRP)
+    os.system(LPRP)
     for i in range(Sets):
         for j in range(len(Print_Files)):
             LPRP = LPR[LP] + '"' + folder+"/" + \
