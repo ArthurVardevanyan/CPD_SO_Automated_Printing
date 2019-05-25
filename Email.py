@@ -120,21 +120,21 @@ def process_mailbox(M):
         except:
             print("JSON File Failed")
         try:
-           #Create PostScript File
-           Postscript(OrderNumber, "School_Orders")
+            # Create PostScript File
+            Postscript(OrderNumber, "School_Orders")
         except:
-           print("PostScript")
-       # try:
+            print("PostScript")
+        # try:
             # Stores a copy of new orders on a network drive for easy acess.
-         #   os.mkdir(NetworkP)
-      #  except:
+            #os.mkdir(NetworkP)
+        #  except:
         #    print("School Order Main Folder Creation Failed, Probbly Already Exsists")
-      #  try:
+        #  try:
             # Copies the Files
         #    shutil.copytree(OUTPUT_DIRECTORY+OrderNumber+" " +
         #                    Subject, NetworkP + "/" + OrderNumber+" "+Subject)
-       # except:
-       #     print("Sub Folder Copy Failed")
+        # except:
+        #     print("Sub Folder Copy Failed")
         EmailsProccessed += 1
     return EmailsProccessed
 
@@ -175,6 +175,7 @@ def main():
     else:
         print("ERROR: Unable to open mailbox ", rv)
     M.logout()
+
 
 if __name__ == "__main__":
     main()

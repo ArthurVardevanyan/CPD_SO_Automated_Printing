@@ -55,7 +55,8 @@ def SuggestedPrinting(Collation, Duplex, Stapling, Punch):
 
 def Printing(OrderNumber, folder):
 
-    OName = "No Order Selected"  # This is the Order Name taken from the subject line.
+    # This is the Order Name taken from the subject line.
+    OName = "No Order Selected"
     # Calls a function in files.py, which gets a list of all the orders downladed
     Folders = FolderList(folder)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
@@ -68,8 +69,6 @@ def Printing(OrderNumber, folder):
         return
     if(int(input("Confirm Order Yes : 1 | No : 0 ")) == 0):
         return
-
-
 
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     Files = FilesList(folder, OName)
@@ -128,18 +127,22 @@ def Printing(OrderNumber, folder):
             print("I Suggest: " +
                   PO[SuggestedPrinting(Collation, Duplex, Stapling, Punch)])
         except:
-            print("ERROR: Something Doesn't add up with job specs, please check instruction sheet.")
+            print(
+                "ERROR: Something Doesn't add up with job specs, please check instruction sheet.")
         if(JobInfo.get('Special Instructions', False)):
-            print("SPECIAL INSTRUCTIONS: " + JobInfo.get('Special Instructions', False))
+            print("SPECIAL INSTRUCTIONS: " +
+                  JobInfo.get('Special Instructions', False))
     else:
         if(int(input("\nThis Order Currently Does not Support AutoSelection, please double chek if the order requires the normal driver. Continue : 1 | Exit : 0 ") != 1)):
             return
 
     PC = int(input("\nChoose a Printing Option: "))
     LP = int(input("Choose a Printer: 156 (0), 162 (1): "))
-    print("\nNumber of (Total) Copies Listed Per File: " + JobInfo.get('Copies', False))
+    print("\nNumber of (Total) Copies Listed Per File: " +
+          JobInfo.get('Copies', False))
     if(JobInfo.get('Slip Sheets / Shrink Wrap', False)):
-            print("SPECIAL INSTRUCTIONS: " + JobInfo.get('Slip Sheets / Shrink Wrap', False))
+        print("SPECIAL INSTRUCTIONS: " +
+              JobInfo.get('Slip Sheets / Shrink Wrap', False))
     print("If more than one set is requried, do the appriate calculation to determine correct amount of Sets and Copies per Set")
     Sets = int(input("\nHow Many Sets?: "))
     CPS = int(input("How Many Copies Per Set?: "))
@@ -173,18 +176,20 @@ def Printing(OrderNumber, folder):
             for fname in filenames:
                 with open(fname, 'rb') as infile:
                     for line in infile:
-                        outfile.write (line)
+                        outfile.write(line)
 
     Print_Files = PostList(folder, OName, "PSP")
 
-    LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ", "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
+    LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
+           "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
     for i in range(Sets):
         for j in range(len(Print_Files)):
             print("File Name: " + Print_Files[j])
     for i in range(Sets):
         for j in range(len(Print_Files)):
-            LPRP = LPR[LP] + '"' + folder+"/"+OName + "/PSP/" + Print_Files[j] + '"'
+            LPRP = LPR[LP] + '"' + folder+"/" + \
+                OName + "/PSP/" + Print_Files[j] + '"'
             print(LPRP)
             os.system(LPRP)
 
