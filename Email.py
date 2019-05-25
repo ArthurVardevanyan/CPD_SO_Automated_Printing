@@ -10,14 +10,15 @@ import re
 from SchoolDataJson import SchoolDataJson
 from PostScript import Postscript
 
-Revision = "20190516"
+Revision = "20190525"
 print("School Order Downloader Revision: ", Revision)
 
 IMAP_SERVER = 'imap.gmail.com'
 EMAIL_ACCOUNT = "@gmail.com"
 EMAIL_FOLDER = "Inbox"
 OUTPUT_DIRECTORY = 'School_Orders/'
-NetworkP = "P:/OneTimeJobs/School Orders"
+#NetworkP = "P:/OneTimeJobs/School Orders"
+NetworkP = "temp"
 PASSWORD = getpass.getpass()
 
 # This Function extracts the Google Drive FileIDs from the contents of the Email
@@ -119,21 +120,21 @@ def process_mailbox(M):
         except:
             print("JSON File Failed")
         try:
-            # Create PostScript File
-            Postscript(OrderNumber, "School_Orders")
+           #Create PostScript File
+           Postscript(OrderNumber, "School_Orders")
         except:
-            print("PostScript")
-        try:
+           print("PostScript")
+       # try:
             # Stores a copy of new orders on a network drive for easy acess.
-            os.mkdir(NetworkP)
-        except:
-            print("School Order Main Folder Creation Failed, Probbly Already Exsists")
-        try:
+         #   os.mkdir(NetworkP)
+      #  except:
+        #    print("School Order Main Folder Creation Failed, Probbly Already Exsists")
+      #  try:
             # Copies the Files
-            shutil.copytree(OUTPUT_DIRECTORY+OrderNumber+" " +
-                            Subject, NetworkP + "/" + OrderNumber+" "+Subject)
-        except:
-            print("Sub Folder Copy Failed")
+        #    shutil.copytree(OUTPUT_DIRECTORY+OrderNumber+" " +
+        #                    Subject, NetworkP + "/" + OrderNumber+" "+Subject)
+       # except:
+       #     print("Sub Folder Copy Failed")
         EmailsProccessed += 1
     return EmailsProccessed
 

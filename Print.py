@@ -134,7 +134,7 @@ def Printing(OrderNumber, folder):
     else:
         if(int(input("\nThis Order Currently Does not Support AutoSelection, please double chek if the order requires the normal driver. Continue : 1 | Exit : 0 ") != 1)):
             return
-    
+
     PC = int(input("\nChoose a Printing Option: "))
     LP = int(input("Choose a Printer: 156 (0), 162 (1): "))
     print("\nNumber of (Total) Copies Listed Per File: " + JobInfo.get('Copies', False))
@@ -143,19 +143,19 @@ def Printing(OrderNumber, folder):
     print("If more than one set is requried, do the appriate calculation to determine correct amount of Sets and Copies per Set")
     Sets = int(input("\nHow Many Sets?: "))
     CPS = int(input("How Many Copies Per Set?: "))
-    Copies_Command = str(
-        '@PJL XCPT 		<copies syntax="integer">'+str(CPS)+'</copies>')
-    with open('PJL_Commands/' + PO[PC]) as f:
+    Copies_Command = str.encode(
+        '@PJL XCPT <copies syntax="integer">'+str(CPS)+'</copies>')
+    with open('PJL_Commands/' + PO[PC], 'rb') as f:
         lines = f.readlines()
 
     for i in range(len(lines)):
-        lines[i] = lines[i].rstrip()
+        #lines[i] = lines[i].rstrip()
         if str('<copies syntax="integer">') in str(lines[i]):
             lines[i] = Copies_Command
 
-    with open('PJL_Commands/input.ps', 'w') as f:
+    with open('PJL_Commands/input.ps', 'wb') as f:
         for item in lines:
-            f.write("%s\n" % item)
+            f.write(item)
 
     path = os.getcwd()  # Current Path
     try:
@@ -169,11 +169,11 @@ def Printing(OrderNumber, folder):
     for i in range(len(Files)):
         filenames = ['PJL_Commands/input.ps', folder+"/"+OName +
                      "/PostScript/"+Files[i]+".ps", 'PJL_Commands/End.ps']
-        with open(folder+"/"+OName + "/PSP/"+Files[i][:15]+".ps", 'w') as outfile:
+        with open(folder+"/"+OName + "/PSP/"+Files[i][:37]+".ps", 'wb') as outfile:
             for fname in filenames:
-                with open(fname) as infile:
+                with open(fname, 'rb') as infile:
                     for line in infile:
-                        outfile.write(line)
+                        outfile.write (line)
 
     Print_Files = PostList(folder, OName, "PSP")
 
@@ -187,11 +187,11 @@ def Printing(OrderNumber, folder):
             LPRP = LPR[LP] + '"' + folder+"/"+OName + "/PSP/" + Print_Files[j] + '"'
             print(LPRP)
             os.system(LPRP)
-           
+
 
 loop = True
 while(loop):
-    print("Terminal AutoPrinting REV: 20190517")
+    print("Terminal AutoPrinting REV: 20190525")
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
     Printing(str(input("Type In an Order Number: ")), "School_Orders")
 
@@ -199,5 +199,5 @@ while(loop):
         loop = True
     else:
         loop = False
-    #os.system('clear')  
+    #os.system('clear')
     os.system('cls')  # on windows
