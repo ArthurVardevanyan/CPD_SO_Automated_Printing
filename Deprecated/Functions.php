@@ -83,13 +83,3 @@ function CanRun($JobInfo)
         return false;
   return true;
 }
-
-
-
-
-
-
-
-
-
-?>
