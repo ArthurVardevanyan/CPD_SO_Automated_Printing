@@ -1,6 +1,6 @@
 import json
 
-
+#Setups up BannerSheet Postscript File
 def bannerSheet(JobInfo, path):
     with open('PJL_Commands/BannerSheetRed', 'rb') as f:
         bannerlines = f.readlines()
