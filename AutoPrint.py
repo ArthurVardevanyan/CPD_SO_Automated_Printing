@@ -6,6 +6,8 @@ from files import FilesList
 from files import PostList
 import json
 from BannerSheet import bannerSheet
+owd = os.getcwd()
+owd = owd.replace("\\", "/")
 
 
 def CanRun(JobInfo):
@@ -182,17 +184,19 @@ def Printing(OrderNumber, folder):
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
+     
     print(BannerFile)
     for i in range(Sets):
         for j in range(len(Print_Files)):
             print("File Name: " + Print_Files[j])
     LPRP = LPR[LP] + '"' + BannerFile + '"'
     print(LPRP)
-    os.system(LPRP)
+    np = owd+ '/'  + folder+'/' + OName + '/PSP'
+    os.chdir(np)
     for i in range(Sets):
         for j in range(len(Print_Files)):
-            LPRP = LPR[LP] + '"' + folder+"/" + \
-                OName + "/PSP/" + Print_Files[j] + '"'
+            LPRP = LPR[LP] + '"'+ Print_Files[j] + '"'
             print(LPRP)
             os.system(LPRP)
 
+    os.chdir(owd)
