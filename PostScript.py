@@ -31,7 +31,7 @@ def Postscript(OrderNumber, folder):
 
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(Files)):
-        os.system(GSP + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile="'+folder+'"/"' +
+        os.system(GSP + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="'+folder+'"/"' +
                   OName+'"/PostScript/"'+Files[i]+'.ps" "'+folder+'"/"'+OName+'"/"'+Files[i]+'" -c quit')
 
 

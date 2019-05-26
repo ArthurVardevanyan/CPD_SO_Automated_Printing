@@ -10,7 +10,7 @@ import re
 from SchoolDataJson import SchoolDataJson
 from PostScript import Postscript
 from AutoPrint import Printing
-Revision = "20190525"
+Revision = "20190526"
 print("School Order Downloader Revision: ", Revision)
 
 IMAP_SERVER = 'imap.gmail.com'
@@ -135,11 +135,11 @@ def process_mailbox(M):
         #                    Subject, NetworkP + "/" + OrderNumber+" "+Subject)
         # except:
         #     print("Sub Folder Copy Failed")
-        try:
+        #try:
             # Run the Job
-            Printing(OrderNumber, "School_Orders")
-        except:
-            print("Run Job Failure")
+            #Printing(OrderNumber, "School_Orders")
+       # except:
+           # print("Run Job Failure")
         EmailsProccessed += 1
     return EmailsProccessed
 
@@ -154,7 +154,7 @@ def main():
         print("Im Resting, Check Back Later:")
         while(1 == 1):  # Infinte Loop for checking emails
             try:
-                time.sleep(60)
+                time.sleep(240)
                 print("Running Loop")
                 M = imaplib.IMAP4_SSL(IMAP_SERVER)
                 M.login(EMAIL_ACCOUNT, PASSWORD)
