@@ -191,6 +191,7 @@ def Printing(OrderNumber, folder):
             print("File Name: " + Print_Files[j])
     LPRP = LPR[LP] + '"' + BannerFile + '"'
     print(LPRP)
+    os.system(LPRP)
     np = owd+ '/'  + folder+'/' + OName + '/PSP'
     os.chdir(np)
     for i in range(Sets):

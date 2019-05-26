@@ -77,7 +77,7 @@ def Printing(OrderNumber, folder):
 
     with open(folder+'/'+OName+'/'+OName+'.json') as json_file:
         JobInfo = json.load(json_file)
-    
+
     BannerFile = bannerSheet(JobInfo, folder+'/'+OName+'/')
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(Files)):
@@ -187,13 +187,14 @@ def Printing(OrderNumber, folder):
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
 
-    
+
     print(BannerFile)
     for i in range(Sets):
         for j in range(len(Print_Files)):
             print("File Name: " + Print_Files[j])
     LPRP = LPR[LP] + '"' + BannerFile + '"'
     print(LPRP)
+    os.system(LPRP)
     np = owd+ '/'  + folder+'/' + OName + '/PSP'
     os.chdir(np)
     for i in range(Sets):
@@ -205,7 +206,7 @@ def Printing(OrderNumber, folder):
 loop = True
 while(loop):
     os.chdir(owd)
-    print("Terminal AutoPrinting REV: 20190525")
+    print("Terminal AutoPrinting REV: 20190526")
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
     Printing(str(input("Type In an Order Number: ")), "School_Orders")
 
