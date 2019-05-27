@@ -27,9 +27,8 @@ def Postscript(OrderNumber, folder):
         print("Creation of the directory failed " +
               path + "/" + folder+"/"+OName + "/PostScript")
 
-    #GSP = 'gs'
     GSP = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
-
+    #GSP = 'gs'
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(Files)):
         os.system(GSP + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="'+folder+'"/"' +
@@ -37,24 +36,25 @@ def Postscript(OrderNumber, folder):
 
 
 def FileMerge(Files, folder, OName, Duplex):
-    GSP = 'gs'
-    #GSP = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
+    GSP = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
+    #GSP = 'gs'
     FilesPath = ''
     if Duplex == True:  # Adds blanks for doublesided uncollated printing
         for i in range(len(Files)):
             pdf = PdfFileReader(open(folder+'/'+OName+'/'+Files[i], "rb"))
             if (int(pdf.getNumPages()) % 2) != 0:
+                print("Adding Blank Page!")
                 output = '"' + folder+'/'+OName + \
                     '/PostScript/'+Files[i] + '.ps"'
                 src = '"' + folder+'/'+OName + '/'+Files[i] + '"'
                 GSC = GSP + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile=' + \
-                    output+'" '+src + ' PJL_Commands/Blank.ps -c quit'
+                    output+' '+src + ' PJL_Commands/Blank.ps -c quit'
                 os.system(GSC)
 
     # Merges Files for Uncollated Printing with SlipSheets
     for files in Files:
         FilesPath = FilesPath + '"' + folder+'/'+OName + '/PostScript/'+files + '.ps" '
-
+    print("These Files are being MERGED!!")
     output = folder+'/'+OName + '/'+OName + '.ps'
     GSC = GSP + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile="' + \
         output+'" ' + FilesPath + '  -c quit'

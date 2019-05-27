@@ -58,7 +58,7 @@ def Printing(OrderNumber, folder):
               " FileName: " + Files[i])
 
     if (CanRun(JobInfo)):
-        print("\n!---This Job Is AutoRun Compatible---!")
+        print("\n!---This Job Is Semi-AutoRun Compatible---!")
         print('My Suggestions are as Follows:')
         if(JobInfo.get('Collation', False) == "Collated"):
             Collation = str.encode(
@@ -113,9 +113,14 @@ def Printing(OrderNumber, folder):
     if(JobInfo.get('Slip Sheets / Shrink Wrap', False)):
         print("SPECIAL INSTRUCTIONS: " +
               JobInfo.get('Slip Sheets / Shrink Wrap', False))
-    print("If more than one set is requried, do the appriate calculation to determine correct amount of Sets and Copies per Set")
-    Sets = int(input("\nHow Many Sets?: "))
-    CPS = int(input("How Many Copies Per Set?: "))
+    if(JobInfo.get('Special Instructions', False) == False and JobInfo.get('Slip Sheets / Shrink Wrap', False) == False):
+        Sets = 1
+        CPS = int(JobInfo.get('Copies', False))
+        print("!--I WILL TAKE IT FROM HERE--!")
+    else:
+        print("If more than one set is requried, do the appriate calculation to determine correct amount of Sets and Copies per Set")
+        Sets = int(input("\nHow Many Sets?: "))
+        CPS = int(input("How Many Copies Per Set?: "))
     Copies_Command = str.encode(
         '@PJL XCPT <copies syntax="integer">'+str(CPS)+'</copies>\n')
     with open('PJL_Commands/PJL.ps', 'rb') as f:
@@ -133,11 +138,11 @@ def Printing(OrderNumber, folder):
             lines[i] = Collation
         if str('<sides syntax="keyword">one-sided</sides>') in str(lines[i]):
             lines[i] = Duplex
-        if str('<sheet-collate syntax="keyword">uncollated') in str(Collation) and str('<separator-sheets-type syntax="keyword">') in str(lines[i]):
-            lines[i] = '@PJL XCPT<media syntax="keyword">post-fuser-inserter</media>\n'
-            lines.insert(i, '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
-
-
+        if str('<sheet-collate syntax="keyword">uncollated') in str(Collation) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]):
+            lines[i] = str.encode(
+                '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
+            lines.insert(i, str.encode(
+                '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n'))
 
     with open('PJL_Commands/input.ps', 'wb') as f:
         for item in lines:
@@ -156,7 +161,8 @@ def Printing(OrderNumber, folder):
               "/" + folder+"/"+OName + "/PSP")
 
     if Merged == True:
-        filenames = ['PJL_Commands/input.ps', folder+"/"+OName +"/"+OName+".ps", 'PJL_Commands/End.ps']
+        filenames = ['PJL_Commands/input.ps', folder+"/" +
+                     OName + "/"+OName+".ps", 'PJL_Commands/End.ps']
         with open(folder+"/"+OName + "/PSP/"+OName+".ps", 'wb') as outfile:
             for fname in filenames:
                 with open(fname, 'rb') as infile:
@@ -189,20 +195,20 @@ def Printing(OrderNumber, folder):
             print("File Name: " + Print_Files[j])
     LPRP = LPR[LP] + '"' + BannerFile + '"'
     print(LPRP)
-    #os.system(LPRP)
+    os.system(LPRP)
     np = owd + '/' + folder+'/' + OName + '/PSP'
     os.chdir(np)
     for i in range(Sets):
         for j in range(len(Print_Files)):
             LPRP = LPR[LP] + '"' + Print_Files[j] + '"'
             print(LPRP)
-            #os.system(LPRP)
+            os.system(LPRP)
 
 
 loop = True
 while(loop):
     os.chdir(owd)
-    print("Terminal AutoPrinting REV: 20190526")
+    print("Terminal AutoPrinting REV: 20190527")
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
     Printing(str(input("Type In an Order Number: ")), "School_Orders")
 
@@ -210,5 +216,5 @@ while(loop):
         loop = True
     else:
         loop = False
-    # os.system('clear') # on linux
+    os.system('clear')  # on linux
     os.system('cls')  # on windows
