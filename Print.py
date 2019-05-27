@@ -9,6 +9,7 @@ from BannerSheet import bannerSheet
 owd = os.getcwd()
 owd = owd.replace("\\", "/")
 
+
 def CanRun(JobInfo):
 
     if(JobInfo.get('Ran', False) == "True"):
@@ -23,36 +24,6 @@ def CanRun(JobInfo):
     if(JobInfo.get('Back Cover', False)):
         return False
     return True
-
-
-def Digit(numList):
-    return int(''.join(str(i) for i in numList))
-    # https://stackoverflow.com/questions/489999/convert-list-of-ints-to-one-number
-
-
-def SuggestedPrinting(Collation, Duplex, Stapling, Punch):
-    Code = Digit([Collation, Duplex, Stapling, Punch])
-
-    InToOut = {
-        2111: 0,
-        2211: 1,
-        2121: 2,
-        2221: 3,
-        2112: 4,
-        2212: 5,
-        2122: 6,
-        2222: 7,
-        0000: 8,
-        1000: 9,
-        1111: 10,
-        1211: 11,
-        2000: 12,
-        3000: 13,
-        1112: 14,
-        1212: 15,
-
-    }
-    return InToOut.get(Code, None)
 
 
 def Printing(OrderNumber, folder):
@@ -85,53 +56,43 @@ def Printing(OrderNumber, folder):
         print("Page Count: " + str(pdf.getNumPages()) +
               " FileName: " + Files[i])
 
-    PO = ['00 Normal.ps',
-          '01 Duplex.ps',
-          '02 SS Staple.ps',
-          '03 DS Staple.ps',
-          '04 SS Punch.ps',
-          '05 DS Punch.ps',
-          '06 SS Staple Punch.ps',
-          '07 DS Staple Punch.ps',
-          '08 SS Slipt Collated.ps',
-          '09 DS Slipt Collated.ps',
-          '10 SS Slipt Uncollated.ps',
-          '11 DS Slipt Uncollated.ps',
-          '12 SS Slipt Punch Collated.ps',
-          '13 DS Slipt Punch Collated.ps',
-          '14 SS Slipt Punch Uncollated.ps',
-          '15 DS Slipt Punch Uncollated.ps',
-          ]
-    print("\nPrinting Options:\n")
-    for i in PO:
-        print(i)
-
     if (CanRun(JobInfo)):
         print("\n!---This Job Is AutoRun Compatible---!")
+        print('My Suggestions are as Follows:')
         if(JobInfo.get('Duplex', False) == "Two-sided (back to back)"):
-            Duplex = 2
+            Duplex = str.encode(
+                '@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>\n')
+            print('Double Sided')
         else:
-            Duplex = 1
+            Duplex = str.encode(
+                '@PJL XCPT <sides syntax="keyword">one-sided</sides>\n')
+            print('Single Sided')
         if(JobInfo.get('Stapling', False) == "Upper Left - portrait"):
-            Stapling = 2
+            Stapling = str.encode(
+                '@PJL XCPT <value syntax="enum">20</value>\n')
+            print("Staple - Upper Left - portrait")
         else:
-            Stapling = 1
+            Stapling = str.encode('')
         if(JobInfo.get('Drilling', False) == "Yes"):
-            Punch = 2
+            Punch = str.encode(
+                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>\n')
+            print('Hole Punched')
         else:
-            Punch = 1
+            Punch = str.encode('')
         if(JobInfo.get('Collation', False) == "Collated"):
-            Collation = 2
+            Collation = str.encode(
+                '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
+            print('Collated')
         else:
-            Collation = 1
-        if(JobInfo.get('Collation', False) == "UnCollated"):
-            return False
-        try:
-            print("I Suggest: " +
-                  PO[SuggestedPrinting(Collation, Duplex, Stapling, Punch)])
-        except:
-            print(
-                "ERROR: Something Doesn't add up with job specs, please check instruction sheet.")
+            Collation = str.encode(
+                '@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')
+            print('UnCollated')
+        if(JobInfo.get('Stapling', False) != "Upper Left - portrait" and JobInfo.get('Drilling', False) != "Yes"):
+            default = str.encode('@PJL XCPT <value syntax="enum">3</value>\n')
+            print('No Finishing')
+        else:
+            default = str.encode('')
+
         if(JobInfo.get('Special Instructions', False)):
             print("SPECIAL INSTRUCTIONS: " +
                   JobInfo.get('Special Instructions', False))
@@ -139,7 +100,6 @@ def Printing(OrderNumber, folder):
         if(int(input("\nThis Order Currently Does not Support AutoSelection, please double chek if the order requires the normal driver. Continue : 1 | Exit : 0 ") != 1)):
             return
 
-    PC = int(input("\nChoose a Printing Option: "))
     LP = int(input("Choose a Printer: 156 (0), 162 (1): "))
     print("\nNumber of (Total) Copies Listed Per File: " +
           JobInfo.get('Copies', False))
@@ -150,14 +110,22 @@ def Printing(OrderNumber, folder):
     Sets = int(input("\nHow Many Sets?: "))
     CPS = int(input("How Many Copies Per Set?: "))
     Copies_Command = str.encode(
-        '@PJL XCPT <copies syntax="integer">'+str(CPS)+'</copies>')
-    with open('PJL_Commands/' + PO[PC], 'rb') as f:
+        '@PJL XCPT <copies syntax="integer">'+str(CPS)+'</copies>\n')
+    with open('PJL_Commands/PJL.ps', 'rb') as f:
         lines = f.readlines()
 
     for i in range(len(lines)):
-        #lines[i] = lines[i].rstrip()
         if str('<copies syntax="integer">') in str(lines[i]):
             lines[i] = Copies_Command
+        if str('<value syntax="enum">3</value>') in str(lines[i]):
+            lines[i] = default
+            if str('<value syntax="enum">3</value>') not in str(default):
+                lines.insert(i, Stapling)
+                lines.insert(i+1, Punch)
+        if str('<sheet-collate syntax="keyword">') in str(lines[i]):
+            lines[i] = Collation
+        if str('<sides syntax="keyword">one-sided</sides>') in str(lines[i]):
+            lines[i] = Duplex
 
     with open('PJL_Commands/input.ps', 'wb') as f:
         for item in lines:
@@ -186,7 +154,10 @@ def Printing(OrderNumber, folder):
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
-
+    try:
+        os.remove("PJL_Commands/input.ps")
+    except:
+        print("Temp File Remove Failed")
 
     print(BannerFile)
     for i in range(Sets):
@@ -195,13 +166,14 @@ def Printing(OrderNumber, folder):
     LPRP = LPR[LP] + '"' + BannerFile + '"'
     print(LPRP)
     os.system(LPRP)
-    np = owd+ '/'  + folder+'/' + OName + '/PSP'
+    np = owd + '/' + folder+'/' + OName + '/PSP'
     os.chdir(np)
     for i in range(Sets):
         for j in range(len(Print_Files)):
-            LPRP = LPR[LP] + '"'+ Print_Files[j] + '"'
+            LPRP = LPR[LP] + '"' + Print_Files[j] + '"'
             print(LPRP)
             os.system(LPRP)
+
 
 loop = True
 while(loop):
@@ -214,5 +186,5 @@ while(loop):
         loop = True
     else:
         loop = False
-    #os.system('clear')
+    # os.system('clear') # on linux
     os.system('cls')  # on windows
