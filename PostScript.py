@@ -47,15 +47,16 @@ def FileMerge(Files, folder, OName, Duplex):
                 output = '"' + folder+'/'+OName + \
                     '/PostScript/'+Files[i] + '.ps"'
                 src = '"' + folder+'/'+OName + '/'+Files[i] + '"'
-                GSC = GSP + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile=' + \
-                    output+' '+src + ' PJL_Commands/Blank.ps -c quit'
+                GSC = GSP + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile=' + \
+                    output+'" '+src + ' PJL_Commands/Blank.ps -c quit'
                 os.system(GSC)
 
     # Merges Files for Uncollated Printing with SlipSheets
     for files in Files:
         FilesPath = FilesPath + '"' + folder+'/'+OName + '/PostScript/'+files + '.ps" '
 
-    output = folder+'/'+OName + '/'+OName + '.ps '
-    GSC = GSP + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="' + \
-        output+' " ' + FilesPath + '  -c quit'
+    output = folder+'/'+OName + '/'+OName + '.ps'
+    GSC = GSP + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile="' + \
+        output+'" ' + FilesPath + '  -c quit'
     os.system(GSC)
+    return True

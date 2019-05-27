@@ -6,6 +6,7 @@ from files import FilesList
 from files import PostList
 import json
 from BannerSheet import bannerSheet
+from PostScript import FileMerge
 owd = os.getcwd()
 owd = owd.replace("\\", "/")
 
@@ -59,17 +60,31 @@ def Printing(OrderNumber, folder):
     if (CanRun(JobInfo)):
         print("\n!---This Job Is AutoRun Compatible---!")
         print('My Suggestions are as Follows:')
+        if(JobInfo.get('Collation', False) == "Collated"):
+            Collation = str.encode(
+                '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
+            print('Collated')
+        else:
+            Collation = str.encode(
+                '@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')
+            print('UnCollated')
         if(JobInfo.get('Duplex', False) == "Two-sided (back to back)"):
             Duplex = str.encode(
                 '@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>\n')
+            DS = True
             print('Double Sided')
         else:
             Duplex = str.encode(
                 '@PJL XCPT <sides syntax="keyword">one-sided</sides>\n')
+            DS = False
             print('Single Sided')
         if(JobInfo.get('Stapling', False) == "Upper Left - portrait"):
             Stapling = str.encode(
                 '@PJL XCPT <value syntax="enum">20</value>\n')
+            if str('<sheet-collate syntax="keyword">uncollated') in str(Collation):
+                Collation = str.encode(
+                    '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
+                print("Collation Overide - Collated")
             print("Staple - Upper Left - portrait")
         else:
             Stapling = str.encode('')
@@ -79,14 +94,6 @@ def Printing(OrderNumber, folder):
             print('Hole Punched')
         else:
             Punch = str.encode('')
-        if(JobInfo.get('Collation', False) == "Collated"):
-            Collation = str.encode(
-                '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
-            print('Collated')
-        else:
-            Collation = str.encode(
-                '@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')
-            print('UnCollated')
         if(JobInfo.get('Stapling', False) != "Upper Left - portrait" and JobInfo.get('Drilling', False) != "Yes"):
             default = str.encode('@PJL XCPT <value syntax="enum">3</value>\n')
             print('No Finishing')
@@ -126,10 +133,18 @@ def Printing(OrderNumber, folder):
             lines[i] = Collation
         if str('<sides syntax="keyword">one-sided</sides>') in str(lines[i]):
             lines[i] = Duplex
+        if str('<sheet-collate syntax="keyword">uncollated') in str(Collation) and str('<separator-sheets-type syntax="keyword">') in str(lines[i]):
+            lines[i] = '@PJL XCPT<media syntax="keyword">post-fuser-inserter</media>\n'
+            lines.insert(i, '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
+
+
 
     with open('PJL_Commands/input.ps', 'wb') as f:
         for item in lines:
             f.write(item)
+    Merged = False
+    if str('<sheet-collate syntax="keyword">uncollated') in str(Collation):
+        Merged = FileMerge(Files, folder, OName, DS)
 
     path = os.getcwd()  # Current Path
     try:
@@ -140,14 +155,23 @@ def Printing(OrderNumber, folder):
         print("Creation of the directory failed " + path +
               "/" + folder+"/"+OName + "/PSP")
 
-    for i in range(len(Files)):
-        filenames = ['PJL_Commands/input.ps', folder+"/"+OName +
-                     "/PostScript/"+Files[i]+".ps", 'PJL_Commands/End.ps']
-        with open(folder+"/"+OName + "/PSP/"+Files[i][:-4]+".ps", 'wb') as outfile:
+    if Merged == True:
+        filenames = ['PJL_Commands/input.ps', folder+"/"+OName +"/"+OName+".ps", 'PJL_Commands/End.ps']
+        with open(folder+"/"+OName + "/PSP/"+OName+".ps", 'wb') as outfile:
             for fname in filenames:
                 with open(fname, 'rb') as infile:
                     for line in infile:
                         outfile.write(line)
+    if Merged == False:
+
+        for i in range(len(Files)):
+            filenames = ['PJL_Commands/input.ps', folder+"/"+OName +
+                         "/PostScript/"+Files[i]+".ps", 'PJL_Commands/End.ps']
+            with open(folder+"/"+OName + "/PSP/"+Files[i][:-4]+".ps", 'wb') as outfile:
+                for fname in filenames:
+                    with open(fname, 'rb') as infile:
+                        for line in infile:
+                            outfile.write(line)
 
     Print_Files = PostList(folder, OName, "PSP")
 
@@ -165,14 +189,14 @@ def Printing(OrderNumber, folder):
             print("File Name: " + Print_Files[j])
     LPRP = LPR[LP] + '"' + BannerFile + '"'
     print(LPRP)
-    os.system(LPRP)
+    #os.system(LPRP)
     np = owd + '/' + folder+'/' + OName + '/PSP'
     os.chdir(np)
     for i in range(Sets):
         for j in range(len(Print_Files)):
             LPRP = LPR[LP] + '"' + Print_Files[j] + '"'
             print(LPRP)
-            os.system(LPRP)
+            #os.system(LPRP)
 
 
 loop = True
