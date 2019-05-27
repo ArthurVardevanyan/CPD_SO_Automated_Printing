@@ -6,6 +6,7 @@ from files import FolderList
 from files import FilesList
 import sys
 import locale
+from PyPDF2 import PdfFileReader
 
 
 def Postscript(OrderNumber, folder):
@@ -35,4 +36,26 @@ def Postscript(OrderNumber, folder):
                   OName+'"/PostScript/"'+Files[i]+'.ps" "'+folder+'"/"'+OName+'"/"'+Files[i]+'" -c quit')
 
 
-#Postscript("8985 TEACHER NAME - flood recovery", "School_Orders")
+def FileMerge(Files, folder, OName, Duplex):
+    GSP = 'gs'
+    #GSP = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
+    FilesPath = ''
+    if Duplex == True:  # Adds blanks for doublesided uncollated printing
+        for i in range(len(Files)):
+            pdf = PdfFileReader(open(folder+'/'+OName+'/'+Files[i], "rb"))
+            if (int(pdf.getNumPages()) % 2) != 0:
+                output = '"' + folder+'/'+OName + \
+                    '/PostScript/'+Files[i] + '.ps"'
+                src = '"' + folder+'/'+OName + '/'+Files[i] + '"'
+                GSC = GSP + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile=' + \
+                    output+' '+src + ' PJL_Commands/Blank.ps -c quit'
+                os.system(GSC)
+
+    # Merges Files for Uncollated Printing with SlipSheets
+    for files in Files:
+        FilesPath = FilesPath + '"' + folder+'/'+OName + '/PostScript/'+files + '.ps" '
+
+    output = folder+'/'+OName + '/'+OName + '.ps '
+    GSC = GSP + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="' + \
+        output+' " ' + FilesPath + '  -c quit'
+    os.system(GSC)
