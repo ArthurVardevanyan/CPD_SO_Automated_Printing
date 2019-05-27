@@ -9,7 +9,6 @@ import shutil
 import re
 from SchoolDataJson import SchoolDataJson
 from PostScript import Postscript
-from AutoPrint import Printing
 Revision = "20190526"
 print("School Order Downloader Revision: ", Revision)
 
@@ -17,8 +16,6 @@ IMAP_SERVER = 'imap.gmail.com'
 EMAIL_ACCOUNT = "@gmail.com"
 EMAIL_FOLDER = "Inbox"
 OUTPUT_DIRECTORY = 'School_Orders/'
-#NetworkP = "P:/OneTimeJobs/School Orders"
-NetworkP = "temp"
 PASSWORD = getpass.getpass()
 
 # This Function extracts the Google Drive FileIDs from the contents of the Email
@@ -124,22 +121,6 @@ def process_mailbox(M):
             Postscript(OrderNumber, "School_Orders")
         except:
             print("PostScript")
-        # try:
-            # Stores a copy of new orders on a network drive for easy acess.
-            #os.mkdir(NetworkP)
-        #  except:
-        #    print("School Order Main Folder Creation Failed, Probbly Already Exsists")
-        #  try:
-            # Copies the Files
-        #    shutil.copytree(OUTPUT_DIRECTORY+OrderNumber+" " +
-        #                    Subject, NetworkP + "/" + OrderNumber+" "+Subject)
-        # except:
-        #     print("Sub Folder Copy Failed")
-        #try:
-            # Run the Job
-            #Printing(OrderNumber, "School_Orders")
-       # except:
-           # print("Run Job Failure")
         EmailsProccessed += 1
     return EmailsProccessed
 
