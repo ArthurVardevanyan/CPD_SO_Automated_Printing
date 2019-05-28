@@ -9,6 +9,8 @@ import shutil
 import re
 from SchoolDataJson import SchoolDataJson
 from PostScript import Postscript
+from PostScript import FileMerge
+
 Revision = "20190526"
 print("School Order Downloader Revision: ", Revision)
 
@@ -113,7 +115,7 @@ def process_mailbox(M):
             f.close()
         try:
             # Create JSON file with Job Requirements
-            SchoolDataJson(OrderNumber, "School_Orders")
+            JobInfo = SchoolDataJson(OrderNumber, "School_Orders")
         except:
             print("JSON File Failed")
         try:
@@ -121,6 +123,20 @@ def process_mailbox(M):
             Postscript(OrderNumber, "School_Orders")
         except:
             print("PostScript")
+        try:
+            # Create Merge Uncollated Files
+            if(JobInfo.get('Duplex', False) == "Two-sided (back to back)"):
+                DS = True
+                print('Double Sided')
+            else:
+                DS = False
+                print('Single Sided')
+            if JobInfo.get('Collation', False) == "Uncollated" and JobInfo.get('Stapling', False) != "Upper Left - portrait" and len(JobInfo.get('Files', False)) != 1:
+                FileMerge(OUTPUT_DIRECTORY, OrderNumber+" " + Subject, DS)
+            else:
+                print("Not Merging")
+        except:
+            print("Merge Failure")
         EmailsProccessed += 1
     return EmailsProccessed
 
@@ -135,7 +151,7 @@ def main():
         print("Im Resting, Check Back Later:")
         while(1 == 1):  # Infinte Loop for checking emails
             try:
-                time.sleep(240)
+                time.sleep(420)
                 print("Running Loop")
                 M = imaplib.IMAP4_SSL(IMAP_SERVER)
                 M.login(EMAIL_ACCOUNT, PASSWORD)
@@ -143,7 +159,7 @@ def main():
                     EMAIL_FOLDER)  # pylint: disable=unused-variable
                 # Starts Executing the Bulk of the program
                 EmailsP = process_mailbox(M)
-                print("\n\n\n\n\n\n\n\n\n\n\n")
+                print("\n\n\n\n\n\n\n\n")
                 print("Emails Proccessed: ", EmailsP)
                 print("Im Resting, Check Back Later:")
                 print("School Order Downloader Revision: ", Revision)
