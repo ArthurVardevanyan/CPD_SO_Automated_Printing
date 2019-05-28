@@ -27,10 +27,11 @@ def CanRun(JobInfo):
     return True
 
 
-def Printing(OrderNumber, folder):
+def Printing(OrderNumber, folder, Confirmation, Printer):
 
     # This is the Order Name taken from the subject line.
     OName = "No Order Selected"
+    Manual = ''
     # Calls a function in files.py, which gets a list of all the orders downladed
     Folders = FolderList(folder)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
@@ -40,9 +41,10 @@ def Printing(OrderNumber, folder):
     print(OName)
     if(OName == "No Order Selected"):
         print("Order Number is not Valid")
-        return
-    if(int(input("Confirm Order Yes : 1 | No : 0 ")) == 0):
-        return
+        return "ON Not Valid :  " + OrderNumber
+    if(Confirmation == 1):
+        if(int(input("Confirm Order Yes : 1 | No : 0 ")) == 0):
+            return
 
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     Files = FilesList(folder, OName)
@@ -71,12 +73,10 @@ def Printing(OrderNumber, folder):
         if(JobInfo.get('Duplex', False) == "Two-sided (back to back)"):
             Duplex = str.encode(
                 '@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>\n')
-            DS = True
             print('Double Sided')
         else:
             Duplex = str.encode(
                 '@PJL XCPT <sides syntax="keyword">one-sided</sides>\n')
-            DS = False
             print('Single Sided')
         if(JobInfo.get('Stapling', False) == "Upper Left - portrait"):
             Stapling = str.encode(
@@ -104,10 +104,12 @@ def Printing(OrderNumber, folder):
             print("SPECIAL INSTRUCTIONS: " +
                   JobInfo.get('Special Instructions', False))
     else:
-        if(int(input("\nThis Order Currently Does not Support AutoSelection, please double chek if the order requires the normal driver. Continue : 1 | Exit : 0 ") != 1)):
-            return
-
-    LP = int(input("Choose a Printer: 156 (0), 162 (1): "))
+        print("This Order Currently Does not Support AutoSelection, please double chek if the order requires the normal driver.")
+        return "Not Supported:  " + OName
+    if(Printer == 0):
+        LP = int(input("Choose a Printer: 156 (0), 162 (1): "))
+    else:
+        LP = 1
     print("\nNumber of (Total) Copies Listed Per File: " +
           JobInfo.get('Copies', False))
     if(JobInfo.get('Slip Sheets / Shrink Wrap', False)):
@@ -117,10 +119,12 @@ def Printing(OrderNumber, folder):
         Sets = 1
         CPS = int(JobInfo.get('Copies', False))
         print("!--I WILL TAKE IT FROM HERE--!")
+        Manual = "SUCCESS!     :  "
     else:
         print("If more than one set is requried, do the appriate calculation to determine correct amount of Sets and Copies per Set")
         Sets = int(input("\nHow Many Sets?: "))
         CPS = int(input("How Many Copies Per Set?: "))
+        Manual = "Manual Input :  "
     Copies_Command = str.encode(
         '@PJL XCPT <copies syntax="integer">'+str(CPS)+'</copies>\n')
     with open('PJL_Commands/PJL.ps', 'rb') as f:
@@ -148,8 +152,8 @@ def Printing(OrderNumber, folder):
         for item in lines:
             f.write(item)
     Merged = False
-    if str('<sheet-collate syntax="keyword">uncollated') in str(Collation):
-        Merged = FileMerge(Files, folder, OName, DS)
+    if str('<sheet-collate syntax="keyword">uncollated') in str(Collation) and len(JobInfo.get('Files', False)) != 1:
+        Merged = True
 
     path = os.getcwd()  # Current Path
     try:
@@ -193,6 +197,7 @@ def Printing(OrderNumber, folder):
     for i in range(Sets):
         for j in range(len(Print_Files)):
             print("File Name: " + Print_Files[j])
+
     LPRP = LPR[LP] + '"' + BannerFile + '"'
     print(LPRP)
     os.system(LPRP)
@@ -203,18 +208,52 @@ def Printing(OrderNumber, folder):
             LPRP = LPR[LP] + '"' + Print_Files[j] + '"'
             print(LPRP)
             os.system(LPRP)
+    print("\n\n\n")
+    return Manual + OName
 
 
-loop = True
-while(loop):
-    os.chdir(owd)
-    print("Terminal AutoPrinting REV: 20190527")
+os.chdir(owd)
+print("Terminal AutoPrinting REV: 20190527")
+print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
+if(int(input("Bulk Order Printing?  Yes : 1 | No : 0 ")) != 1):
+    loop = True
+    while(loop):
+        os.chdir(owd)
+        print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
+        Printing(str(input("Type In an Order Number: ")),
+                 "School_Orders", 1, 0)
+        if(int(input("Submit Another Order?  Yes : 1 | No : 0 ")) == 1):
+            loop = True
+        else:
+            loop = False
+            os.system('clear')  # on linux
+            os.system('cls')  # on windows
+else:
+    print("Bulk Print Mode, Type Your Order Number and Hit Enter, \ntype run then enter when your all set.")
+    print("Comaptible Jobs with no Special Instructions will AutoRun, if their are, jobs will pause for requested input if any")
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
-    Printing(str(input("Type In an Order Number: ")), "School_Orders")
-
-    if(int(input("Submit Another Order?  Yes : 1 | No : 0 ")) == 1):
+    biggerloop = True
+    while(biggerloop):
         loop = True
-    else:
-        loop = False
-    os.system('clear')  # on linux
-    os.system('cls')  # on windows
+        OrderN = []
+        Printed = []
+        while(loop):
+            temp = str(input("Type In an Order Number: "))
+            if(temp != "run"):
+                OrderN.append(temp)
+            else:
+                loop = False
+                print("\nI am Going to Run:")
+                print('\n'.join(map(str, OrderN)))
+                for orders in OrderN:
+                    os.chdir(owd)
+                    Printed.append(
+                        Printing(str(orders), "School_Orders", 0, 162))
+                print("\n\n\n")
+                print('\n'.join(map(str, Printed)))
+                if(int(input("\n\n\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1):
+                    biggerloop = True
+                else:
+                    biggerloop = False
+                os.system('clear')  # on linux
+                os.system('cls')  # on windows
