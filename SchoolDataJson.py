@@ -130,3 +130,4 @@ def SchoolDataJson(OrderNumber, folder):
         # Creates the JSON file
     with open(folder+'/'+OName+'/'+OName+'.json', 'w') as outfile:
         json.dump(SchoolData, outfile, indent=4, separators=(',', ': '))
+    return SchoolData

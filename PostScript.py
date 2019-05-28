@@ -35,7 +35,8 @@ def Postscript(OrderNumber, folder):
                   OName+'"/PostScript/"'+Files[i]+'.ps" "'+folder+'"/"'+OName+'"/"'+Files[i]+'" -c quit')
 
 
-def FileMerge(Files, folder, OName, Duplex):
+def FileMerge(folder, OName, Duplex):
+    Files = FilesList(folder, OName)
     GSP = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
     #GSP = 'gs'
     FilesPath = ''
