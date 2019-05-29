@@ -1,218 +1,295 @@
 import os
 import glob
 from PyPDF2 import PdfFileReader
-from files import FolderList
-from files import FilesList
-from files import PostList
+from files import folder_list
+from files import file_list
+from files import postscript_list
 import json
-from BannerSheet import bannerSheet
-owd = os.getcwd()
-owd = owd.replace("\\", "/")
+from BannerSheet import banner_sheet
+from PostScript import file_merge
+ORIGINAL_PATH = os.getcwd()
+ORIGINAL_PATH = ORIGINAL_PATH.replace("\\", "/")
 
-def CanRun(JobInfo):
 
-    if(JobInfo.get('Ran', False) == "True"):
+def can_run(JOB_INFO):
+    # Determines if jobs is able to be ran or not.
+    if(JOB_INFO.get('Ran', False) == "True"):
         return False
-    if(JobInfo.get('Paper', False) != "8.5 x 11 Paper White"):
+    if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White"):
         return False
-    if(JobInfo.get('Stapling', False)):
-        if(JobInfo.get('Stapling', False) != "Upper Left - portrait"):
+    if(JOB_INFO.get('Stapling', False)):
+        if(JOB_INFO.get('Stapling', False) != "Upper Left - portrait"):
             return False
-    if(JobInfo.get('Front Cover', False)):
+    if(JOB_INFO.get('Front Cover', False)):
         return False
-    if(JobInfo.get('Back Cover', False)):
+    if(JOB_INFO.get('Back Cover', False)):
         return False
     return True
 
 
-def Digit(numList):
-    return int(''.join(str(i) for i in numList))
-    # https://stackoverflow.com/questions/489999/convert-list-of-ints-to-one-number
-
-
-def SuggestedPrinting(Collation, Duplex, Stapling, Punch):
-    Code = Digit([Collation, Duplex, Stapling, Punch])
-
-    InToOut = {
-        2111: 0,
-        2211: 1,
-        2121: 2,
-        2221: 3,
-        2112: 4,
-        2212: 5,
-        2122: 6,
-        2222: 7,
-        0000: 8,
-        1000: 9,
-        1111: 10,
-        1211: 11,
-        2000: 12,
-        3000: 13,
-        1112: 14,
-        1212: 15,
-
-    }
-    return InToOut.get(Code, None)
-
-
-def Printing(OrderNumber, folder):
+def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER):
 
     # This is the Order Name taken from the subject line.
-    OName = "No Order Selected"
+    ORDER_NAME = "No Order Selected"
+    print_result = ''
     # Calls a function in files.py, which gets a list of all the orders downladed
-    Folders = FolderList(folder)
+    Folders = folder_list(OUTPUT_DIRECTORY)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
-        if OrderNumber in i:
-            OName = i
+        if ORDER_NUMBER in i:
+            ORDER_NAME = i
 
-    print(OName)
-    if(OName == "No Order Selected"):
+    print(ORDER_NAME)
+    if(ORDER_NAME == "No Order Selected"):
         print("Order Number is not Valid")
-        return
-    if(int(input("Confirm Order Yes : 1 | No : 0 ")) == 0):
-        return
+        return "ON Not Valid :  " + ORDER_NUMBER
+    if(CONFIRMATION == 1):
+        while True:
+            try:
+                if(int(input("Confirm Order Yes : 1 | No : 0 ")) == 0):
+                    return
+                break
+            except:
+                pass
 
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
-    Files = FilesList(folder, OName)
+    files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 
-    with open(folder+'/'+OName+'/'+OName+'.json') as json_file:
-        JobInfo = json.load(json_file)
+    with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
+        JOB_INFO = json.load(json_file)
 
-    BannerFile = bannerSheet(JobInfo, folder+'/'+OName+'/')
+    # This calls the function that creates the banner sheet for the given order number
+    BANNER_SHEET_FILE = banner_sheet(
+        JOB_INFO, OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/')
     # This gets the number of pages for every pdf file for the job.
-    for i in range(len(Files)):
-        pdf = PdfFileReader(open(folder+'/'+OName+'/'+Files[i], "rb"))
+    for i in range(len(files)):
+        pdf = PdfFileReader(
+            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+files[i], "rb"))
         print("Page Count: " + str(pdf.getNumPages()) +
-              " FileName: " + Files[i])
+              " FileName: " + files[i])
+    # Checks if the job specs can be ran, and then sets the correct PJL commands
+    if (can_run(JOB_INFO)):
+        print('\nChoosen Options:')
+        if(JOB_INFO.get('Collation', False) == "Collated"):
+            collation = str.encode(
+                '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
+            print('Collated')
+        else:
+            collation = str.encode(
+                '@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')
+            print('UnCollated')
+        if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
+            duplex = str.encode(
+                '@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>\n')
+            print('Double Sided')
+        else:
+            duplex = str.encode(
+                '@PJL XCPT <sides syntax="keyword">one-sided</sides>\n')
+            print('Single Sided')
+        if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait"):
+            stapling = str.encode(
+                '@PJL XCPT <value syntax="enum">20</value>\n')
+            if str('<sheet-collate syntax="keyword">uncollated') in str(collation):
+                collation = str.encode(
+                    '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
+                print("Collation Overide - Collated")
+            print("Staple - Upper Left - portrait")
+        else:
+            stapling = str.encode('')
+        if(JOB_INFO.get('Drilling', False) == "Yes"):
+            hole_punch = str.encode(
+                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>\n')
+            print('Hole Punched')
+        else:
+            hole_punch = str.encode('')
+        if(JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and JOB_INFO.get('Drilling', False) != "Yes"):
+            default = str.encode('@PJL XCPT <value syntax="enum">3</value>\n')
+            print('No Finishing')
+        else:
+            default = str.encode('')
 
-    PO = ['00 Normal.ps',
-          '01 Duplex.ps',
-          '02 SS Staple.ps',
-          '03 DS Staple.ps',
-          '04 SS Punch.ps',
-          '05 DS Punch.ps',
-          '06 SS Staple Punch.ps',
-          '07 DS Staple Punch.ps',
-          '08 SS Slipt Collated.ps',
-          '09 DS Slipt Collated.ps',
-          '10 SS Slipt Uncollated.ps',
-          '11 DS Slipt Uncollated.ps',
-          '12 SS Slipt Punch Collated.ps',
-          '13 DS Slipt Punch Collated.ps',
-          '14 SS Slipt Punch Uncollated.ps',
-          '15 DS Slipt Punch Uncollated.ps',
-          ]
-    print("\nPrinting Options:\n")
-    for i in PO:
-        print(i)
-
-    if (CanRun(JobInfo)):
-        print("\n!---This Job Is AutoRun Compatible---!")
-        if(JobInfo.get('Duplex', False) == "Two-sided (back to back)"):
-            Duplex = 2
-        else:
-            Duplex = 1
-        if(JobInfo.get('Stapling', False) == "Upper Left - portrait"):
-            Stapling = 2
-        else:
-            Stapling = 1
-        if(JobInfo.get('Drilling', False) == "Yes"):
-            Punch = 2
-        else:
-            Punch = 1
-        if(JobInfo.get('Collation', False) == "Collated"):
-            Collation = 2
-        else:
-            Collation = 1
-        if(JobInfo.get('Collation', False) == "UnCollated"):
-            return False
-        try:
-            print("I Suggest: " +
-                  PO[SuggestedPrinting(Collation, Duplex, Stapling, Punch)])
-        except:
-            print(
-                "ERROR: Something Doesn't add up with job specs, please check instruction sheet.")
-        if(JobInfo.get('Special Instructions', False)):
+        if(JOB_INFO.get('Special Instructions', False)):
             print("SPECIAL INSTRUCTIONS: " +
-                  JobInfo.get('Special Instructions', False))
+                  JOB_INFO.get('Special Instructions', False))
     else:
-        if(int(input("\nThis Order Currently Does not Support AutoSelection, please double chek if the order requires the normal driver. Continue : 1 | Exit : 0 ") != 1)):
-            return
-
-    PC = int(input("\nChoose a Printing Option: "))
-    LP = int(input("Choose a Printer: 156 (0), 162 (1): "))
-    print("\nNumber of (Total) Copies Listed Per File: " +
-          JobInfo.get('Copies', False))
-    if(JobInfo.get('Slip Sheets / Shrink Wrap', False)):
+        print("This Order Currently Does not Support AutoSelection, please double chek if the order requires the normal driver.")
+        return "Not Supported:  " + ORDER_NAME
+    print("Number of (Total) Copies Listed Per File: " +
+          JOB_INFO.get('Copies', False))
+    if(PRINTER == 0):
+        while True:
+            try:
+                # if not in bulk mode, choose a printer.
+                D110_IP = int(input("Choose a Printer: 156 (0), 162 (1): "))
+                break
+            except:
+                pass
+    else:
+        D110_IP = 1
+    if(JOB_INFO.get('Slip Sheets / Shrink Wrap', False)):
         print("SPECIAL INSTRUCTIONS: " +
-              JobInfo.get('Slip Sheets / Shrink Wrap', False))
-    print("If more than one set is requried, do the appriate calculation to determine correct amount of Sets and Copies per Set")
-    Sets = int(input("\nHow Many Sets?: "))
-    CPS = int(input("How Many Copies Per Set?: "))
-    Copies_Command = str.encode(
-        '@PJL XCPT <copies syntax="integer">'+str(CPS)+'</copies>')
-    with open('PJL_Commands/' + PO[PC], 'rb') as f:
+              JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
+    if(JOB_INFO.get('Special Instructions', False) == False and JOB_INFO.get('Slip Sheets / Shrink Wrap', False) == False):
+        SETS = 1
+        COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
+        print("\n!--I WILL TAKE IT FROM HERE--!")
+        print_result = "SUCCESS!     :  "
+    else:
+        # If thier are special instructions prompt the user to manually enter copies and set counts
+        print("If more than one set is requried, do the appropriate calculation to determine correct amount of Sets and Copies per Set")
+        SETS = int(input("\nHow Many Sets?: "))
+        COPIES_PER_SET = int(input("How Many Copies Per Set?: "))
+        print_result = "Manual Input :  "
+    COPIES_COMMAND = str.encode(
+        '@PJL XCPT <copies syntax="integer">'+str(COPIES_PER_SET)+'</copies>\n')
+    with open('PJL_Commands/PJL.ps', 'rb') as f:
         lines = f.readlines()
 
     for i in range(len(lines)):
-        #lines[i] = lines[i].rstrip()
         if str('<copies syntax="integer">') in str(lines[i]):
-            lines[i] = Copies_Command
+            lines[i] = COPIES_COMMAND
+        if str('<value syntax="enum">3</value>') in str(lines[i]):
+            lines[i] = default
+            if str('<value syntax="enum">3</value>') not in str(default):
+                lines.insert(i, stapling)
+                lines.insert(i+1, hole_punch)
+        if str('<sheet-collate syntax="keyword">') in str(lines[i]):
+            lines[i] = collation
+        if str('<sides syntax="keyword">one-sided</sides>') in str(lines[i]):
+            lines[i] = duplex
+        if str('<sheet-collate syntax="keyword">uncollated') in str(collation) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]):
+            lines[i] = str.encode(
+                '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
+            lines.insert(i, str.encode(
+                '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n'))
 
     with open('PJL_Commands/input.ps', 'wb') as f:
         for item in lines:
             f.write(item)
+    MERGED = False
+    # If it makes sense to use merged files, it uses them.
+    if str('<sheet-collate syntax="keyword">uncollated') in str(collation) and len(JOB_INFO.get('Files', False)) != 1:
+        MERGED = True
+        print("THESE FILES WERE MERGED!")
 
-    path = os.getcwd()  # Current Path
+    current_path = os.getcwd()  # Current Path
     try:
-        os.makedirs(path + "/" + folder+"/"+OName + "/PSP")
-        print("Successfully created the directory " + path +
-              "/" + folder+"/"+OName + "/PSP")
+        os.makedirs(current_path + "/" + OUTPUT_DIRECTORY +
+                    "/"+ORDER_NAME + "/PSP")
+        print("Successfully created the directory " + current_path +
+              "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP")
     except OSError:
-        print("Creation of the directory failed " + path +
-              "/" + folder+"/"+OName + "/PSP")
+        print("Creation of the directory failed " + current_path +
+              "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP")
 
-    for i in range(len(Files)):
-        filenames = ['PJL_Commands/input.ps', folder+"/"+OName +
-                     "/PostScript/"+Files[i]+".ps", 'PJL_Commands/End.ps']
-        with open(folder+"/"+OName + "/PSP/"+Files[i][:-4]+".ps", 'wb') as outfile:
-            for fname in filenames:
+    if MERGED == True:
+        # Add the PJL Commands to the merged file in preperation to print.
+        file_names = ['PJL_Commands/input.ps', OUTPUT_DIRECTORY+"/" +
+                      ORDER_NAME + "/"+ORDER_NAME+".ps", 'PJL_Commands/End.ps']
+        with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP/"+ORDER_NAME+".ps", 'wb') as outfile:
+            for fname in file_names:
                 with open(fname, 'rb') as infile:
                     for line in infile:
                         outfile.write(line)
+    if MERGED == False:
+        # Add the PJL Commands to the files in preperation to print.
+        for i in range(len(files)):
+            file_names = ['PJL_Commands/input.ps', OUTPUT_DIRECTORY+"/"+ORDER_NAME +
+                          "/PostScript/"+files[i]+".ps", 'PJL_Commands/End.ps']
+            with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP/"+files[i][:-4]+".ps", 'wb') as outfile:
+                for fname in file_names:
+                    with open(fname, 'rb') as infile:
+                        for line in infile:
+                            outfile.write(line)
 
-    Print_Files = PostList(folder, OName, "PSP")
+    Print_Files = postscript_list(OUTPUT_DIRECTORY, ORDER_NAME, "PSP")
 
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
+    try:
+        os.remove("PJL_Commands/input.ps")  # remove temp file
+    except:
+        print("Temp File Remove Failed")
 
-
-    print(BannerFile)
-    for i in range(Sets):
+    print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
+    for i in range(SETS):
         for j in range(len(Print_Files)):
             print("File Name: " + Print_Files[j])
-    LPRP = LPR[LP] + '"' + BannerFile + '"'
-    print(LPRP)
-    os.system(LPRP)
-    np = owd+ '/'  + folder+'/' + OName + '/PSP'
-    os.chdir(np)
-    for i in range(Sets):
+
+    lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
+    print(lpr_path)
+    # Change Path so only File Name Shows up on Printer per File Banner Sheet
+    os.system(lpr_path)
+    temp_path = ORIGINAL_PATH + '/' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP'
+    os.chdir(temp_path)
+    for i in range(SETS):
         for j in range(len(Print_Files)):
-            LPRP = LPR[LP] + '"'+ Print_Files[j] + '"'
-            print(LPRP)
-            os.system(LPRP)
+            lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
+            print(lpr_path)
+            os.system(lpr_path)
+    print("\n")
+    return print_result + ORDER_NAME
 
-loop = True
-while(loop):
-    os.chdir(owd)
-    print("Terminal AutoPrinting REV: 20190526")
+
+os.chdir(ORIGINAL_PATH)  # Change path back to relative path
+print("Terminal AutoPrinting REV: 20190530")
+print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
+while True:
+    try:
+        BulkMode = int(input("Bulk Order Printing?  Yes : 1 | No : 0 "))
+        break
+    except:
+        pass
+if(BulkMode != 1):
+    loop = True
+    while(loop):
+        os.chdir(ORIGINAL_PATH)
+        print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
+        while True:
+            try:
+                OrderInput = int(input("Type In an Order Number: "))
+                break
+            except:
+                pass
+        printing(str(OrderInput),
+                 "School_Orders", 1, 0)
+        while True:
+            try:
+                if(int(input("Submit Another Order?  Yes : 1 | No : 0 ")) == 1):
+                    loop = True
+                else:
+                    loop = False
+                    #os.system('clear')  # on linux
+                    os.system('cls')  # on windows
+                break
+            except:
+                pass
+else:
+    print("Bulk Print Mode, Type Your Order Number and Hit Enter, \nType run then hit enter when your all set. \n")
+    print("Comaptible Jobs with no Special Instructions will AutoRun, if their are, jobs will pause for requested input if any")
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
-    Printing(str(input("Type In an Order Number: ")), "School_Orders")
-
-    if(int(input("Submit Another Order?  Yes : 1 | No : 0 ")) == 1):
+    bigger_loop = True
+    while(bigger_loop):
         loop = True
-    else:
-        loop = False
-    #os.system('clear')
-    os.system('cls')  # on windows
+        ORDER_NUMBER = []
+        printed = []
+        while(loop):
+            temp = str(input("Type In an Order Number: "))
+            if(temp != "run"):
+                ORDER_NUMBER.append(temp)
+            else:
+                loop = False
+                print("\nI am Going to Run:")
+                print('\n'.join(map(str, ORDER_NUMBER)))
+                for orders in ORDER_NUMBER:
+                    os.chdir(ORIGINAL_PATH)
+                    printed.append(
+                        printing(str(orders), "School_Orders", 0, 162))
+                print("\n\n\n")
+                print('\n'.join(map(str, printed)))
+                if(int(input("\n\n\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1):
+                    bigger_loop = True
+                else:
+                    bigger_loop = False
+                #os.system('clear')  # on linux
+                os.system('cls')  # on windows
