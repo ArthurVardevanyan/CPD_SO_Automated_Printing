@@ -7,7 +7,7 @@ def banner_sheet(JOB_INFO, OUTPUT_PATH):
     MEDIA_COLOR = ("white", "blue", "yellow", "green", "pink",
                    "ivory", "gray", "buff", "goldenrod,", "red", "orange")
     # Allows differnet color banner sheets. Common Pastel/Astrobrights Colors
-    banner_sheet_color = MEDIA_COLOR[3]
+    banner_sheet_color = MEDIA_COLOR[6]
     # Read in Template BannerSheet PostScript File with PJL Commands for Xerox D110 Printer
     with open('PJL_Commands/BannerSheet.ps', 'rb') as f:
         pjl_lines = f.readlines()
@@ -62,4 +62,4 @@ def banner_sheet(JOB_INFO, OUTPUT_PATH):
         # Write Final Line of Postscript File
         outfile.write(str.encode('showpage\n'))
     # Return Locatoin of Banner Sheet File
-    return OUTPUT_PATH+JOB_INFO.get('Order Number', False) + ' Banner Sheet.ps'
+    return OUTPUT_PATH+JOB_INFO.get('Order Number', False) + ' Banner ' + JOB_INFO.get('First Name', False) + ' ' + JOB_INFO.get('Last Name', False) + '.ps'
