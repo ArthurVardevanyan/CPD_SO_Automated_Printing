@@ -71,7 +71,7 @@ def process_mailbox(M):
         # Stripping Unwanted Content
         subject = str(subject[1][0][1]).replace(
             "Subject: ", "").replace("Copy Job - ", "")
-        subject = subject[2:-9].strip()
+        subject = subject[2:-15].strip()
         subject = re.sub(r'[/\r\n\\:*?\"<>|.;]', " ", subject)
         # Keeps only the First 75 Characters of the subject.
         subject = subject[:75]
