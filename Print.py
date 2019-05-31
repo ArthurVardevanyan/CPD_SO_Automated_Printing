@@ -9,6 +9,18 @@ from BannerSheet import banner_sheet
 from PostScript import file_merge
 ORIGINAL_PATH = os.getcwd()
 ORIGINAL_PATH = ORIGINAL_PATH.replace("\\", "/")
+D110_162 = 0
+D110_156 = 1
+
+def impression_counter(PAGE_COUNTS, COPIES):
+    global D110_156
+    global D110_162
+    if D110_156 < D110_162:
+        D110_156 += PAGE_COUNTS * COPIES
+        return 0
+    if D110_162 < D110_156:
+        D110_162 += PAGE_COUNTS * COPIES
+        return 1
 
 
 def can_run(JOB_INFO):
@@ -32,6 +44,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER):
     # This is the Order Name taken from the subject line.
     ORDER_NAME = "No Order Selected"
     print_result = ''
+    page_counts = 0
     # Calls a function in files.py, which gets a list of all the orders downladed
     Folders = folder_list(OUTPUT_DIRECTORY)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
@@ -41,7 +54,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER):
     print(ORDER_NAME)
     if(ORDER_NAME == "No Order Selected"):
         print("Order Number is not Valid")
-        return "ON Not Valid :  " + ORDER_NUMBER
+        return "ON Not Valid : " + ORDER_NUMBER
     if(CONFIRMATION == 1):
         while True:
             try:
@@ -66,6 +79,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER):
             open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+files[i], "rb"))
         print("Page Count: " + str(pdf.getNumPages()) +
               " FileName: " + files[i])
+        page_counts = page_counts + pdf.getNumPages()
     # Checks if the job specs can be ran, and then sets the correct PJL commands
     if (can_run(JOB_INFO)):
         print('\nChoosen Options:')
@@ -115,16 +129,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER):
         return "Not Supported:  " + ORDER_NAME
     print("Number of (Total) Copies Listed Per File: " +
           JOB_INFO.get('Copies', False))
-    if(PRINTER == 0):
-        while True:
-            try:
-                # if not in bulk mode, choose a printer.
-                D110_IP = int(input("Choose a Printer: 156 (0), 162 (1): "))
-                break
-            except:
-                pass
-    else:
-        D110_IP = 1
+
     if(JOB_INFO.get('Slip Sheets / Shrink Wrap', False)):
         print("SPECIAL INSTRUCTIONS: " +
               JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
@@ -132,13 +137,13 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER):
         SETS = 1
         COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
         print("\n!--I WILL TAKE IT FROM HERE--!")
-        print_result = "SUCCESS!     :  "
+        print_result = "SUCCESS!     : "
     else:
         # If thier are special instructions prompt the user to manually enter copies and set counts
         print("If more than one set is requried, do the appropriate calculation to determine correct amount of Sets and Copies per Set")
         SETS = int(input("\nHow Many Sets?: "))
         COPIES_PER_SET = int(input("How Many Copies Per Set?: "))
-        print_result = "Manual Input :  "
+        print_result = "Manual Input : "
     COPIES_COMMAND = str.encode(
         '@PJL XCPT <copies syntax="integer">'+str(COPIES_PER_SET)+'</copies>\n')
     with open('PJL_Commands/PJL.ps', 'rb') as f:
@@ -202,7 +207,19 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER):
                             outfile.write(line)
 
     Print_Files = postscript_list(OUTPUT_DIRECTORY, ORDER_NAME, "PSP")
-
+    if PRINTER == 0:
+        D110_IP = 0
+        D110 = "156 : "
+    if PRINTER == 1:
+        D110_IP = 1
+        D110 = "162 : "
+    if PRINTER == 2:
+        D110_IP = impression_counter(page_counts, int(
+            JOB_INFO.get('Copies', False)))
+        if D110_IP == 0:
+            D110 = "156 : "
+        if D110_IP == 1:
+            D110 = "162 : "
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
@@ -228,11 +245,11 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER):
             print(lpr_path)
             os.system(lpr_path)
     print("\n")
-    return print_result + ORDER_NAME
+    return print_result + D110 + ORDER_NAME
 
 
 os.chdir(ORIGINAL_PATH)  # Change path back to relative path
-print("Terminal AutoPrinting REV: 20190530")
+print("Terminal AutoPrinting REV: 20190531")
 print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
 while True:
     try:
@@ -244,6 +261,14 @@ if(BulkMode != 1):
     loop = True
     while(loop):
         os.chdir(ORIGINAL_PATH)
+        while True:
+            try:
+                # if not in bulk mode, choose a printer.
+                D110_IP = int(
+                    input("Choose a Printer: 156 (0), 162 (1), Load Balanced Printing (2): "))
+                break
+            except:
+                pass
         print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
         while True:
             try:
@@ -252,14 +277,14 @@ if(BulkMode != 1):
             except:
                 pass
         printing(str(OrderInput),
-                 "School_Orders", 1, 0)
+                 "School_Orders", 1, D110_IP)
         while True:
             try:
                 if(int(input("Submit Another Order?  Yes : 1 | No : 0 ")) == 1):
                     loop = True
                 else:
                     loop = False
-                    #os.system('clear')  # on linux
+                    os.system('clear')  # on linux
                     os.system('cls')  # on windows
                 break
             except:
@@ -270,6 +295,14 @@ else:
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
     bigger_loop = True
     while(bigger_loop):
+        while True:
+            try:
+                # if not in bulk mode, choose a printer.
+                D110_IP = int(
+                    input("Choose a Printer: 156 (0), 162 (1), Load Balanced Printing (2): "))
+                break
+            except:
+                pass
         loop = True
         ORDER_NUMBER = []
         printed = []
@@ -284,12 +317,12 @@ else:
                 for orders in ORDER_NUMBER:
                     os.chdir(ORIGINAL_PATH)
                     printed.append(
-                        printing(str(orders), "School_Orders", 0, 162))
+                        printing(str(orders), "School_Orders", 0, D110_IP))
                 print("\n\n\n")
                 print('\n'.join(map(str, printed)))
                 if(int(input("\n\n\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1):
                     bigger_loop = True
                 else:
                     bigger_loop = False
-                #os.system('clear')  # on linux
+                os.system('clear')  # on linux
                 os.system('cls')  # on windows
