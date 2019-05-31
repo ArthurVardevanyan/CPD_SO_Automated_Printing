@@ -7,10 +7,27 @@ from files import postscript_list
 import json
 from BannerSheet import banner_sheet
 from PostScript import file_merge
+import threading
+import time
 ORIGINAL_PATH = os.getcwd()
 ORIGINAL_PATH = ORIGINAL_PATH.replace("\\", "/")
 D110_162 = 0
 D110_156 = 1
+print_que = [ ]
+
+def print_processor():
+    printed = 0
+    while True:
+        time.sleep(.25)
+        if len(print_que) > 0:
+            os.system(print_que[0])
+            print_que.pop(0)
+            printed = 0
+        else:
+            if printed == 0:
+                print("\nPROCESSING CAUGHT UP!:   ")
+                printed = 1
+
 
 def impression_counter(PAGE_COUNTS, COPIES):
     global D110_156
@@ -39,7 +56,7 @@ def can_run(JOB_INFO):
     return True
 
 
-def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER):
+def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background):
 
     # This is the Order Name taken from the subject line.
     ORDER_NAME = "No Order Selected"
@@ -236,14 +253,20 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER):
     lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
     print(lpr_path)
     # Change Path so only File Name Shows up on Printer per File Banner Sheet
-    os.system(lpr_path)
+    if background == 1:
+        print_que.append(lpr_path)
+    else:
+         os.system(lpr_path)
     temp_path = ORIGINAL_PATH + '/' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP'
     os.chdir(temp_path)
     for i in range(SETS):
         for j in range(len(Print_Files)):
             lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
             print(lpr_path)
-            os.system(lpr_path)
+            if background == 1:
+                print_que.append(lpr_path)
+            else:
+                os.system(lpr_path)
     print("\n")
     return print_result + D110 + ORDER_NAME
 
@@ -253,7 +276,20 @@ print("Terminal AutoPrinting REV: 20190531")
 print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
 while True:
     try:
-        BulkMode = int(input("Bulk Order Printing?  Yes : 1 | No : 0 "))
+        background = int(input("Background Processing?  Yes : 1 | No : 0 (default) "))       
+        if background == 1:
+            t = threading.Thread(target=print_processor)
+            t.start()
+            time.sleep(.5)
+        else:
+            background = 0
+        break
+    except:
+        pass
+    
+while True:
+    try:
+        BulkMode = int(input("Bulk Order Printing?  Yes : 1 | No : 0 (default) "))
         break
     except:
         pass
@@ -265,7 +301,7 @@ if(BulkMode != 1):
             try:
                 # if not in bulk mode, choose a printer.
                 D110_IP = int(
-                    input("Choose a Printer: 156 (0), 162 (1), Load Balanced Printing (2): "))
+                    input("Choose a Printer: 156 (0), 162 (1), Auto (2): "))
                 break
             except:
                 pass
@@ -277,7 +313,7 @@ if(BulkMode != 1):
             except:
                 pass
         printing(str(OrderInput),
-                 "School_Orders", 1, D110_IP)
+                 "School_Orders", 1, D110_IP, background)
         while True:
             try:
                 if(int(input("Submit Another Order?  Yes : 1 | No : 0 ")) == 1):
@@ -299,7 +335,7 @@ else:
             try:
                 # if not in bulk mode, choose a printer.
                 D110_IP = int(
-                    input("Choose a Printer: 156 (0), 162 (1), Load Balanced Printing (2): "))
+                    input("Choose a Printer: 156 (0), 162 (1), Auto (2): "))
                 break
             except:
                 pass
@@ -317,7 +353,7 @@ else:
                 for orders in ORDER_NUMBER:
                     os.chdir(ORIGINAL_PATH)
                     printed.append(
-                        printing(str(orders), "School_Orders", 0, D110_IP))
+                        printing(str(orders), "School_Orders", 0, D110_IP, background))
                 print("\n\n\n")
                 print('\n'.join(map(str, printed)))
                 if(int(input("\n\n\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1):
