@@ -25,7 +25,7 @@ def print_processor():
             printed = 0
         else:
             if printed == 0:
-                print("\nPROCESSING CAUGHT UP!:   ")
+                print("\n!--PROCESSING CAUGHT UP--!:   ")
                 printed = 1
 
 
@@ -274,12 +274,14 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background):
 os.chdir(ORIGINAL_PATH)  # Change path back to relative path
 print("Terminal AutoPrinting REV: 20190531")
 print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
+print("Purple Paper (Or any bright color) MUST BE loaded in bypass as gray plain paper")
 while True:
     try:
         background = int(input("Background Processing?  Yes : 1 | No : 0 (default) "))       
         if background == 1:
             t = threading.Thread(target=print_processor)
             t.start()
+            print("\nDO NOT CLOSE THIS WINDOW UNTIL YOU SEE BELOW MESSAGE PRINT\nIf closed, files will not have finished sending to printer.")
             time.sleep(.5)
         else:
             background = 0
