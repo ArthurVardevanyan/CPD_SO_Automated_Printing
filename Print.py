@@ -13,16 +13,19 @@ ORIGINAL_PATH = os.getcwd()
 ORIGINAL_PATH = ORIGINAL_PATH.replace("\\", "/")
 D110_162 = 0
 D110_156 = 1
-print_que = [ ]
+print_que = []
+
 
 def print_processor():
     printed = 0
     while True:
         time.sleep(.25)
+        os.chdir(ORIGINAL_PATH)  # Change path back to relative path
         if len(print_que) > 0:
-            os.system(print_que[0])
-            print_que.pop(0)
-            printed = 0
+            if("banner" not in print_que[0]):
+                os.system(print_que[0])
+                print_que.pop(0)
+                printed = 0
         else:
             if printed == 0:
                 print("\n!--PROCESSING CAUGHT UP--!:   ")
@@ -45,7 +48,7 @@ def can_run(JOB_INFO):
     if(JOB_INFO.get('Ran', False) == "True"):
         return False
     if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White"):
-        return False
+        return True  # NO TOUCHY
     if(JOB_INFO.get('Stapling', False)):
         if(JOB_INFO.get('Stapling', False) != "Upper Left - portrait"):
             return False
@@ -217,7 +220,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background):
         for i in range(len(files)):
             file_names = ['PJL_Commands/input.ps', OUTPUT_DIRECTORY+"/"+ORDER_NAME +
                           "/PostScript/"+files[i]+".ps", 'PJL_Commands/End.ps']
-            with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP/"+files[i][:-4]+".ps", 'wb') as outfile:
+            with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP/"+files[i][:35][:-4]+".ps", 'wb') as outfile:
                 for fname in file_names:
                     with open(fname, 'rb') as infile:
                         for line in infile:
@@ -256,16 +259,19 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background):
     if background == 1:
         print_que.append(lpr_path)
     else:
-         os.system(lpr_path)
+        os.system(lpr_path)
     temp_path = ORIGINAL_PATH + '/' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP'
     os.chdir(temp_path)
     for i in range(SETS):
         for j in range(len(Print_Files)):
             lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-            print(lpr_path)
             if background == 1:
+                lpr_path = LPR[D110_IP] + '"' + temp_path + '/' + \
+                    Print_Files[j] + '" -J "' + Print_Files[j] + '"'
+                print(lpr_path)
                 print_que.append(lpr_path)
             else:
+                print(lpr_path)
                 os.system(lpr_path)
     print("\n")
     return print_result + D110 + ORDER_NAME
@@ -277,7 +283,8 @@ print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Inval
 print("Purple Paper (Or any bright color) MUST BE loaded in bypass as gray plain paper")
 while True:
     try:
-        background = int(input("Background Processing?  Yes : 1 | No : 0 (default) "))       
+        background = int(
+            input("Background Processing?  Yes : 1 | No : 0 (default) "))
         if background == 1:
             t = threading.Thread(target=print_processor)
             t.start()
@@ -288,10 +295,11 @@ while True:
         break
     except:
         pass
-    
+
 while True:
     try:
-        BulkMode = int(input("Bulk Order Printing?  Yes : 1 | No : 0 (default) "))
+        BulkMode = int(
+            input("Bulk Order Printing?  Yes : 1 | No : 0 (default) "))
         break
     except:
         pass
