@@ -42,13 +42,16 @@ def impression_counter(PAGE_COUNTS, COPIES):
         D110_162 += PAGE_COUNTS * COPIES
         return 1
 
+def color_extract(JOB_INFO):
+    color_list = (str(JOB_INFO.get('Paper', False))).split()
+    return color_list[-1].lower()
 
-def can_run(JOB_INFO):
+def can_run(JOB_INFO, COLOR):
     # Determines if jobs is able to be ran or not.
     if(JOB_INFO.get('Ran', False) == "True"):
         return False
-    if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White"):
-        return True  # NO TOUCHY
+    if("Card Stock" in JOB_INFO.get('Paper', False)):
+        return False
     if(JOB_INFO.get('Stapling', False)):
         if(JOB_INFO.get('Stapling', False) != "Upper Left - portrait"):
             return False
@@ -56,10 +59,12 @@ def can_run(JOB_INFO):
         return False
     if(JOB_INFO.get('Back Cover', False)):
         return False
+    if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White" and COLOR == 0):
+        return False
     return True
 
 
-def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background):
+def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background, COLOR):
 
     # This is the Order Name taken from the subject line.
     ORDER_NAME = "No Order Selected"
@@ -101,7 +106,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background):
               " FileName: " + files[i])
         page_counts = page_counts + pdf.getNumPages()
     # Checks if the job specs can be ran, and then sets the correct PJL commands
-    if (can_run(JOB_INFO)):
+    JOB_COLOR = color_extract(JOB_INFO)
+    if (can_run(JOB_INFO, COLOR)):
         print('\nChoosen Options:')
         if(JOB_INFO.get('Collation', False) == "Collated"):
             collation = str.encode(
@@ -140,7 +146,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background):
             print('No Finishing')
         else:
             default = str.encode('')
-
+        media_color = str.encode(
+                '@PJL XCPT <media-color syntax="keyword">'+JOB_COLOR+'</media-color>\n')
+        print(JOB_COLOR)
         if(JOB_INFO.get('Special Instructions', False)):
             print("SPECIAL INSTRUCTIONS: " +
                   JOB_INFO.get('Special Instructions', False))
@@ -170,6 +178,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background):
         lines = f.readlines()
 
     for i in range(len(lines)):
+        if str('<media-color syntax="keyword">') in str(lines[i]):
+            lines[i] = media_color
         if str('<copies syntax="integer">') in str(lines[i]):
             lines[i] = COPIES_COMMAND
         if str('<value syntax="enum">3</value>') in str(lines[i]):
@@ -295,7 +305,15 @@ while True:
         break
     except:
         pass
-
+while True:
+    try:
+        COLOR = int(
+            input("Enable Colored Paper?  Yes : 1 | No : 0 (default) "))
+        break
+    except:
+        pass
+if(COLOR != 1):
+    COLOR = 0
 while True:
     try:
         BulkMode = int(
@@ -303,13 +321,13 @@ while True:
         break
     except:
         pass
+        
 if(BulkMode != 1):
     loop = True
     while(loop):
         os.chdir(ORIGINAL_PATH)
         while True:
             try:
-                # if not in bulk mode, choose a printer.
                 D110_IP = int(
                     input("Choose a Printer: 156 (0), 162 (1), Auto (2): "))
                 break
@@ -323,7 +341,7 @@ if(BulkMode != 1):
             except:
                 pass
         printing(str(OrderInput),
-                 "School_Orders", 1, D110_IP, background)
+                 "School_Orders", 1, D110_IP, background, COLOR)
         while True:
             try:
                 if(int(input("Submit Another Order?  Yes : 1 | No : 0 ")) == 1):
@@ -343,7 +361,6 @@ else:
     while(bigger_loop):
         while True:
             try:
-                # if not in bulk mode, choose a printer.
                 D110_IP = int(
                     input("Choose a Printer: 156 (0), 162 (1), Auto (2): "))
                 break
@@ -363,7 +380,7 @@ else:
                 for orders in ORDER_NUMBER:
                     os.chdir(ORIGINAL_PATH)
                     printed.append(
-                        printing(str(orders), "School_Orders", 0, D110_IP, background))
+                        printing(str(orders), "School_Orders", 0, D110_IP, background, COLOR))
                 print("\n\n\n")
                 print('\n'.join(map(str, printed)))
                 if(int(input("\n\n\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1):
