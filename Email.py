@@ -11,7 +11,7 @@ from SchoolDataJson import school_data_json
 from PostScript import postscript_conversion
 from PostScript import file_merge
 
-REVISION = "20190530"
+REVISION = "20190607"
 print("School Order Downloader Revision: ", REVISION)
 
 IMAP_SERVER = 'imap.gmail.com'
@@ -71,10 +71,10 @@ def process_mailbox(M):
         # Stripping Unwanted Content
         subject = str(subject[1][0][1]).replace(
             "Subject: ", "").replace("Copy Job - ", "")
-        subject = subject[2:-15].strip()
-        subject = re.sub(r'[/\r\n\\:*?\"<>|.;]', " ", subject)
+        subject = subject[2:-9].strip()
+        subject = re.sub(r'[/\r\n\\:*?\"()<>|.;]', " ", subject)
         # Keeps only the First 75 Characters of the subject.
-        subject = subject[:75]
+        subject = subject[:50]
 
         email_body = str(data[0][1])
 

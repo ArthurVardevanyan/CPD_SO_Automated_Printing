@@ -45,6 +45,7 @@ def banner_sheet(JOB_INFO, OUTPUT_PATH):
             outfile.write(str.encode(line))
         # Export Job Info Dictionary
         for key, value in JOB_INFO.items():
+            value = str(value).replace("(", " ").replace(")", " ")
             if(key != 'Files' and key != 'Ran'and key != 'Account ID'and key != 'Order Number' and key != 'Building'):
                 outfile.write(str.encode('75 ' + str(vertical_position) +
                                          ' moveto ('+str(key) + ": " + str(value)+' ) show\n'))
