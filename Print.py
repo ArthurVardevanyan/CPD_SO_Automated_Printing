@@ -14,22 +14,36 @@ ORIGINAL_PATH = ORIGINAL_PATH.replace("\\", "/")
 D110_162 = 0
 D110_156 = 1
 print_que = []
+print_count = 0
+print_count_2 = 0
 
 
 def print_processor():
     printed = 0
-    while True:
+    run = True
+    global print_count_2
+    while run:
         time.sleep(.25)
         os.chdir(ORIGINAL_PATH)  # Change path back to relative path
+        if print_count_2 >= 40:
+            print("Printed so Far: " + str(print_count_2))
+            trash = input(
+                "Please Confirm Printers Will Support 40 More Job IDS before pressing enter: ")
+            print_count_2 = 0
         if len(print_que) > 0:
             if("banner" not in print_que[0]):
                 os.system(print_que[0])
+                print(print_que[0])
                 print_que.pop(0)
                 printed = 0
+                print_count_2 += 1
         else:
             if printed == 0:
                 print("\n!--PROCESSING CAUGHT UP--!:   ")
                 printed = 1
+                run = False
+                print_count_2 += 1
+        
 
 
 def impression_counter(PAGE_COUNTS, COPIES):
@@ -42,9 +56,11 @@ def impression_counter(PAGE_COUNTS, COPIES):
         D110_162 += PAGE_COUNTS * COPIES
         return 1
 
+
 def color_extract(JOB_INFO):
     color_list = (str(JOB_INFO.get('Paper', False))).split()
     return color_list[-1].lower()
+
 
 def can_run(JOB_INFO, COLOR):
     # Determines if jobs is able to be ran or not.
@@ -147,7 +163,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background, 
         else:
             default = str.encode('')
         media_color = str.encode(
-                '@PJL XCPT <media-color syntax="keyword">'+JOB_COLOR+'</media-color>\n')
+            '@PJL XCPT <media-color syntax="keyword">'+JOB_COLOR+'</media-color>\n')
         print(JOB_COLOR)
         if(JOB_INFO.get('Special Instructions', False)):
             print("SPECIAL INSTRUCTIONS: " +
@@ -272,8 +288,10 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background, 
         os.system(lpr_path)
     temp_path = ORIGINAL_PATH + '/' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP'
     os.chdir(temp_path)
+    global print_count
     for i in range(SETS):
         for j in range(len(Print_Files)):
+            print_count += 1
             lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
             if background == 1:
                 lpr_path = LPR[D110_IP] + '"' + temp_path + '/' + \
@@ -297,9 +315,9 @@ while True:
             input("Background Processing?  Yes : 1 | No : 0 (default) "))
         if background == 1:
             t = threading.Thread(target=print_processor)
-            t.start()
-            print("\nDO NOT CLOSE THIS WINDOW UNTIL YOU SEE BELOW MESSAGE PRINT\nIf closed, files will not have finished sending to printer.")
-            time.sleep(.5)
+            # t.start()
+            #print("\nDO NOT CLOSE THIS WINDOW UNTIL YOU SEE BELOW MESSAGE PRINT\nIf closed, files will not have finished sending to printer.")
+            # time.sleep(.5)
         else:
             background = 0
         break
@@ -321,7 +339,7 @@ while True:
         break
     except:
         pass
-        
+
 if(BulkMode != 1):
     loop = True
     while(loop):
@@ -383,6 +401,12 @@ else:
                         printing(str(orders), "School_Orders", 0, D110_IP, background, COLOR))
                 print("\n\n\n")
                 print('\n'.join(map(str, printed)))
+                print(print_count)
+                if background == 1:
+                    print_processor()
+                print("\n\n\n")
+                print('\n'.join(map(str, printed)))
+                print(print_count)
                 if(int(input("\n\n\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1):
                     bigger_loop = True
                 else:
