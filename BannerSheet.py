@@ -53,11 +53,15 @@ def banner_sheet(JOB_INFO, OUTPUT_PATH):
         # Export Files & Page Counts
         for items in files_list:
             items = items.split("', '")
+            
             outfile.write(str.encode('25 ' + str(vertical_position) +
                                      ' moveto ('+str(items[0]) + ' ) show\n'))
             vertical_position = int(vertical_position) - 17
-            outfile.write(str.encode('25 ' + str(vertical_position) +
+            try:
+                outfile.write(str.encode('25 ' + str(vertical_position) +
                                      ' moveto ('+str(items[1]) + ' ) show\n'))
+            except:
+                print("Line 2 Failure")
             vertical_position = int(vertical_position) - 17
         # Write Final Line of Postscript File
         outfile.write(str.encode('showpage\n'))

@@ -48,6 +48,6 @@ for ORDER_NUMBER in range(int(Start), int(End)+1):
     Total_Staples += stapling
 
 
-print("Impressions: " + Total_Copies)
-print("Staples: " + Total_Staples)
+print("Impressions: " + str(Total_Copies))
+print("Staples: " + str(Total_Staples))
 pprint.pprint(Job_Specs)
