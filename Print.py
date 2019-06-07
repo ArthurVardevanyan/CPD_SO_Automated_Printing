@@ -7,8 +7,6 @@ from files import postscript_list
 import json
 from BannerSheet import banner_sheet
 from PostScript import file_merge
-import threading
-import time
 ORIGINAL_PATH = os.getcwd()
 ORIGINAL_PATH = ORIGINAL_PATH.replace("\\", "/")
 D110_162 = 0
@@ -23,17 +21,17 @@ def print_processor():
     run = True
     global print_count_2
     while run:
-        time.sleep(.25)
         os.chdir(ORIGINAL_PATH)  # Change path back to relative path
         if print_count_2 >= 40:
             print("Printed so Far: " + str(print_count_2))
-            trash = input(
+            input(
                 "Please Confirm Printers Will Support 40 More Job IDS before pressing enter: ")
             print_count_2 = 0
         if len(print_que) > 0:
             if("banner" not in print_que[0]):
-                os.system(print_que[0])
-                print(print_que[0])
+                # os.system(print_que[0])
+                print((str(print_que[0]).replace(
+                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").split("-J"))[0])
                 print_que.pop(0)
                 printed = 0
                 print_count_2 += 1
@@ -43,7 +41,6 @@ def print_processor():
                 printed = 1
                 run = False
                 print_count_2 += 1
-        
 
 
 def impression_counter(PAGE_COUNTS, COPIES):
@@ -80,7 +77,7 @@ def can_run(JOB_INFO, COLOR):
     return True
 
 
-def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background, COLOR):
+def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
 
     # This is the Order Name taken from the subject line.
     ORDER_NAME = "No Order Selected"
@@ -96,14 +93,13 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background, 
     if(ORDER_NAME == "No Order Selected"):
         print("Order Number is not Valid")
         return "ON Not Valid : " + ORDER_NUMBER
-    if(CONFIRMATION == 1):
-        while True:
-            try:
-                if(int(input("Confirm Order Yes : 1 | No : 0 ")) == 0):
-                    return
-                break
-            except:
-                pass
+    while True:
+        try:
+            if(int(input("Confirm Order Yes : 1 | No : 0 ")) == 0):
+                return
+            break
+        except:
+            pass
 
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
@@ -282,10 +278,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background, 
     lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
     print(lpr_path)
     # Change Path so only File Name Shows up on Printer per File Banner Sheet
-    if background == 1:
-        print_que.append(lpr_path)
-    else:
-        os.system(lpr_path)
+    print_que.append(lpr_path)
     temp_path = ORIGINAL_PATH + '/' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP'
     os.chdir(temp_path)
     global print_count
@@ -293,36 +286,22 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, CONFIRMATION, PRINTER, background, 
         for j in range(len(Print_Files)):
             print_count += 1
             lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-            if background == 1:
-                lpr_path = LPR[D110_IP] + '"' + temp_path + '/' + \
-                    Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                print(lpr_path)
-                print_que.append(lpr_path)
-            else:
-                print(lpr_path)
-                os.system(lpr_path)
+            lpr_path = LPR[D110_IP] + '"' + temp_path + '/' + \
+                Print_Files[j] + '" -J "' + Print_Files[j] + '"'
+            print(lpr_path.replace(
+                "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").split("-J")[0])
+            print_que.append(lpr_path)
+
     print("\n")
     return print_result + D110 + ORDER_NAME
 
 
 os.chdir(ORIGINAL_PATH)  # Change path back to relative path
-print("Terminal AutoPrinting REV: 20190531")
-print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
-print("Purple Paper (Or any bright color) MUST BE loaded in bypass as gray plain paper")
-while True:
-    try:
-        background = int(
-            input("Background Processing?  Yes : 1 | No : 0 (default) "))
-        if background == 1:
-            t = threading.Thread(target=print_processor)
-            # t.start()
-            #print("\nDO NOT CLOSE THIS WINDOW UNTIL YOU SEE BELOW MESSAGE PRINT\nIf closed, files will not have finished sending to printer.")
-            # time.sleep(.5)
-        else:
-            background = 0
-        break
-    except:
-        pass
+print("\nTerminal AutoPrinting REV: 20190608")
+print('Type Your Order Number and Hit Enter, \nType "run" then hit enter when your all set. \n')
+print("Comaptible Jobs will AutoRun, jobs will pause for requested input if needed.")
+print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
+print("Purple Paper (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
 while True:
     try:
         COLOR = int(
@@ -332,84 +311,45 @@ while True:
         pass
 if(COLOR != 1):
     COLOR = 0
-while True:
-    try:
-        BulkMode = int(
-            input("Bulk Order Printing?  Yes : 1 | No : 0 (default) "))
-        break
-    except:
-        pass
-
-if(BulkMode != 1):
+bigger_loop = True
+while(bigger_loop):
+    while True:
+        try:
+            D110_IP = int(
+                input("Choose a Printer: 156 (0), 162 (1), Auto (2): "))
+            break
+        except:
+            pass
     loop = True
+    ORDER_NUMBER = []
+    printed = []
     while(loop):
-        os.chdir(ORIGINAL_PATH)
-        while True:
-            try:
-                D110_IP = int(
-                    input("Choose a Printer: 156 (0), 162 (1), Auto (2): "))
-                break
-            except:
-                pass
-        print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
-        while True:
-            try:
-                OrderInput = int(input("Type In an Order Number: "))
-                break
-            except:
-                pass
-        printing(str(OrderInput),
-                 "School_Orders", 1, D110_IP, background, COLOR)
-        while True:
-            try:
-                if(int(input("Submit Another Order?  Yes : 1 | No : 0 ")) == 1):
-                    loop = True
-                else:
-                    loop = False
-                    os.system('clear')  # on linux
-                    os.system('cls')  # on windows
-                break
-            except:
-                pass
-else:
-    print("Bulk Print Mode, Type Your Order Number and Hit Enter, \nType run then hit enter when your all set. \n")
-    print("Comaptible Jobs with no Special Instructions will AutoRun, if their are, jobs will pause for requested input if any")
-    print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests")
-    bigger_loop = True
-    while(bigger_loop):
-        while True:
-            try:
-                D110_IP = int(
-                    input("Choose a Printer: 156 (0), 162 (1), Auto (2): "))
-                break
-            except:
-                pass
-        loop = True
-        ORDER_NUMBER = []
-        printed = []
-        while(loop):
-            temp = str(input("Type In an Order Number: "))
-            if(temp != "run"):
-                ORDER_NUMBER.append(temp)
-            else:
-                loop = False
-                print("\nI am Going to Run:")
-                print('\n'.join(map(str, ORDER_NUMBER)))
-                for orders in ORDER_NUMBER:
-                    os.chdir(ORIGINAL_PATH)
-                    printed.append(
-                        printing(str(orders), "School_Orders", 0, D110_IP, background, COLOR))
-                print("\n\n\n")
-                print('\n'.join(map(str, printed)))
-                print(print_count)
-                if background == 1:
-                    print_processor()
-                print("\n\n\n")
-                print('\n'.join(map(str, printed)))
-                print(print_count)
-                if(int(input("\n\n\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1):
-                    bigger_loop = True
-                else:
-                    bigger_loop = False
-                os.system('clear')  # on linux
-                os.system('cls')  # on windows
+        temp = str(input("Type In an Order Number: "))
+        if(temp != "run"):
+            ORDER_NUMBER.append(temp)
+        else:
+            loop = False
+            print("\nI am Going to Run:")
+            print('\n'.join(map(str, ORDER_NUMBER)))
+            for orders in ORDER_NUMBER:
+                os.chdir(ORIGINAL_PATH)
+                printed.append(
+                    printing(str(orders), "School_Orders", D110_IP, COLOR))
+            print("\n")
+            print('\n'.join(map(str, printed)))
+            print(print_count)
+            print_processor()
+            print("\n")
+            print('\n'.join(map(str, printed)))
+            print(print_count)
+            while True:
+                try:
+                    if(int(input("\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1):
+                        bigger_loop = True
+                    else:
+                        bigger_loop = False
+                    break
+                except:
+                    pass
+            os.system('clear')  # on linux
+            os.system('cls')  # on windows
