@@ -29,9 +29,10 @@ def print_processor():
             print_count_2 = 0
         if len(print_que) > 0:
             if("banner" not in print_que[0]):
-                # os.system(print_que[0])
+                os.system(print_que[0])
                 print((str(print_que[0]).replace(
-                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").split("-J"))[0])
+                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                    '-P PS "C:/S/School_Orders/', "").split("-J")[0]))
                 print_que.pop(0)
                 printed = 0
                 print_count_2 += 1
@@ -289,7 +290,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
             lpr_path = LPR[D110_IP] + '"' + temp_path + '/' + \
                 Print_Files[j] + '" -J "' + Print_Files[j] + '"'
             print(lpr_path.replace(
-                "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").split("-J")[0])
+                "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                '-P PS "C:/S/School_Orders/', "").split("-J")[0])
             print_que.append(lpr_path)
 
     print("\n")
