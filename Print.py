@@ -57,7 +57,11 @@ def impression_counter(PAGE_COUNTS, COPIES):
 
 def color_extract(JOB_INFO):
     color_list = (str(JOB_INFO.get('Paper', False))).split()
-    return color_list[-1].lower()
+    color = color_list[-1].lower()
+    if color == 'canary':
+        return 'yellow'
+    else:
+        return color
 
 
 def can_run(JOB_INFO, COLOR):
@@ -299,7 +303,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
 
 
 os.chdir(ORIGINAL_PATH)  # Change path back to relative path
-print("\nTerminal AutoPrinting REV: 20190608")
+print("\nTerminal AutoPrinting REV: 20190610")
 print('Type Your Order Number and Hit Enter, \nType "run" then hit enter when your all set. \n')
 print("Comaptible Jobs will AutoRun, jobs will pause for requested input if needed.")
 print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
