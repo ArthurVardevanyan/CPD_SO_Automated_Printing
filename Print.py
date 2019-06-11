@@ -1,12 +1,11 @@
-import os
 import glob
-from PyPDF2 import PdfFileReader
-from files import folder_list
-from files import file_list
-from files import postscript_list
 import json
+import os
+from PyPDF2 import PdfFileReader
 from BannerSheet import banner_sheet
+from files import file_list, folder_list, postscript_list
 from PostScript import file_merge
+
 ORIGINAL_PATH = os.getcwd()
 ORIGINAL_PATH = ORIGINAL_PATH.replace("\\", "/")
 D110_162 = 0
@@ -54,20 +53,15 @@ def impression_counter(PAGE_COUNTS, COPIES):
         D110_162 += PAGE_COUNTS * COPIES
         return 1
 
+
 def weight_extract(JOB_INFO):
     paper = (str(JOB_INFO.get('Paper', False))).lower()
-    if "card stock" in paper:
-        return "stationery-heavyweight"
-    else:
-        return "use-ready"
+    return "stationery-heavyweight" if "card stock" in paper else "use-ready"
+
 
 def color_extract(JOB_INFO):
-    color_list = (str(JOB_INFO.get('Paper', False))).split()
-    color = color_list[-1].lower()
-    if color == 'canary':
-        return 'yellow'
-    else:
-        return color
+    color = (str(JOB_INFO.get('Paper', False))).split()[-1].lower()
+    return 'yellow' if color == 'canary' else color
 
 
 def can_run(JOB_INFO, COLOR):
@@ -331,6 +325,8 @@ while True:
         pass
 if(COLOR != 1):
     COLOR = 0
+else:
+    print("Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
 bigger_loop = True
 while(bigger_loop):
     while True:
