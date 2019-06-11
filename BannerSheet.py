@@ -53,14 +53,14 @@ def banner_sheet(JOB_INFO, OUTPUT_PATH):
         vertical_position = int(vertical_position) - 20
         # Export Files & Page Counts
         for items in files_list:
-            items = items.split("', '")
-            
+            items = items.replace("(", " ").replace(")", " ").split("', '")
+
             outfile.write(str.encode('25 ' + str(vertical_position) +
                                      ' moveto ('+str(items[0]) + ' ) show\n'))
             vertical_position = int(vertical_position) - 17
             try:
                 outfile.write(str.encode('25 ' + str(vertical_position) +
-                                     ' moveto ('+str(items[1]) + ' ) show\n'))
+                                         ' moveto ('+str(items[1]) + ' ) show\n'))
             except:
                 print("Line 2 Failure")
             vertical_position = int(vertical_position) - 17
