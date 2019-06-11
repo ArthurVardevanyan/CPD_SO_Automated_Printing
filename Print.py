@@ -54,6 +54,12 @@ def impression_counter(PAGE_COUNTS, COPIES):
         D110_162 += PAGE_COUNTS * COPIES
         return 1
 
+def weight_extract(JOB_INFO):
+    paper = (str(JOB_INFO.get('Paper', False))).lower()
+    if "card stock" in paper:
+        return "stationery-heavyweight"
+    else:
+        return "use-ready"
 
 def color_extract(JOB_INFO):
     color_list = (str(JOB_INFO.get('Paper', False))).split()
@@ -67,8 +73,6 @@ def color_extract(JOB_INFO):
 def can_run(JOB_INFO, COLOR):
     # Determines if jobs is able to be ran or not.
     if(JOB_INFO.get('Ran', False) == "True"):
-        return False
-    if("Card Stock" in JOB_INFO.get('Paper', False)):
         return False
     if(JOB_INFO.get('Stapling', False)):
         if(JOB_INFO.get('Stapling', False) != "Upper Left - portrait"):
@@ -124,6 +128,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
         page_counts = page_counts + pdf.getNumPages()
     # Checks if the job specs can be ran, and then sets the correct PJL commands
     JOB_COLOR = color_extract(JOB_INFO)
+    JOB_WEIGHT = weight_extract(JOB_INFO)
     if (can_run(JOB_INFO, COLOR)):
         print('\nChoosen Options:')
         if(JOB_INFO.get('Collation', False) == "Collated"):
@@ -165,7 +170,10 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
             default = str.encode('')
         media_color = str.encode(
             '@PJL XCPT <media-color syntax="keyword">'+JOB_COLOR+'</media-color>\n')
+        media_type = str.encode(
+            '@PJL XCPT <media-color syntax="keyword">'+JOB_WEIGHT+'</media-color>\n')
         print(JOB_COLOR)
+        print(JOB_WEIGHT)
         if(JOB_INFO.get('Special Instructions', False)):
             print("SPECIAL INSTRUCTIONS: " +
                   JOB_INFO.get('Special Instructions', False))
@@ -197,6 +205,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
     for i in range(len(lines)):
         if str('<media-color syntax="keyword">') in str(lines[i]):
             lines[i] = media_color
+        if str('<media-type syntax="keyword">') in str(lines[i]):
+            lines[i] = media_type
         if str('<copies syntax="integer">') in str(lines[i]):
             lines[i] = COPIES_COMMAND
         if str('<value syntax="enum">3</value>') in str(lines[i]):
@@ -220,8 +230,12 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
     MERGED = False
     # If it makes sense to use merged files, it uses them.
     if str('<sheet-collate syntax="keyword">uncollated') in str(collation) and len(JOB_INFO.get('Files', False)) != 1:
-        MERGED = True
-        print("THESE FILES WERE MERGED!")
+        if page_counts / len(JOB_INFO.get('Files', False)) >= 10:
+            MERGED = False
+            print("DUE TO PAGE COUNT, MERGED TURNED OFF")
+        else:
+            MERGED = True
+            print("THESE FILES WERE MERGED!")
 
     current_path = os.getcwd()  # Current Path
     try:
