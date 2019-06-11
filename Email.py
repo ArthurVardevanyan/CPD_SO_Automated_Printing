@@ -10,8 +10,9 @@ import re
 from SchoolDataJson import school_data_json
 from PostScript import postscript_conversion
 from PostScript import file_merge
+from files import page_counts
 
-REVISION = "20190607"
+REVISION = "20190611"
 print("School Order Downloader Revision: ", REVISION)
 
 IMAP_SERVER = 'imap.gmail.com'
@@ -132,7 +133,10 @@ def process_mailbox(M):
                 DUPLEX_STATE = False
                 print('Single Sided')
             if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-                file_merge(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject, DUPLEX_STATE)
+                if page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject)  / len(JOB_INFO.get('Files', False)) >= 10:
+                    print("DUE TO PAGE COUNT, MERGED TURNED OFF")
+                else:
+                    file_merge(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject, DUPLEX_STATE)
             else:
                 print("Not Merging")
         except:
