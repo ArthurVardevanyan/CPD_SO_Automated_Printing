@@ -12,7 +12,7 @@ from PostScript import postscript_conversion
 from PostScript import file_merge
 from files import page_counts
 
-REVISION = "20190611"
+REVISION = "20190615"
 print("School Order Downloader Revision: ", REVISION)
 
 IMAP_SERVER = 'imap.gmail.com'
@@ -75,7 +75,7 @@ def process_mailbox(M):
         subject = subject[2:-9].strip()
         subject = re.sub(r'[/\r\n\\:*?\"()<>|.;]', " ", subject)
         # Keeps only the First 75 Characters of the subject.
-        subject = subject[:50]
+        subject = subject[:35].rstrip()
 
         email_body = str(data[0][1])
 
