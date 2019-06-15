@@ -37,11 +37,12 @@ def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, E
 
         # Remove Unwanted Characters from file path
         file_name = re.sub(r'[\\/:;?\"<>*|]', "", file_name)
-
+        file_name = file_name.replace("Multifunction Printer", "")
         # will write file using the file_name
         with open(OUTPUT_DIRECTORY+ERROR_STATE+ORDER_NUMBER+" " + SUBJECT+"/" + ORDER_NUMBER + " " + file_name, mode="wb") as f:
             f.write(result)
         print("Finished writing " + file_name)
 
     except:
+
         print("DRIVE FAILED: LINK (or path) PROBBLY DOES NOT EXIST: ", DRIVE_ID)
