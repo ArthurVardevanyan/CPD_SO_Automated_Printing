@@ -165,7 +165,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
         media_color = str.encode(
             '@PJL XCPT <media-color syntax="keyword">'+JOB_COLOR+'</media-color>\n')
         media_type = str.encode(
-            '@PJL XCPT <media-color syntax="keyword">'+JOB_WEIGHT+'</media-color>\n')
+            '@PJL XCPT <media-type syntax="keyword">'+JOB_WEIGHT+'</media-type>\n')
         print(JOB_COLOR)
         print(JOB_WEIGHT)
         if(JOB_INFO.get('Special Instructions', False)):
