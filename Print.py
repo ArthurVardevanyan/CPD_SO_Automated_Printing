@@ -6,8 +6,7 @@ from BannerSheet import banner_sheet
 from files import file_list, folder_list, postscript_list
 from PostScript import file_merge
 
-ORIGINAL_PATH = os.getcwd()
-ORIGINAL_PATH = ORIGINAL_PATH.replace("\\", "/")
+
 D110_162 = 0
 D110_156 = 1
 print_que = []
@@ -20,7 +19,6 @@ def print_processor():
     run = True
     global print_count_2
     while run:
-        os.chdir(ORIGINAL_PATH)  # Change path back to relative path
         if print_count_2 >= 40:
             print("Printed so Far: " + str(print_count_2))
             input(
@@ -292,14 +290,12 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
     print(lpr_path)
     # Change Path so only File Name Shows up on Printer per File Banner Sheet
     print_que.append(lpr_path)
-    temp_path = ORIGINAL_PATH + '/' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP'
-    os.chdir(temp_path)
     global print_count
     for i in range(SETS):
         for j in range(len(Print_Files)):
             print_count += 1
             lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-            lpr_path = LPR[D110_IP] + '"' + temp_path + '/' + \
+            lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
                 Print_Files[j] + '" -J "' + Print_Files[j] + '"'
             print(lpr_path.replace(
                 "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
@@ -310,8 +306,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
     return print_result + D110 + ORDER_NAME
 
 
-os.chdir(ORIGINAL_PATH)  # Change path back to relative path
-print("\nTerminal AutoPrinting REV: 20190610")
+print("\nTerminal AutoPrinting REV: 20190620")
 print('Type Your Order Number and Hit Enter, \nType "run" then hit enter when your all set. \n')
 print("Comaptible Jobs will AutoRun, jobs will pause for requested input if needed.")
 print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
@@ -348,7 +343,6 @@ while(bigger_loop):
             print("\nI am Going to Run:")
             print('\n'.join(map(str, ORDER_NUMBER)))
             for orders in ORDER_NUMBER:
-                os.chdir(ORIGINAL_PATH)
                 printed.append(
                     printing(str(orders), "School_Orders", D110_IP, COLOR))
             print("\n")
