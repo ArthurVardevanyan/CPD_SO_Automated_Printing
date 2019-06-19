@@ -12,7 +12,7 @@ from PostScript import postscript_conversion
 from PostScript import file_merge
 from files import page_counts
 
-REVISION = "20190615"
+REVISION = "20190620"
 print("School Order Downloader Revision: ", REVISION)
 
 IMAP_SERVER = 'imap.gmail.com'
@@ -74,7 +74,7 @@ def process_mailbox(M):
             "Subject: ", "").replace("Copy Job - ", "")
         subject = subject[2:-9].strip()
         subject = re.sub(r'[/\r\n\\:*?\"()<>|.;]', " ", subject)
-        # Keeps only the First 75 Characters of the subject.
+        # Keeps only the First 35 Characters of the subject.
         subject = subject[:35].rstrip()
 
         email_body = str(data[0][1])
@@ -108,7 +108,7 @@ def process_mailbox(M):
         else:
             # Calls Google Drive Link Extractor
             linke_extractor(email_body, ORDER_NUMBER,
-                          OUTPUT_DIRECTORY, subject, error_state)
+                            OUTPUT_DIRECTORY, subject, error_state)
             # Makes a file and Writes Email Conents to it.
             f = open(OUTPUT_DIRECTORY+error_state+ORDER_NUMBER+" " +
                      subject + "/" + ORDER_NUMBER+" " + subject+'.txt', 'wb')
@@ -125,7 +125,7 @@ def process_mailbox(M):
         except:
             print("PostScript Conversion Failed")
         try:
-            #Merge Uncollated Files
+            # Merge Uncollated Files
             if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
                 DUPLEX_STATE = True
                 print('Double Sided')
@@ -133,10 +133,11 @@ def process_mailbox(M):
                 DUPLEX_STATE = False
                 print('Single Sided')
             if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-                if page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject)  / len(JOB_INFO.get('Files', False)) >= 10:
+                if page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject) / len(JOB_INFO.get('Files', False)) >= 10:
                     print("DUE TO PAGE COUNT, MERGED TURNED OFF")
                 else:
-                    file_merge(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject, DUPLEX_STATE)
+                    file_merge(OUTPUT_DIRECTORY, ORDER_NUMBER +
+                               " " + subject, DUPLEX_STATE)
             else:
                 print("Not Merging")
         except:
@@ -155,7 +156,7 @@ def main():
         print("Im Resting, Check Back Later:")
         while(1 == 1):  # Infinte Loop for checking emails
             try:
-                time.sleep(420)
+                time.sleep(25)
                 print("Running Loop")
                 M = imaplib.IMAP4_SSL(IMAP_SERVER)
                 M.login(EMAIL_ACCOUNT, PASSWORD)
@@ -167,11 +168,11 @@ def main():
                 print("Emails Proccessed: ", EMAILS_PROCCESSED)
                 print("Im Resting, Check Back Later:")
                 print("School Order Downloader Revision: ", REVISION)
-
                 if rv == 'OK':
                     print("Again")
                 else:
                     print("ERROR: Unable to open mailbox ", rv)
+                time.sleep(250)
             except:
                 print("SOMETHING WENT HORRIBLY WRONG, Check Internet Connection")
                 time.sleep(30)
