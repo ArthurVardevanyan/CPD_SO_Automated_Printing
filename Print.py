@@ -325,7 +325,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
 
 def main():
     print("\nTerminal AutoPrinting REV: 20190626")
-    print('Type Your Order Number and Hit Enter, \nType "run" then hit enter when your all set. \n')
+    print("Supported are :\n• Simplex & Duplex Printing (Long Edge)\n• 3-Hole Punch\n• Top Left Portrait Staple")
+    print("• White Paper, Colored Paper & Cardstock\n• SlipSheeting\n• Splitting Jobs Into Sets\n• Balancing Load Between Two Printers\n")
+    print('Type Your Order Number and Hit Enter,\nType "run" then hit enter when your all set. \n')
     print("Comaptible Jobs will AutoRun, jobs will pause for requested input if needed.")
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
     print("Purple Paper (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
