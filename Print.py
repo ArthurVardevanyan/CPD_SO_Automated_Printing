@@ -97,7 +97,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
     while True:
         try:
             if(int(input("Confirm Order Yes : 1 | No : 0 ")) == 0):
-                return
+                return "Aborted @ CO#: " + ORDER_NAME
             break
         except:
             pass
@@ -186,8 +186,24 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
     else:
         # If thier are special instructions prompt the user to manually enter copies and set counts
         print("If more than one set is requried, do the appropriate calculation to determine correct amount of Sets and Copies per Set")
-        SETS = int(input("\nHow Many Sets?: "))
-        COPIES_PER_SET = int(input("How Many Copies Per Set?: "))
+
+        while True:
+            try:
+                SETS = int(input("\nHow Many Sets?: "))
+                if(SETS == 0):
+                    return "Aborted @ Set: " + ORDER_NAME
+                break
+            except:
+                pass
+        while True:
+            try:
+                COPIES_PER_SET = int(input("How Many Copies Per Set?: "))
+                if(COPIES_PER_SET == 0):
+                    return "Aborted @ CPS: " + ORDER_NAME
+                break
+            except:
+                pass
+
         print_result = "Manual Input : "
     COPIES_COMMAND = str.encode(
         '@PJL XCPT <copies syntax="integer">'+str(COPIES_PER_SET)+'</copies>\n')
