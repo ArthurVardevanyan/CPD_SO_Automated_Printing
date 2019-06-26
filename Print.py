@@ -297,7 +297,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
     except:
         print("Temp File Remove Failed")
 
+    global print_count
     print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
+    print_count += 1
     for i in range(SETS):
         for j in range(len(Print_Files)):
             print("File Name: " + Print_Files[j])
@@ -306,7 +308,6 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
     print(lpr_path)
     # Change Path so only File Name Shows up on Printer per File Banner Sheet
     print_que.append(lpr_path)
-    global print_count
     for i in range(SETS):
         for j in range(len(Print_Files)):
             print_count += 1
@@ -322,60 +323,65 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
     return print_result + D110 + ORDER_NAME
 
 
-print("\nTerminal AutoPrinting REV: 20190620")
-print('Type Your Order Number and Hit Enter, \nType "run" then hit enter when your all set. \n')
-print("Comaptible Jobs will AutoRun, jobs will pause for requested input if needed.")
-print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
-print("Purple Paper (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
-while True:
-    try:
-        COLOR = int(
-            input("Enable Colored Paper?  Yes : 1 | No : 0 (default) "))
-        break
-    except:
-        pass
-if(COLOR != 1):
-    COLOR = 0
-else:
-    print("Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
-bigger_loop = True
-while(bigger_loop):
+def main():
+    print("\nTerminal AutoPrinting REV: 20190626")
+    print('Type Your Order Number and Hit Enter, \nType "run" then hit enter when your all set. \n')
+    print("Comaptible Jobs will AutoRun, jobs will pause for requested input if needed.")
+    print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
+    print("Purple Paper (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
     while True:
         try:
-            D110_IP = int(
-                input("Choose a Printer: 156 (0), 162 (1), Auto (2): "))
+            COLOR = int(
+                input("Enable Colored Paper?  Yes : 1 | No : 0 (default) "))
             break
         except:
             pass
-    loop = True
-    ORDER_NUMBER = []
-    printed = []
-    while(loop):
-        temp = str(input("Type In an Order Number: "))
-        if(temp != "run"):
-            ORDER_NUMBER.append(temp)
-        else:
-            loop = False
-            print("\nI am Going to Run:")
-            print('\n'.join(map(str, ORDER_NUMBER)))
-            for orders in ORDER_NUMBER:
-                printed.append(
-                    printing(str(orders), "School_Orders", D110_IP, COLOR))
-            print("\n")
-            print('\n'.join(map(str, printed)))
-            print(print_count)
-            print_processor()
-            print("\n")
-            print('\n'.join(map(str, printed)))
-            print(print_count)
-            while True:
-                try:
-                    if(int(input("\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1):
-                        bigger_loop = True
-                    else:
-                        bigger_loop = False
-                    break
-                except:
-                    pass
-            os.system('clear')  # on linux
-            os.system('cls')  # on windows
+    if(COLOR != 1):
+        COLOR = 0
+    else:
+        print("Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
+    bigger_loop = True
+    while(bigger_loop):
+        while True:
+            try:
+                D110_IP = int(
+                    input("Choose a Printer: 156 (0), 162 (1), Auto (2): "))
+                break
+            except:
+                pass
+        loop = True
+        ORDER_NUMBER = []
+        printed = []
+        while(loop):
+            temp = str(input("Type In an Order Number: "))
+            if(temp != "run"):
+                ORDER_NUMBER.append(temp)
+            else:
+                loop = False
+                print("\nI am Going to Run:")
+                print('\n'.join(map(str, ORDER_NUMBER)))
+                for orders in ORDER_NUMBER:
+                    printed.append(
+                        printing(str(orders), "School_Orders", D110_IP, COLOR))
+                print("\n")
+                print('\n'.join(map(str, printed)))
+                print(print_count)
+                print_processor()
+                print("\n")
+                print('\n'.join(map(str, printed)))
+                print(print_count)
+                while True:
+                    try:
+                        if(int(input("\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1):
+                            bigger_loop = True
+                        else:
+                            bigger_loop = False
+                        break
+                    except:
+                        pass
+                os.system('clear')  # on linux
+                os.system('cls')  # on windows
+
+
+if __name__ == "__main__":
+    main()
