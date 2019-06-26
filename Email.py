@@ -12,7 +12,7 @@ from PostScript import postscript_conversion
 from PostScript import file_merge
 from files import page_counts
 
-REVISION = "20190620"
+REVISION = "20190626"
 print("School Order Downloader Revision: ", REVISION)
 
 IMAP_SERVER = 'imap.gmail.com'
@@ -154,7 +154,7 @@ def main():
     if rv == 'OK':
         print("Processing mailbox: ", EMAIL_FOLDER)
         print("Im Resting, Check Back Later:")
-        while(1 == 1):  # Infinte Loop for checking emails
+        while(True):  # Infinte Loop for checking emails
             try:
                 time.sleep(25)
                 print("Running Loop")
@@ -168,10 +168,8 @@ def main():
                 print("Emails Proccessed: ", EMAILS_PROCCESSED)
                 print("Im Resting, Check Back Later:")
                 print("School Order Downloader Revision: ", REVISION)
-                if rv == 'OK':
-                    print("Again")
-                else:
-                    print("ERROR: Unable to open mailbox ", rv)
+                print("Again") if rv == 'OK' else print(
+                    "ERROR: Unable to open mailbox ", rv)
                 time.sleep(250)
             except:
                 print("SOMETHING WENT HORRIBLY WRONG, Check Internet Connection")

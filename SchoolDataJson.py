@@ -8,12 +8,10 @@ from files import file_list
 
 def school_data_json(ORDER_NUMBER, OUTPUT_DIRECTORY):
     school_data = {'Account ID': 'CHANGEME'}
-    ORDER_NAME = " "  # This is the Order Name taken from the subject line.
     # Calls a function in files.py, which gets a list of all the orders downladed
-    Folders = folder_list(OUTPUT_DIRECTORY)
-    for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
-        if ORDER_NUMBER in i:
-            ORDER_NAME = i
+    for i in folder_list(OUTPUT_DIRECTORY):  # Searchs for Requested Order Number from list of currently downloaded orders
+        ORDER_NAME = i if ORDER_NUMBER in i else " "
+
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 
@@ -23,9 +21,10 @@ def school_data_json(ORDER_NUMBER, OUTPUT_DIRECTORY):
 
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(files)):
-        pdf = PdfFileReader(open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+files[i], "rb"))
+        pdf = PdfFileReader(
+            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+files[i], "rb"))
         school_data["Files"]["File " +
-                            str(i+1)] = {"File Name": files[i],  "Page Count": str(pdf.getNumPages())}
+                             str(i+1)] = {"File Name": files[i],  "Page Count": str(pdf.getNumPages())}
 
     # Imports the Email contents line by line.
     email = [line.rstrip('\n') for line in open(

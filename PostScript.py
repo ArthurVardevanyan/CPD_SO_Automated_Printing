@@ -10,23 +10,20 @@ from PyPDF2 import PdfFileReader
 
 
 def postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY):
-    ORDER_NAME = " "  # This is the Order Name taken from the subject line.
     # Calls a function in files.py, which gets a list of all the orders downladed
-    folders = folder_list(OUTPUT_DIRECTORY)
-    for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
-        if ORDER_NUMBER in i:
-            ORDER_NAME = i
+    # Searchs for Requested Order Number from list of currently downloaded orders
+    for i in folder_list(OUTPUT_DIRECTORY):
+        ORDER_NAME = i if ORDER_NUMBER in i else " "
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
-    CURRENT_PATH = os.getcwd()  # Current Path
     try:
-        os.makedirs(CURRENT_PATH + "/" + OUTPUT_DIRECTORY +
+        os.makedirs("/" + OUTPUT_DIRECTORY +
                     "/"+ORDER_NAME + "/PostScript")
         print("Successfully created the directory " +
-              CURRENT_PATH + "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PostScript")
+              "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PostScript")
     except OSError:
         print("Creation of the directory failed " +
-              CURRENT_PATH + "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PostScript")
+              "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PostScript")
 
     GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
     #GHOSTSCRIPT_PATH = 'gs'
