@@ -80,16 +80,23 @@ def can_run(JOB_INFO, COLOR):
 
 def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
 
+<<<<<<< HEAD
  # This is the Order Name taken from the subject line.
     ORDER_NAME = "No Order Selected"
+=======
+>>>>>>> 1b0829f2efd35d3e8ccc9cdeb9c7ea339a1e8599
     print_result = ''
     page_counts = 0
     # Calls a function in files.py, which gets a list of all the orders downladed
     Folders = folder_list(OUTPUT_DIRECTORY)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
+<<<<<<< HEAD
         if ORDER_NUMBER in i:
             ORDER_NAME = i
 
+=======
+        ORDER_NAME = i if ORDER_NUMBER in i else "No Order Selected"
+>>>>>>> 1b0829f2efd35d3e8ccc9cdeb9c7ea339a1e8599
     # This is the Order Name taken from the subject line.
     print(ORDER_NAME)
     if(ORDER_NAME == "No Order Selected"):
