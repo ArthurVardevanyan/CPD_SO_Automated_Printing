@@ -80,7 +80,7 @@ def can_run(JOB_INFO, COLOR):
 
 def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
 
-    # This is the Order Name taken from the subject line.
+ # This is the Order Name taken from the subject line.
     ORDER_NAME = "No Order Selected"
     print_result = ''
     page_counts = 0
@@ -90,6 +90,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
         if ORDER_NUMBER in i:
             ORDER_NAME = i
 
+    # This is the Order Name taken from the subject line.
     print(ORDER_NAME)
     if(ORDER_NAME == "No Order Selected"):
         print("Order Number is not Valid")
@@ -245,14 +246,13 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
             MERGED = True
             print("THESE FILES WERE MERGED!")
 
-    current_path = os.getcwd()  # Current Path
     try:
-        os.makedirs(current_path + "/" + OUTPUT_DIRECTORY +
+        os.makedirs("/" + OUTPUT_DIRECTORY +
                     "/"+ORDER_NAME + "/PSP")
-        print("Successfully created the directory " + current_path +
+        print("Successfully created the directory " +
               "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP")
     except OSError:
-        print("Creation of the directory failed " + current_path +
+        print("Creation of the directory failed " +
               "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP")
 
     if MERGED == True:
@@ -333,17 +333,15 @@ def main():
     print("Purple Paper (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
     while True:
         try:
-            COLOR = int(
-                input("Enable Colored Paper?  Yes : 1 | No : 0 (default) "))
+            COLOR = 1 if int(
+                input("Enable Colored Paper?  Yes : 1 | No : 0 (default) ")) == 1 else 0
             break
         except:
             pass
-    if(COLOR != 1):
-        COLOR = 0
     else:
         print("Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
-    bigger_loop = True
-    while(bigger_loop):
+    loop = True
+    while(loop):
         while True:
             try:
                 D110_IP = int(
@@ -359,7 +357,6 @@ def main():
             if(temp != "run"):
                 ORDER_NUMBER.append(temp)
             else:
-                loop = False
                 print("\nI am Going to Run:")
                 print('\n'.join(map(str, ORDER_NUMBER)))
                 for orders in ORDER_NUMBER:
@@ -374,15 +371,13 @@ def main():
                 print(print_count)
                 while True:
                     try:
-                        if(int(input("\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1):
-                            bigger_loop = True
-                        else:
-                            bigger_loop = False
+                        loop = True if int(
+                            input("\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1 else False
                         break
                     except:
                         pass
                 os.system('clear')  # on linux
-                os.system('cls')  # on windows
+                os.system('CLS')  # on windows
 
 
 if __name__ == "__main__":
