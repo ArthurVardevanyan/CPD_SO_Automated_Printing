@@ -8,12 +8,17 @@ from files import file_list
 
 def school_data_json(ORDER_NUMBER, OUTPUT_DIRECTORY):
     school_data = {'Account ID': 'CHANGEME'}
-    ORDER_NAME = " "  # This is the Order Name taken from the subject line.
     # Calls a function in files.py, which gets a list of all the orders downladed
+<<<<<<< HEAD
     Folders = folder_list(OUTPUT_DIRECTORY)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
         if ORDER_NUMBER in i:
             ORDER_NAME = i   
+=======
+    for i in folder_list(OUTPUT_DIRECTORY):  # Searchs for Requested Order Number from list of currently downloaded orders
+        ORDER_NAME = i if ORDER_NUMBER in i else " "
+
+>>>>>>> 1b0829f2efd35d3e8ccc9cdeb9c7ea339a1e8599
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 

@@ -10,7 +10,6 @@ from PyPDF2 import PdfFileReader
 
 
 def postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY):
-    ORDER_NAME = " "  # This is the Order Name taken from the subject line.
     # Calls a function in files.py, which gets a list of all the orders downladed
     folders = folder_list(OUTPUT_DIRECTORY)
     for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
