@@ -13,7 +13,7 @@ def school_data_json(ORDER_NUMBER, OUTPUT_DIRECTORY):
     Folders = folder_list(OUTPUT_DIRECTORY)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
         if ORDER_NUMBER in i:
-            ORDER_NAME = i
+            ORDER_NAME = i   
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 
@@ -23,9 +23,10 @@ def school_data_json(ORDER_NUMBER, OUTPUT_DIRECTORY):
 
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(files)):
-        pdf = PdfFileReader(open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+files[i], "rb"))
+        pdf = PdfFileReader(
+            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+files[i], "rb"))
         school_data["Files"]["File " +
-                            str(i+1)] = {"File Name": files[i],  "Page Count": str(pdf.getNumPages())}
+                             str(i+1)] = {"File Name": files[i],  "Page Count": str(pdf.getNumPages())}
 
     # Imports the Email contents line by line.
     email = [line.rstrip('\n') for line in open(
