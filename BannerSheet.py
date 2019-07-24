@@ -46,7 +46,7 @@ def banner_sheet(JOB_INFO, OUTPUT_PATH):
         # Export Job Info Dictionary
         for key, value in JOB_INFO.items():
             value = str(value).replace("(", " ").replace(")", " ")
-            if(key != 'Files' and key != 'Ran'and key != 'Account ID'and key != 'Order Number' and key != 'Building'):
+            if(key != 'Files' and key != 'Ran' and key != 'Account ID' and key != 'Order Number' and key != 'Building'):
                 outfile.write(str.encode('75 ' + str(vertical_position) +
                                          ' moveto ('+str(key) + ": " + str(value)+' ) show\n'))
                 vertical_position = int(vertical_position) - 17
@@ -66,5 +66,5 @@ def banner_sheet(JOB_INFO, OUTPUT_PATH):
             vertical_position = int(vertical_position) - 17
         # Write Final Line of Postscript File
         outfile.write(str.encode('showpage\n'))
-    # Return Locatoin of Banner Sheet File
+    # Return Location of Banner Sheet File
     return OUTPUT_PATH+JOB_INFO.get('Order Number', False) + ' Banner ' + JOB_INFO.get('First Name', False) + ' ' + JOB_INFO.get('Last Name', False) + '.ps'
