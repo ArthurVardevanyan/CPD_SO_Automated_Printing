@@ -24,7 +24,7 @@ PASSWORD = getpass.getpass()
 # This Function extracts the Google Drive FileIDs from the contents of the Email
 
 
-def linke_extractor(EmailBody, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
+def link_extractor(EmailBody, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
     file_links = EmailBody[0]
     # Checks if the email is indeed a School Order and not something else.
     if ("Attach your file(s) in PDF format." in file_links):
@@ -103,13 +103,13 @@ def process_mailbox(M):
                   CURRENT_PATH+"/" + OUTPUT_DIRECTORY+error_state+"/"+subject)
             print("Successfully created the directory %s " %
                   CURRENT_PATH+"/" + OUTPUT_DIRECTORY+error_state+"/"+subject)
-        if("Re:" in subject):  # Ignore Replys from Teachers
+        if("Re:" in subject):  # Ignore Replies from Teachers
             print("This is a reply, not going to bother")
         else:
             # Calls Google Drive Link Extractor
-            linke_extractor(email_body, ORDER_NUMBER,
+            link_extractor(email_body, ORDER_NUMBER,
                             OUTPUT_DIRECTORY, subject, error_state)
-            # Makes a file and Writes Email Conents to it.
+            # Makes a file and Writes Email Contents to it.
             f = open(OUTPUT_DIRECTORY+error_state+ORDER_NUMBER+" " +
                      subject + "/" + ORDER_NUMBER+" " + subject+'.txt', 'wb')
             f.write(data[0][1])
@@ -154,7 +154,7 @@ def main():
     if rv == 'OK':
         print("Processing mailbox: ", EMAIL_FOLDER)
         print("Im Resting, Check Back Later:")
-        while(True):  # Infinte Loop for checking emails
+        while(True):  # Infinite Loop for checking emails
             try:
                 time.sleep(25)
                 print("Running Loop")

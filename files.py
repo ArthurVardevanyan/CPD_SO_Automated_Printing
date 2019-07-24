@@ -20,7 +20,7 @@ def file_list(folder, OName):
 
 
 def postscript_list(folder, OName, sub):
-    # Addes Sub Folder to look for Postscript Files
+    # Add's Sub Folder to look for Postscript Files
     fileList = glob.glob(folder+"/"+OName+"/"+sub+"/" + "*.ps")
     Stripped_List = [os.path.basename(x) for x in fileList]
     return Stripped_List  # Returns the Stripped List to Main Function
