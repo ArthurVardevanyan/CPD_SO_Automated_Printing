@@ -90,7 +90,6 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
         if ORDER_NUMBER in i:
             ORDER_NAME = i
 
-    ORDER_NAME = i if ORDER_NUMBER in i else "No Order Selected"
     # This is the Order Name taken from the subject line.
     print(ORDER_NAME)
     if(ORDER_NAME == "No Order Selected"):
@@ -249,7 +248,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
             print("THESE FILES WERE MERGED!")
 
     try:
-        os.makedirs("/" + OUTPUT_DIRECTORY +
+        os.makedirs(OUTPUT_DIRECTORY +
                     "/"+ORDER_NAME + "/PSP")
         print("Successfully created the directory " +
               "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP")
