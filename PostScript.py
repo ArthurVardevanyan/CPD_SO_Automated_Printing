@@ -14,7 +14,8 @@ def postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY):
     folders = folder_list(OUTPUT_DIRECTORY)
     for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
         if ORDER_NUMBER in i:
-            ORDER_NAME = i    # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
+            # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
+            ORDER_NAME = i
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
     try:
         os.makedirs("/" + OUTPUT_DIRECTORY +

@@ -1,4 +1,4 @@
-# CPD_SO_Printing
+# CPD_SO_Automated_Printing
 
 ## Two Main Files:
 
@@ -13,7 +13,7 @@ This is the Printing Utility. It prints mostly autonomously for the inputted ord
 Grabes list of files and folders
 #### PostScript.py 
 Converts the PDFS to PS Files , also merges postscript files when needed.
-#### SchoolDataJson.py C
+#### SchoolDataJson.py
 Converts the Email text into a JSON file
 #### GDrive.py  
 Downloads the files for the order from Google Drive

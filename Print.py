@@ -124,7 +124,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
     JOB_COLOR = color_extract(JOB_INFO)
     JOB_WEIGHT = weight_extract(JOB_INFO)
     if (can_run(JOB_INFO, COLOR)):
-        print('\nChoosen Options:')
+        print('\Chosen Options:')
         if(JOB_INFO.get('Collation', False) == "Collated"):
             collation = str.encode(
                 '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
@@ -173,7 +173,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
             print("SPECIAL INSTRUCTIONS: " +
                   JOB_INFO.get('Special Instructions', False))
     else:
-        print("This Order Currently Does not Support AutoSelection, please double chek if the order requires the normal driver.")
+        print("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.")
         return "Not Supported:  " + ORDER_NAME
     print("Number of (Total) Copies Listed Per File: " +
           JOB_INFO.get('Copies', False))
@@ -187,8 +187,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
         print("\n!--I WILL TAKE IT FROM HERE--!")
         print_result = "SUCCESS!     : "
     else:
-        # If thier are special instructions prompt the user to manually enter copies and set counts
-        print("If more than one set is requried, do the appropriate calculation to determine correct amount of Sets and Copies per Set")
+        # If their are special instructions prompt the user to manually enter copies and set counts
+        print("If more than one set is required, do the appropriate calculation to determine correct amount of Sets and Copies per Set")
 
         while True:
             try:
@@ -330,7 +330,7 @@ def main():
     print("Supported are :\n• Simplex & Duplex Printing (Long Edge)\n• 3-Hole Punch\n• Top Left Portrait Staple")
     print("• White Paper, Colored Paper & Cardstock\n• SlipSheeting\n• Splitting Jobs Into Sets\n• Balancing Load Between Two Printers\n")
     print('Type Your Order Number and Hit Enter,\nType "run" then hit enter when your all set. \n')
-    print("Comaptible Jobs will AutoRun, jobs will pause for requested input if needed.")
+    print("Compatible Jobs will AutoRun, jobs will pause for requested input if needed.")
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
     print("Purple Paper (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
     while True:
