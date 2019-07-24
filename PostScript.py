@@ -18,7 +18,7 @@ def postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY):
             ORDER_NAME = i
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
     try:
-        os.makedirs("/" + OUTPUT_DIRECTORY +
+        os.makedirs(OUTPUT_DIRECTORY +
                     "/"+ORDER_NAME + "/PostScript")
         print("Successfully created the directory " +
               "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PostScript")
