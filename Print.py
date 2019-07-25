@@ -353,7 +353,7 @@ def main():
         loop = True
         ORDER_NUMBER = []
         printed = []
-        while(loop):
+        while(True):
             temp = str(input("Type In an Order Number: "))
             if(temp != "run"):
                 ORDER_NUMBER.append(temp)
@@ -377,8 +377,10 @@ def main():
                         break
                     except:
                         pass
+            
                 os.system('clear')  # on linux
                 os.system('CLS')  # on windows
+                break
 
 
 if __name__ == "__main__":
