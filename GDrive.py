@@ -1,8 +1,15 @@
+# GDrive.py
+
+# Downloaded Libraries
 from __future__ import print_function
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
+
+# Built-In Libraries
 import re
+__version__ = "v20190726"
+
 # Source https://developers.google.com/drive/api/v3/quickstart/python
 # Source https://stackoverflow.com/questions/52211886/downloading-file-from-google-drive-using-api-nameerror-name-service-is-not-d
 

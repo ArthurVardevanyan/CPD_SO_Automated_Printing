@@ -1,16 +1,29 @@
 # CPD_SO_Automated_Printing
 
+A Specialized Script for Running one Customers High Volume Orders
+
+### Known Bugs:
+* Entering an Order # Shorter than the desired one may result in the incorrect order getting picked. Generally not an issue, order can be skipped on confirm screen.
+* Occasionally Customer Provides two Jobs with the same order number, in that case, one is picked, and if it is not the right one, you can not run that order.
+* If the Order has Invalid* or Unrealistic inputs, if a human does not catch it, the order will be wrong. (Some Invalid inputs will be caught by the script)
+* Can't Print Password Locked or Corrupt Files.
+
+### TODO
+
+* Add Slip-sheets to collated sets with high page counts, ~10 or more sheets
+
+
 ## Two Main Files:
 
 #### Email.py 
-Fetchs The Emails and calls other functions to setup and prepocess jobs.
+Fetches The Emails and calls other functions to setup and preprocess jobs.
 #### Print.py 
 This is the Printing Utility. It prints mostly autonomously for the inputted orders, main aspects it still asks for are which printer to use and if the "Special Instructions" field is filled out, it has someone verify and input information.
 
 ## Other Files Include:
 
 #### files.py 
-Grabes list of files and folders
+Grabs list of files and folders
 #### PostScript.py 
 Converts the PDFS to PS Files , also merges postscript files when needed.
 #### SchoolDataJson.py
@@ -18,12 +31,12 @@ Converts the Email text into a JSON file
 #### GDrive.py  
 Downloads the files for the order from Google Drive
 #### BannerSheet.py  
-Generates a custom banner sheet for running these jobs. Outputed in front of each job before all the files get outputted.  
+Generates a custom banner sheet for running these jobs. Outputted in front of each job before all the files get outputted.  
 
 ## PJL_Commands 
 This folder contains the resources for the Printer Job Language (PJL) Commands needed to output the postscript files on the printer.  
-In our enviorment these PJL commands are for a Xerox D-Series (D110) Printer with a 
-* High Capcity Stacker (Not Relevant)
+In our environment these PJL commands are for a Xerox D-Series (D110) Printer with a 
+* High Capacity Stacker (Not Relevant)
 * 3 Hole Punch Unit
 * Booklet Maker Finisher	
 
@@ -33,8 +46,8 @@ The color can be changed based on the setting in BannerSheet.py*
 #### Blank.ps
 This is a blank postscript file. Used when merging odd number postscript files to make even.  
 #### End.ps
-Conatins the Escape Code that enscaplatuates encapsulates the postscript information.  
+Contains the Escape Code that encapsulates the postscript information.  
 #### PJL.ps
-This file is a PJL template file for how the job files print. The file gets modified by on the job paramaeters and then inserting onto each postscript file.  
+This file is a PJL template file for how the job files print. The file gets modified by on the job parameters and then inserting onto each postscript file.  
 #### PJL Options.txt
-Conatins a list of the PJL Options and what they do for our machine.
+Contains a list of the PJL Options and what they do for our machine.

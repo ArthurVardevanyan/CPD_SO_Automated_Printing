@@ -1,19 +1,25 @@
+# Print.py
+__version__ = "v20190726"
+
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
+
+# Built-In Libraries
 import sys
 import imaplib
-import getpass
-from GDrive import Google_Drive_Downloader
 import os
 import time
 import shutil
 import re
+import getpass
+
+# Local Files
+from GDrive import Google_Drive_Downloader
 from SchoolDataJson import school_data_json
 from PostScript import postscript_conversion
 from PostScript import file_merge
 from files import page_counts
 
-REVISION = "20190626"
-print("School Order Downloader Revision: ", REVISION)
+print("School Order Downloader Revision: ", __version__)
 
 IMAP_SERVER = 'imap.gmail.com'
 EMAIL_ACCOUNT = "@gmail.com"
@@ -94,21 +100,21 @@ def process_mailbox(M):
             print("ERROR getting message", num)
             return
         print("Order: ", ORDER_NUMBER, " ", subject)
-        CURRENT_PATH = os.getcwd()  # Current Path
+
         try:
-            os.makedirs(CURRENT_PATH + "/" + OUTPUT_DIRECTORY +
+            os.makedirs(OUTPUT_DIRECTORY +
                         error_state+ORDER_NUMBER+" "+subject)
         except OSError:
             print("Creation of the directory %s failed" %
-                  CURRENT_PATH+"/" + OUTPUT_DIRECTORY+error_state+"/"+subject)
+                  OUTPUT_DIRECTORY+error_state+"/"+subject)
             print("Successfully created the directory %s " %
-                  CURRENT_PATH+"/" + OUTPUT_DIRECTORY+error_state+"/"+subject)
+                  OUTPUT_DIRECTORY+error_state+"/"+subject)
         if("Re:" in subject):  # Ignore Replies from Teachers
-            print("This is a reply, not going to bother")
+            print("This is a reply, skipping")
         else:
             # Calls Google Drive Link Extractor
             link_extractor(email_body, ORDER_NUMBER,
-                            OUTPUT_DIRECTORY, subject, error_state)
+                           OUTPUT_DIRECTORY, subject, error_state)
             # Makes a file and Writes Email Contents to it.
             f = open(OUTPUT_DIRECTORY+error_state+ORDER_NUMBER+" " +
                      subject + "/" + ORDER_NUMBER+" " + subject+'.txt', 'wb')
@@ -167,7 +173,7 @@ def main():
                 print("\n\n\n\n\n\n\n\n")
                 print("Emails Proccessed: ", EMAILS_PROCCESSED)
                 print("Im Resting, Check Back Later:")
-                print("School Order Downloader Revision: ", REVISION)
+                print("School Order Downloader Revision: ", __version__)
                 print("Again") if rv == 'OK' else print(
                     "ERROR: Unable to open mailbox ", rv)
                 time.sleep(250)
