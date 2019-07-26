@@ -1,9 +1,16 @@
+# BannerSheet.py
+__version__ = "v20190726"
+
+# Built-In Libraries
 import json
 
 # Setups up BannerSheet Postscript File
 
 
 def banner_sheet(JOB_INFO, OUTPUT_PATH):
+    NAME = "CHANGE ME"
+    LOC = "CHANGE ME"
+
     MEDIA_COLOR = ("white", "blue", "yellow", "green", "pink",
                    "ivory", "gray", "buff", "goldenrod,", "red", "orange")
     # Allows differnet color banner sheets. Common Pastel/Astrobrights Colors
@@ -27,9 +34,10 @@ def banner_sheet(JOB_INFO, OUTPUT_PATH):
 
     # Template Postscript information
     POSTSCRIPT = (
-        '\n%!PS\n', '/Times-Bold findfont 70 scalefont setfont\n', '28 684 moveto (Workonomy-CPD) show\n',
+        '\n%!PS\n', '/Times-Bold findfont 70 scalefont setfont\n', '28 684 moveto (' +
+        NAME+') show\n',
         '/Times-Bold findfont 25 scalefont setfont\n',
-        '75 650 moveto (Store 06342 - School Order Banner Sheet) show\n',
+        '75 650 moveto ('+LOC+' - School Order Banner Sheet) show\n',
         '75 620 moveto (Order Number: ' +
         JOB_INFO.get('Order Number', False) + ' ) show\n',
         '/Times findfont 12 scalefont setfont\n',

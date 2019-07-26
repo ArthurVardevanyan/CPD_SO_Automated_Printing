@@ -1,12 +1,20 @@
+# Print.py
+__version__ = "v20190726"
+
+# Built-In Libraries
+import os
 import glob
 import json
-import os
+
+# Downloaded Libraries
 from PyPDF2 import PdfFileReader
+
+# Local Files
 from BannerSheet import banner_sheet
 from files import file_list, folder_list, postscript_list
 from PostScript import file_merge
 
-
+# Global Variables
 D110_162 = 0
 D110_156 = 1
 print_que = []
@@ -15,6 +23,7 @@ print_count_2 = 0
 
 
 def print_processor():
+    # Runs through the list of files to send to the printers, pausing for input as needed.
     printed = 0
     run = True
     global print_count_2
@@ -42,6 +51,7 @@ def print_processor():
 
 
 def impression_counter(PAGE_COUNTS, COPIES):
+    # Counts the number of impressions that are sent to each printer for load balancing
     global D110_156
     global D110_162
     if D110_156 < D110_162:
@@ -53,17 +63,19 @@ def impression_counter(PAGE_COUNTS, COPIES):
 
 
 def weight_extract(JOB_INFO):
+    # Converts Input from given form to the value the printer needs
     paper = (str(JOB_INFO.get('Paper', False))).lower()
     return "stationery-heavyweight" if "card stock" in paper else "use-ready"
 
 
 def color_extract(JOB_INFO):
+    # Converts Input from given form to the value the printer needs
     color = (str(JOB_INFO.get('Paper', False))).split()[-1].lower()
     return 'yellow' if color == 'canary' else color
 
 
 def can_run(JOB_INFO, COLOR):
-    # Determines if jobs is able to be ran or not.
+    # Determines if jobs is able to be ran or not using this script
     if(JOB_INFO.get('Ran', False) == "True"):
         return False
     if(JOB_INFO.get('Stapling', False)):
@@ -79,18 +91,17 @@ def can_run(JOB_INFO, COLOR):
 
 
 def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
+    # Runs the bulk of code
 
-    # This is the Order Name taken from the subject line.
-    ORDER_NAME = "No Order Selected"
-    print_result = ''
-    page_counts = 0
+    ORDER_NAME = "No Order Selected"  # Default Value
+    print_result = ''  # Used for Status Output
+    page_counts = 0  # Used for counting impressions for current order and adding to total for load balancing between printers
     # Calls a function in files.py, which gets a list of all the orders downladed
     Folders = folder_list(OUTPUT_DIRECTORY)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
         if ORDER_NUMBER in i:
             ORDER_NAME = i
 
-    # This is the Order Name taken from the subject line.
     print(ORDER_NAME)
     if(ORDER_NAME == "No Order Selected"):
         print("Order Number is not Valid")
@@ -112,6 +123,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
     # This calls the function that creates the banner sheet for the given order number
     BANNER_SHEET_FILE = banner_sheet(
         JOB_INFO, OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/')
+
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(files)):
         pdf = PdfFileReader(
@@ -119,6 +131,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
         print("Page Count: " + str(pdf.getNumPages()) +
               " FileName: " + files[i])
         page_counts = page_counts + pdf.getNumPages()
+
     # Checks if the job specs can be ran, and then sets the correct PJL commands
     JOB_COLOR = color_extract(JOB_INFO)
     JOB_WEIGHT = weight_extract(JOB_INFO)
@@ -211,7 +224,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
         '@PJL XCPT <copies syntax="integer">'+str(COPIES_PER_SET)+'</copies>\n')
     with open('PJL_Commands/PJL.ps', 'rb') as f:
         lines = f.readlines()
-
+    # Modifies the PJL file before adding it to the postscript files
     for i in range(len(lines)):
         if str('<media-color syntax="keyword">') in str(lines[i]):
             lines[i] = media_color
@@ -276,7 +289,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
                         for line in infile:
                             outfile.write(line)
 
+    # Gets list of Files in the Postscript Print Ready Folder
     Print_Files = postscript_list(OUTPUT_DIRECTORY, ORDER_NAME, "PSP")
+
     if PRINTER == 0:
         D110_IP = 0
         D110 = "156 : "
@@ -285,7 +300,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
         D110 = "162 : "
     if PRINTER == 2:
         D110_IP = impression_counter(page_counts, int(
-            JOB_INFO.get('Copies', False)))
+            JOB_INFO.get('Copies', False)))  # Keeps track of how much each printer has printed for load balancing
         if D110_IP == 0:
             D110 = "156 : "
         if D110_IP == 1:
@@ -325,7 +340,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
 
 
 def main():
-    print("\nTerminal AutoPrinting REV: 20190626")
+    print("\nTerminal AutoPrinting REV: " + __version__)
     print("Supported are :\n• Simplex & Duplex Printing (Long Edge)\n• 3-Hole Punch\n• Top Left Portrait Staple")
     print("• White Paper, Colored Paper & Cardstock\n• SlipSheeting\n• Splitting Jobs Into Sets\n• Balancing Load Between Two Printers\n")
     print('Type Your Order Number and Hit Enter,\nType "run" then hit enter when your all set. \n')
@@ -377,7 +392,7 @@ def main():
                         break
                     except:
                         pass
-            
+
                 os.system('clear')  # on linux
                 os.system('CLS')  # on windows
                 break

@@ -1,13 +1,21 @@
+# SchoolDataJson.py
+__version__ = "v20190726"
+
+# Built-In Libraries
 import json
 import os
 import glob
+
+# Downloaded Libraries
 from PyPDF2 import PdfFileReader
+
+# Local Files
 from files import folder_list
 from files import file_list
 
 
 def school_data_json(ORDER_NUMBER, OUTPUT_DIRECTORY):
-    school_data = {'Account ID': 'CHANGEME'}
+    school_data = {'Account ID': 'CHANGE ME'}
     # Calls a function in files.py, which gets a list of all the orders downladed
     Folders = folder_list(OUTPUT_DIRECTORY)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
@@ -43,7 +51,7 @@ def school_data_json(ORDER_NUMBER, OUTPUT_DIRECTORY):
         test_string = "*Timestamp: *"
         if test_string in lines:
             line = lines.split(test_string)
-            school_data["Date Orded"] = line[1]
+            school_data["Date Ordered"] = line[1]
         test_string = "Email address "
         if test_string in lines:
             line = lines.split(test_string)

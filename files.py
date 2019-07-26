@@ -1,5 +1,11 @@
+# files.py
+__version__ = "v20190726"
+
+# Built-In Libraries
 import os
 import glob
+
+# Downloaded Libraries
 from PyPDF2 import PdfFileReader
 
 
@@ -27,6 +33,7 @@ def postscript_list(folder, OName, sub):
 
 
 def page_counts(OUTPUT_DIRECTORY, ORDER_NAME):
+    # Returns the total page counts for an Order
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
     page_count = 0
     for i in range(len(files)):
