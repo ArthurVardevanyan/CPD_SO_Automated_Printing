@@ -18,6 +18,7 @@ from SchoolDataJson import school_data_json
 from PostScript import postscript_conversion
 from PostScript import file_merge
 from files import page_counts
+from EmailPrint import Email_Printer
 
 print("School Order Downloader Revision: ", __version__)
 
@@ -148,6 +149,11 @@ def process_mailbox(M):
                 print("Not Merging")
         except:
             print("File Merge Failure")
+        try:
+            # Create Email Html Pdf & PS
+            Email_Printer(ORDER_NUMBER)
+        except:
+            print("Email Conversion Failed")
         emails_proccessed += 1
     return emails_proccessed
 
