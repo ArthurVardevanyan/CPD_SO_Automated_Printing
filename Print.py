@@ -17,12 +17,11 @@ from PostScript import file_merge
 # Global Variables
 D110_162 = 0
 D110_156 = 1
-print_que = []
 print_count = 0
 print_count_2 = 0
 
 
-def print_processor():
+def print_processor(print_que):
     # Runs through the list of files to send to the printers, pausing for input as needed.
     printed = 0
     run = True
@@ -90,8 +89,9 @@ def can_run(JOB_INFO, COLOR):
     return True
 
 
-def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
+def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     # Runs the bulk of code
+    
 
     ORDER_NAME = "No Order Selected"  # Default Value
     print_result = ''  # Used for Status Output
@@ -340,6 +340,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR):
 
 
 def main():
+    print_que = []
     print("\nTerminal AutoPrinting REV: " + __version__)
     print("Supported are :\n• Simplex & Duplex Printing (Long Edge)\n• 3-Hole Punch\n• Top Left Portrait Staple")
     print("• White Paper, Colored Paper & Cardstock\n• SlipSheeting\n• Splitting Jobs Into Sets\n• Balancing Load Between Two Printers\n")
@@ -377,11 +378,11 @@ def main():
                 print('\n'.join(map(str, ORDER_NUMBER)))
                 for orders in ORDER_NUMBER:
                     printed.append(
-                        printing(str(orders), "School_Orders", D110_IP, COLOR))
+                        printing(str(orders), "School_Orders", D110_IP, COLOR, print_que))
                 print("\n")
                 print('\n'.join(map(str, printed)))
                 print(print_count)
-                print_processor()
+                print_processor(print_que)
                 print("\n")
                 print('\n'.join(map(str, printed)))
                 print(print_count)
