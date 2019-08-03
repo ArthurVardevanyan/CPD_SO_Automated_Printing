@@ -29,14 +29,15 @@ def Email_Html(ORDER_NAME, PATH, Files):
         temp = temp.replace("3D", "")
         temp = temp.replace("href", "")
         html = html + temp
-    for j in range(0, len(Files)):
-        temp2 = str(Files[j]).split(".pdf")
-        Files[j] = temp2[1]
-        Files[j] = str(Files[j]).replace("'", "").replace(",", "")
-    for j in range(1, 11):
-        if "File " + str(j)+"<" in html:
-            html = html.replace("File " + str(j)+"<",
-                                "File " + str(j) + ": " + Files[j-1]+"<")
+    if len(Files) != 0:
+        for j in range(0, len(Files)):
+            temp2 = str(Files[j]).split(".pdf")
+            Files[j] = temp2[1]
+            Files[j] = str(Files[j]).replace("'", "").replace(",", "")
+        for j in range(1, 11):
+            if "File " + str(j)+"<" in html:
+                html = html.replace("File " + str(j)+"<",
+                                    "File " + str(j) + ": " + Files[j-1]+"<")
     with open(PATH + "/Tickets/"+ORDER_NAME+".html", "w") as text_file:
         text_file.write(html)
     options = {
@@ -67,15 +68,17 @@ def Email_Printer(ORDER_NUMBER):
             ORDER_NAME = i
     if ORDER_NAME == " ":
         return
-
-    with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
-        JOB_INFO = json.load(json_file)
-
-    JOB_INFO_FILES = JOB_INFO.get('Files', False)
     files_list = []
-    for items in JOB_INFO_FILES:
-        files_list.append(
-            items + ": " + str(JOB_INFO_FILES.get(items))[20:][:-1])  # Remove clutter from string
+    try:
+        with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
+            JOB_INFO = json.load(json_file)
+        JOB_INFO_FILES = JOB_INFO.get('Files', False)
+
+        for items in JOB_INFO_FILES:
+            files_list.append(
+                items + ": " + str(JOB_INFO_FILES.get(items))[20:][:-1])  # Remove clutter from string
+    except:
+        print("JSON open-failure")
     Email_Html(ORDER_NAME, OUTPUT_DIRECTORY+'/'+ORDER_NAME, files_list)
     print(ORDER_NAME)
 
@@ -86,6 +89,7 @@ print_count_2 = 0
 
 
 def main():
+    count = 0
     Start = str(input("Start #: "))
     End = str(input("End #: "))
     LPR = "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "
@@ -155,12 +159,14 @@ def main():
                              '" -J "' + ORDER_NUMBER + '"')
             print_que.append(LPR + '"' + PATH+"2.ps" +
                              '" -J "' + ORDER_NUMBER + '"')
+            count += 1
 
     print_processor(print_que)
     try:
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:
         print("Temp File Remove Failed")
+    print(str(count) + " Order Ran")
 
 
 if __name__ == "__main__":
