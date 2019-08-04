@@ -34,11 +34,13 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
             temp2 = str(Files[j]).split(".pdf")
             Files[j] = temp2[1]
             Files[j] = str(Files[j]).replace("'", "").replace(",", "")
-        for j in range(1, 11):
+        for j in range(1,  len(Files)+1):
             if "File " + str(j)+"<" in html:
                 html = html.replace("File " + str(j)+"<",
                                     "File " + str(j) + ": " + Files[j-1]+"<").replace("=E2=80=93 ", "").replace("=E2=80=93 ", "")
-    html = NAME + html + temp
+    style =    "<head><style>html * { font-size: 1em !important; color: #000 !important; font-family: Arial !important; }</style></head>"
+    
+    html = style + NAME + html + temp
 
     with open(PATH + "/Tickets/"+ORDER_NAME+".html", "w") as text_file:
         text_file.write(html)
@@ -102,7 +104,7 @@ def main():
     LPR = "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "
     folders = folder_list(OUTPUT_DIRECTORY)
     for ORDER_NUMBER in range(int(Start), int(End)+1):
-        Email_Printer(ORDER_NUMBER)
+        #Email_Printer(ORDER_NUMBER)
 
         ORDER_NAME = " "
         ORDER_NUMBER = str(ORDER_NUMBER)
@@ -139,28 +141,28 @@ def main():
                     pjl_lines_2[i] = str.encode(
                         '@PJL XCPT <media-color syntax="keyword">' + banner_sheet_color + '</media-color>\n')
 
-                with open('PJL_Commands/input.ps', 'wb') as f:
-                    for item in pjl_lines:
-                        f.write(item)
+            with open('PJL_Commands/input.ps', 'wb') as f:
+                for item in pjl_lines:
+                    f.write(item)
 
-                file_names = ['PJL_Commands/input.ps',
-                              PATH, 'PJL_Commands/End.ps']
-                with open(PATH+"1.ps", 'wb') as outfile:
-                    for fname in file_names:
-                        with open(fname, 'rb') as infile:
-                            for line in infile:
-                                outfile.write(line)
-                with open('PJL_Commands/input.ps', 'wb') as f:
-                    for item in pjl_lines_2:
-                        f.write(item)
+            file_names = ['PJL_Commands/input.ps',
+                            PATH, 'PJL_Commands/End.ps']
+            with open(PATH+"1.ps", 'wb') as outfile:
+                for fname in file_names:
+                    with open(fname, 'rb') as infile:
+                        for line in infile:
+                            outfile.write(line)
+            with open('PJL_Commands/input.ps', 'wb') as f:
+                for item in pjl_lines_2:
+                    f.write(item)
 
-                file_names = ['PJL_Commands/input.ps',
-                              PATH, 'PJL_Commands/End.ps']
-                with open(PATH+"2.ps", 'wb') as outfile:
-                    for fname in file_names:
-                        with open(fname, 'rb') as infile:
-                            for line in infile:
-                                outfile.write(line)
+            file_names = ['PJL_Commands/input.ps',
+                            PATH, 'PJL_Commands/End.ps']
+            with open(PATH+"2.ps", 'wb') as outfile:
+                for fname in file_names:
+                    with open(fname, 'rb') as infile:
+                        for line in infile:
+                            outfile.write(line)
 
             print_que.append(LPR + '"' + PATH+"1.ps" +
                              '" -J "' + ORDER_NUMBER + '"')
@@ -174,7 +176,8 @@ def main():
     except:
         print("Temp File Remove Failed")
     print(str(count) + " Order Ran")
-
+    quit = str(input("Press Any Key To Exit"))
+    print(quit)
 
 if __name__ == "__main__":
     main()

@@ -19,7 +19,7 @@ from files import file_list
 def ticket_conversion(PATH):
     # Windows
     GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
-    GHOSTSCRIPT_PATH = 'gs' #Linux
+    #GHOSTSCRIPT_PATH = 'gs' #Linux
     # This gets the number of pages for every pdf file for the job.
     os.system(GHOSTSCRIPT_PATH + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="' +
               PATH+'.ps" "'+PATH+'" -c quit')
