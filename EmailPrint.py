@@ -5,11 +5,11 @@ from files import file_list
 from PostScript import ticket_conversion
 from Print import print_processor
 import pdfkit
-
+# https://micropyramid.com/blog/how-to-create-pdf-files-in-python-using-pdfkit/
 OUTPUT_DIRECTORY = 'School_Orders/'
 
 
-def Email_Html(ORDER_NAME, PATH, Files):
+def Email_Html(ORDER_NAME, PATH, NAME, Files):
     try:
         os.makedirs(PATH + "/Tickets")
         print("Successfully created the directory " + PATH + "/Tickets")
@@ -37,7 +37,9 @@ def Email_Html(ORDER_NAME, PATH, Files):
         for j in range(1, 11):
             if "File " + str(j)+"<" in html:
                 html = html.replace("File " + str(j)+"<",
-                                    "File " + str(j) + ": " + Files[j-1]+"<")
+                                    "File " + str(j) + ": " + Files[j-1]+"<").replace("=E2=80=93 ", "").replace("=E2=80=93 ", "")
+    html = NAME + html + temp
+
     with open(PATH + "/Tickets/"+ORDER_NAME+".html", "w") as text_file:
         text_file.write(html)
     options = {
@@ -47,9 +49,10 @@ def Email_Html(ORDER_NAME, PATH, Files):
         'margin-bottom': '0.2in',
         'margin-left': '0.2in',
     }
-
+    path_wkthmltopdf = r'C:\Program Files (x86)\wkhtmltopdf\bin\wkhtmltopdf.exe'
+    config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
     pdfkit.from_string(html, PATH + "/Tickets/" +
-                       ORDER_NAME+'.pdf', options=options)
+                       ORDER_NAME+'.pdf', options=options, configuration=config)
     ticket_conversion(PATH + "/Tickets/"+ORDER_NAME+'.pdf')
 
 # Start = str(input("Start #: "))
@@ -69,6 +72,7 @@ def Email_Printer(ORDER_NUMBER):
     if ORDER_NAME == " ":
         return
     files_list = []
+    NAME = ""
     try:
         with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
             JOB_INFO = json.load(json_file)
@@ -77,9 +81,12 @@ def Email_Printer(ORDER_NUMBER):
         for items in JOB_INFO_FILES:
             files_list.append(
                 items + ": " + str(JOB_INFO_FILES.get(items))[20:][:-1])  # Remove clutter from string
+        NAME = "Bill To: " + \
+            JOB_INFO.get('First Name', False) + ' ' + \
+            JOB_INFO.get('Last Name', False) + " "
     except:
         print("JSON open-failure")
-    Email_Html(ORDER_NAME, OUTPUT_DIRECTORY+'/'+ORDER_NAME, files_list)
+    Email_Html(ORDER_NAME, OUTPUT_DIRECTORY+'/'+ORDER_NAME, NAME, files_list)
     print(ORDER_NAME)
 
 
@@ -91,7 +98,7 @@ print_count_2 = 0
 def main():
     count = 0
     Start = str(input("Start #: "))
-    End = str(input("End #: "))
+    End =   str(input("End   #: "))
     LPR = "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "
     folders = folder_list(OUTPUT_DIRECTORY)
     for ORDER_NUMBER in range(int(Start), int(End)+1):
