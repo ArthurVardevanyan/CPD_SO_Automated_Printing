@@ -1,10 +1,18 @@
+# EmailPrint.py
+__version__ = "v20190805"
+
+# Built-In Libraries
 import os
 import json
+
+# Downloaded Libraries
+import pdfkit
+
+# Local Files
 from files import folder_list
 from files import file_list
 from PostScript import ticket_conversion
 from Print import print_processor
-import pdfkit
 # https://micropyramid.com/blog/how-to-create-pdf-files-in-python-using-pdfkit/
 OUTPUT_DIRECTORY = 'School_Orders/'
 
@@ -38,8 +46,8 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
             if "File " + str(j)+"<" in html:
                 html = html.replace("File " + str(j)+"<",
                                     "File " + str(j) + ": " + Files[j-1]+"<").replace("=E2=80=93 ", "").replace("=E2=80=93 ", "")
-    style =    "<head><style>html * { font-size: 1em !important; color: #000 !important; font-family: Arial !important; }</style></head>"
-    
+    style = "<head><style>html * { font-size: 1em !important; color: #000 !important; font-family: Arial !important; }</style></head>"
+
     html = style + NAME + html + temp
 
     with open(PATH + "/Tickets/"+ORDER_NAME+".html", "w") as text_file:
@@ -100,11 +108,11 @@ print_count_2 = 0
 def main():
     count = 0
     Start = str(input("Start #: "))
-    End =   str(input("End   #: "))
+    End = str(input("End   #: "))
     LPR = "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "
     folders = folder_list(OUTPUT_DIRECTORY)
     for ORDER_NUMBER in range(int(Start), int(End)+1):
-        #Email_Printer(ORDER_NUMBER)
+        # Email_Printer(ORDER_NUMBER)
 
         ORDER_NAME = " "
         ORDER_NUMBER = str(ORDER_NUMBER)
@@ -146,7 +154,7 @@ def main():
                     f.write(item)
 
             file_names = ['PJL_Commands/input.ps',
-                            PATH, 'PJL_Commands/End.ps']
+                          PATH, 'PJL_Commands/End.ps']
             with open(PATH+"1.ps", 'wb') as outfile:
                 for fname in file_names:
                     with open(fname, 'rb') as infile:
@@ -157,7 +165,7 @@ def main():
                     f.write(item)
 
             file_names = ['PJL_Commands/input.ps',
-                            PATH, 'PJL_Commands/End.ps']
+                          PATH, 'PJL_Commands/End.ps']
             with open(PATH+"2.ps", 'wb') as outfile:
                 for fname in file_names:
                     with open(fname, 'rb') as infile:
@@ -179,5 +187,7 @@ def main():
     quit = str(input("Press Any Key To Exit"))
     print(quit)
 
+
 if __name__ == "__main__":
+    print("\nTerminal Email Printing REV: " + __version__)
     main()
