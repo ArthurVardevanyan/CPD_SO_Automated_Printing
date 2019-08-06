@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190805"
+__version__ = "v20190807"
 
 # Built-In Libraries
 import os
@@ -8,6 +8,8 @@ import json
 
 # Downloaded Libraries
 from PyPDF2 import PdfFileReader
+from termcolor import colored
+from colorama import init
 
 # Local Files
 from BannerSheet import banner_sheet
@@ -20,9 +22,13 @@ D110_156 = 1
 print_count = 0
 print_count_2 = 0
 
+# use Colorama to make Termcolor work on Windows too
+init()
 
 def print_processor(print_que):
     # Runs through the list of files to send to the printers, pausing for input as needed.
+    print(colored("!--DO NOT CLOSE--!", "red"))
+
     printed = 0
     run = True
     global print_count_2
@@ -43,7 +49,7 @@ def print_processor(print_que):
                 print_count_2 += 1
         else:
             if printed == 0:
-                print("\n!--PROCESSING CAUGHT UP--!:   ")
+                print(colored("\n!--PROCESSING CAUGHT UP--!:   ", "green"))
                 printed = 1
                 run = False
                 print_count_2 += 1
@@ -113,7 +119,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
         return "ON Not Valid : " + ORDER_NUMBER
     while True:
         try:
-            if(int(input("Confirm Order Yes : 1 | No : 0 ")) == 0):
+            if(int(input("Confirm Order Yes : (" + colored("1","cyan") + ") | No : (" + colored("0","cyan") + ") ")) == 0):
                 return "Aborted @ CO#: " + ORDER_NAME
             break
         except:
@@ -133,7 +139,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     for i in range(len(files)):
         pdf = PdfFileReader(
             open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+files[i], "rb"))
-        print("Page Count: " + str(pdf.getNumPages()) +
+        print("Page Count: " + colored(str(pdf.getNumPages()), "magenta") +
               " FileName: " + files[i])
         page_counts = page_counts + pdf.getNumPages()
 
@@ -193,7 +199,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
         print("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.")
         return "Not Supported:  " + ORDER_NAME
     print("Number of (Total) Copies Listed Per File: " +
-          JOB_INFO.get('Copies', False))
+          colored(JOB_INFO.get('Copies', False), "magenta"))
 
     if(JOB_INFO.get('Slip Sheets / Shrink Wrap', False)):
         print("SPECIAL INSTRUCTIONS: " +
@@ -355,8 +361,9 @@ def main():
     print("Purple Paper (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
     while True:
         try:
+            
             COLOR = 1 if int(
-                input("Enable Colored Paper?  Yes : 1 | No : 0 (default) ")) == 1 else 0
+                input("Enable Colored Paper?  Yes : " + colored("1","cyan") +" | No : " + colored("0","cyan") + " (default) ")) == 1 else 0
             break
         except:
             pass
@@ -367,7 +374,7 @@ def main():
         while True:
             try:
                 D110_IP = int(
-                    input("Choose a Printer: 156 (0), 162 (1), Auto (2): "))
+                    input("Choose a Printer: 156 (" + colored("0","cyan") + "), 162 (" + colored("1","cyan") + "), Auto (" + colored("2","cyan") + "): "))
                 break
             except:
                 pass
@@ -394,7 +401,7 @@ def main():
                 while True:
                     try:
                         loop = True if int(
-                            input("\nSubmit Another Set of Orders?  Yes : 1 | No : 0 ")) == 1 else False
+                            input("\nSubmit Another Set of Orders?  Yes : (" + colored("1","cyan") + ") | No : (" + colored("0","cyan") + "): ")) == 1 else False
                         break
                     except:
                         pass
