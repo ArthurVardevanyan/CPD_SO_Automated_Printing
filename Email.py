@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190805"
+__version__ = "v20190807"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -11,6 +11,13 @@ import time
 import shutil
 import re
 import getpass
+
+# Downloaded Libraries
+from termcolor import colored 
+from colorama import init
+
+# use Colorama to make Termcolor work on Windows too
+init()
 
 # Local Files
 from GDrive import Google_Drive_Downloader
@@ -179,8 +186,9 @@ def main():
                 print("\n\n\n\n\n\n\n\n")
                 print("Emails Proccessed: ", EMAILS_PROCCESSED)
                 print("Im Resting, Check Back Later:")
+                print(colored("!--DO NOT CLOSE--!", "red"))
                 print("School Order Downloader Revision: ", __version__)
-                print("Again") if rv == 'OK' else print(
+                print("Running Again") if rv == 'OK' else print(
                     "ERROR: Unable to open mailbox ", rv)
                 time.sleep(250)
             except:
