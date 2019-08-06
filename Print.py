@@ -73,7 +73,7 @@ def color_extract(JOB_INFO):
     return 'yellow' if color == 'canary' else color
 
 
-def can_run(JOB_INFO, COLOR):
+def can_run(JOB_INFO, COLOR, page_counts):
     # Determines if jobs is able to be ran or not using this script
     if(JOB_INFO.get('Ran', False) == "True"):
         return False
@@ -86,12 +86,17 @@ def can_run(JOB_INFO, COLOR):
         return False
     if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White" and COLOR == 0):
         return False
+    # Temperarory Disable Collated Jobs with more than 5 Pages, as the printer does not sleep sheet.
+    if(JOB_INFO.get('Collation', False) == "Collated"):
+        if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait"):
+            return True
+        if page_counts / len(JOB_INFO.get('Files', False)) >= 5:
+            return False
     return True
 
 
 def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     # Runs the bulk of code
-    
 
     ORDER_NAME = "No Order Selected"  # Default Value
     print_result = ''  # Used for Status Output
@@ -135,7 +140,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     # Checks if the job specs can be ran, and then sets the correct PJL commands
     JOB_COLOR = color_extract(JOB_INFO)
     JOB_WEIGHT = weight_extract(JOB_INFO)
-    if (can_run(JOB_INFO, COLOR)):
+    if (can_run(JOB_INFO, COLOR, page_counts)):
         print('\nChosen Options:')
         if(JOB_INFO.get('Collation', False) == "Collated"):
             collation = str.encode(
