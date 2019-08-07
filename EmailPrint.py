@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20190805"
+__version__ = "v20190807"
 
 # Built-In Libraries
 import os
@@ -42,6 +42,8 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
             temp2 = str(Files[j]).split(".pdf")
             Files[j] = temp2[1]
             Files[j] = str(Files[j]).replace("'", "").replace(",", "")
+            temp3 = Files[j].split(": ")
+            Files[j] = temp3[0] + ": <b>" + temp3[1] + "</b>"
         for j in range(1,  len(Files)+1):
             if "File " + str(j)+"<" in html:
                 html = html.replace("File " + str(j)+"<",
@@ -91,9 +93,9 @@ def Email_Printer(ORDER_NUMBER):
         for items in JOB_INFO_FILES:
             files_list.append(
                 items + ": " + str(JOB_INFO_FILES.get(items))[20:][:-1])  # Remove clutter from string
-        NAME = "Bill To: " + \
+        NAME = "<b>Bill To: " + \
             JOB_INFO.get('First Name', False) + ' ' + \
-            JOB_INFO.get('Last Name', False) + " "
+            JOB_INFO.get('Last Name', False) + "</b>"
     except:
         print("JSON open-failure")
     Email_Html(ORDER_NAME, OUTPUT_DIRECTORY+'/'+ORDER_NAME, NAME, files_list)
