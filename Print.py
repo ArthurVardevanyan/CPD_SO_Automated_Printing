@@ -2,6 +2,9 @@
 __version__ = "v20190807"
 
 # Built-In Libraries
+from PostScript import file_merge
+from files import file_list, folder_list, postscript_list
+from BannerSheet import banner_sheet
 import os
 import glob
 import json
@@ -11,10 +14,10 @@ from PyPDF2 import PdfFileReader
 from termcolor import colored
 from colorama import init
 
+# use Colorama to make Termcolor work on Windows too
+init()
+
 # Local Files
-from BannerSheet import banner_sheet
-from files import file_list, folder_list, postscript_list
-from PostScript import file_merge
 
 # Global Variables
 D110_162 = 0
@@ -22,8 +25,6 @@ D110_156 = 1
 print_count = 0
 print_count_2 = 0
 
-# use Colorama to make Termcolor work on Windows too
-init()
 
 def print_processor(print_que):
     # Runs through the list of files to send to the printers, pausing for input as needed.
@@ -119,7 +120,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
         return "ON Not Valid : " + ORDER_NUMBER
     while True:
         try:
-            if(int(input("Confirm Order Yes : (" + colored("1","cyan") + ") | No : (" + colored("0","cyan") + ") ")) == 0):
+            if(int(input("Confirm Order Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + ") ")) == 0):
                 return "Aborted @ CO#: " + ORDER_NAME
             break
         except:
@@ -196,7 +197,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
             print("SPECIAL INSTRUCTIONS: " +
                   JOB_INFO.get('Special Instructions', False))
     else:
-        print("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.")
+        print(colored("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.", "red"))
         return "Not Supported:  " + ORDER_NAME
     print("Number of (Total) Copies Listed Per File: " +
           colored(JOB_INFO.get('Copies', False), "magenta"))
@@ -352,18 +353,19 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
 
 def main():
     print_que = []
-    print("\nTerminal AutoPrinting REV: " + __version__)
+    print("\nTerminal AutoPrinting REV: " + colored(__version__, "magenta"))
     print("Supported are :\n• Simplex & Duplex Printing (Long Edge)\n• 3-Hole Punch\n• Top Left Portrait Staple")
     print("• White Paper, Colored Paper & Cardstock\n• SlipSheeting\n• Splitting Jobs Into Sets\n• Balancing Load Between Two Printers\n")
-    print('Type Your Order Number and Hit Enter,\nType "run" then hit enter when your all set. \n')
+    print('Type Your Order Number and Hit Enter,\nType "' +
+          colored('run', 'green') + '" then hit enter when your all set. \n')
     print("Compatible Jobs will AutoRun, jobs will pause for requested input if needed.")
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
-    print("Purple Paper (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
+    print(colored("Purple Paper", "magenta") +
+          " (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
     while True:
         try:
-            
             COLOR = 1 if int(
-                input("Enable Colored Paper?  Yes : " + colored("1","cyan") +" | No : " + colored("0","cyan") + " (default) ")) == 1 else 0
+                input("Enable Colored Paper?  Yes : " + colored("1", "cyan") + " | No : " + colored("0", "cyan") + " (default) ")) == 1 else 0
             break
         except:
             pass
@@ -374,7 +376,7 @@ def main():
         while True:
             try:
                 D110_IP = int(
-                    input("Choose a Printer: 156 (" + colored("0","cyan") + "), 162 (" + colored("1","cyan") + "), Auto (" + colored("2","cyan") + "): "))
+                    input("Choose a Printer: 156 (" + colored("0", "cyan") + "), 162 (" + colored("1", "cyan") + "), Auto (" + colored("2", "cyan") + "): "))
                 break
             except:
                 pass
@@ -401,7 +403,7 @@ def main():
                 while True:
                     try:
                         loop = True if int(
-                            input("\nSubmit Another Set of Orders?  Yes : (" + colored("1","cyan") + ") | No : (" + colored("0","cyan") + "): ")) == 1 else False
+                            input("\nSubmit Another Set of Orders?  Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + "): ")) == 1 else False
                         break
                     except:
                         pass
