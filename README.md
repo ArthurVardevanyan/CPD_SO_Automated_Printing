@@ -21,7 +21,7 @@ Fetches The Emails and calls other functions to setup and preprocess jobs.
 This is the Printing Utility. It prints mostly autonomously for the inputted orders, main aspects it still asks for are which printer to use and if the "Special Instructions" field is filled out, it has someone verify and input information.
 ##### Print.bat
 * For Colors to work in windows python must be executed from within command prompt.
-### EmailPrint.py  
+#### EmailPrint.py  
 Prints the Emails with Page Counts and a Duplicate sheet on a different color.
 
 ## Other Files Include:

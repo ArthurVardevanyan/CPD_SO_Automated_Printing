@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190807"
+__version__ = "v20190809"
 
 # Built-In Libraries
 from PostScript import file_merge
@@ -109,22 +109,43 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     print_result = ''  # Used for Status Output
     page_counts = 0  # Used for counting impressions for current order and adding to total for load balancing between printers
     # Calls a function in files.py, which gets a list of all the orders downladed
+    ORDER_NAMES = []
     Folders = folder_list(OUTPUT_DIRECTORY)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
-        if ORDER_NUMBER in i:
-            ORDER_NAME = i
-
-    print(ORDER_NAME)
-    if(ORDER_NAME == "No Order Selected"):
-        print("Order Number is not Valid")
+        #https://stackoverflow.com/questions/4289331/how-to-extract-numbers-from-a-string-in-python
+        if int(ORDER_NUMBER) == [int(s) for s in i.split() if s.isdigit()][0]:
+            ORDER_NAMES.append(i)
+             
+    if(len(ORDER_NAMES) ==  0):
+        print(ORDER_NUMBER + " Order Number is not Valid")
         return "ON Not Valid : " + ORDER_NUMBER
-    while True:
-        try:
-            if(int(input("Confirm Order Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + ") ")) == 0):
-                return "Aborted @ CO#: " + ORDER_NAME
-            break
-        except:
-            pass
+    if(len(ORDER_NAMES) ==  1):
+        ORDER_NAME = ORDER_NAMES[0]
+        print(ORDER_NAME)
+        while True:
+            try:
+                if(int(input("Confirm Order Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + ") ")) == 0):
+                    return "Aborted @ CO#: " + ORDER_NAME
+                break
+            except:
+                pass
+    if(len(ORDER_NAMES) > 1):
+        print(colored("!--WARNING--! - DUPLICATE ORDER NUMBERS - PROCEED WITH CAUTION", "red"))
+        for order_name in ORDER_NAMES:
+            while True:
+                try:
+                    print(order_name)
+                    if(int(input("Confirm Order Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + ") ")) == 0):
+                        break
+                    else:
+                        ORDER_NAME = order_name
+                        break
+                except:
+                    pass
+            if(ORDER_NAME != "No Order Selected"):
+                break
+        if(ORDER_NAME == "No Order Selected"):
+            return "Aborted @ CO#: " + ORDER_NUMBER + " " + ORDER_NAME
 
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
