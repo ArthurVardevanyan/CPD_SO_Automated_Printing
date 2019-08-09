@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190807"
+__version__ = "v20190809"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -158,7 +158,7 @@ def process_mailbox(M):
             print("File Merge Failure")
         try:
             # Create Email Html Pdf & PS
-            Email_Printer(ORDER_NUMBER)
+            Email_Printer(ORDER_NUMBER+" " + subject)
         except:
             print("Email Conversion Failed")
         emails_proccessed += 1

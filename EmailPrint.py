@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20190807"
+__version__ = "v20190809"
 
 # Built-In Libraries
 import os
@@ -73,16 +73,8 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
 # for ORDER_NUMBER in range(int(Start), int(End)+1):
 
 
-def Email_Printer(ORDER_NUMBER):
-    ORDER_NUMBER = str(ORDER_NUMBER)
-    ORDER_NAME = " "  # This is the Order Name taken from the subject line.=
-    # Calls a function in files.py, which gets a list of all the orders downladed
-    folders = folder_list(OUTPUT_DIRECTORY)
-    for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
-        if ORDER_NUMBER in i:
-            ORDER_NAME = i
-    if ORDER_NAME == " ":
-        return
+def Email_Printer(ORDER_NAME):
+
     files_list = []
     NAME = ""
     try:
@@ -113,16 +105,15 @@ def main():
     End = str(input("End   #: "))
     LPR = "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "
     folders = folder_list(OUTPUT_DIRECTORY)
+    ORDER_NAMES = []
     for ORDER_NUMBER in range(int(Start), int(End)+1):
-        # Email_Printer(ORDER_NUMBER)
-
-        ORDER_NAME = " "
+        
         ORDER_NUMBER = str(ORDER_NUMBER)
         for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
             if ORDER_NUMBER in i:
-                ORDER_NAME = i
-        if ORDER_NAME == " ":
-            continue
+                ORDER_NAMES.append(i)
+    for ORDER_NAME in ORDER_NAMES:
+        #Email_Printer(ORDER_NAME)
         PATH = OUTPUT_DIRECTORY+ORDER_NAME+"/Tickets/"+ORDER_NAME+".pdf.ps"
         if os.path.exists(PATH) == False:
             continue
@@ -175,9 +166,9 @@ def main():
                             outfile.write(line)
 
             print_que.append(LPR + '"' + PATH+"1.ps" +
-                             '" -J "' + ORDER_NUMBER + '"')
+                             '" -J "' + ORDER_NAME + '"')
             print_que.append(LPR + '"' + PATH+"2.ps" +
-                             '" -J "' + ORDER_NUMBER + '"')
+                             '" -J "' + ORDER_NAME + '"')
             count += 1
 
     print_processor(print_que)
@@ -185,7 +176,7 @@ def main():
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:
         print("Temp File Remove Failed")
-    print(str(count) + " Order Ran")
+    print(str(count) + " Order(s) Ran")
     quit = str(input("Press Any Key To Exit"))
     print(quit)
 
