@@ -8,7 +8,7 @@ from oauth2client import file, client, tools
 
 # Built-In Libraries
 import re
-__version__ = "v20190726"
+__version__ = "v20190810"
 
 # Source https://developers.google.com/drive/api/v3/quickstart/python
 # Source https://stackoverflow.com/questions/52211886/downloading-file-from-google-drive-using-api-nameerror-name-service-is-not-d
@@ -18,7 +18,7 @@ __version__ = "v20190726"
 SCOPES = 'https://www.googleapis.com/auth/drive.readonly'
 
 
-def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, ERROR_STATE):
+def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, count, ERROR_STATE):
     store = file.Storage('Credentials/token.json')
     creds = store.get()
     if not creds or creds.invalid:
@@ -46,7 +46,9 @@ def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, E
         file_name = re.sub(r'[\\/:;?\"<>*|]', "", file_name)
         file_name = file_name.replace("Multifunction Printer", "")
         # will write file using the file_name
-        with open(OUTPUT_DIRECTORY+ERROR_STATE+ORDER_NUMBER+" " + SUBJECT+"/" + ORDER_NUMBER + " " + file_name, mode="wb") as f:
+        if count < 10:
+            count = str("0")+str(count)
+        with open(OUTPUT_DIRECTORY+ERROR_STATE+ORDER_NUMBER+ " " + SUBJECT+"/" + ORDER_NUMBER +"." +str(count) + " " + file_name, mode="wb") as f:
             f.write(result)
         print("Finished writing " + file_name)
 

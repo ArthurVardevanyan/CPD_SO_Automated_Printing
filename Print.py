@@ -112,14 +112,16 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     ORDER_NAMES = []
     Folders = folder_list(OUTPUT_DIRECTORY)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
-        #https://stackoverflow.com/questions/4289331/how-to-extract-numbers-from-a-string-in-python
+        if(i == "Archive" or i == "Error"):
+            continue
+        # https://stackoverflow.com/questions/4289331/how-to-extract-numbers-from-a-string-in-python
         if int(ORDER_NUMBER) == [int(s) for s in i.split() if s.isdigit()][0]:
             ORDER_NAMES.append(i)
-             
-    if(len(ORDER_NAMES) ==  0):
+
+    if(len(ORDER_NAMES) == 0):
         print(ORDER_NUMBER + " Order Number is not Valid")
         return "ON Not Valid : " + ORDER_NUMBER
-    if(len(ORDER_NAMES) ==  1):
+    if(len(ORDER_NAMES) == 1):
         ORDER_NAME = ORDER_NAMES[0]
         print(ORDER_NAME)
         while True:
@@ -130,7 +132,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
             except:
                 pass
     if(len(ORDER_NAMES) > 1):
-        print(colored("!--WARNING--! - DUPLICATE ORDER NUMBERS - PROCEED WITH CAUTION", "red"))
+        print(colored(
+            "!--WARNING--! - DUPLICATE ORDER NUMBERS - PROCEED WITH CAUTION", "red"))
         for order_name in ORDER_NAMES:
             while True:
                 try:
