@@ -60,9 +60,11 @@ def link_extractor(EmailBody, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
             print(file_links[i])
 
         # Calls the Google Drive Downloader Function in GDrive.py
+        count = 0
         for ids in file_links:
+            count +=1
             Google_Drive_Downloader(
-                ids, OrderNumber, OUTPUT_DIRECTORY, Subject, Error)
+                ids, OrderNumber, OUTPUT_DIRECTORY, Subject, count, Error)
     else:
         print("This Isn't A School Order")
 
