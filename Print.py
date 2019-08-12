@@ -115,8 +115,12 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
         if(i == "Archive" or i == "Error"):
             continue
         # https://stackoverflow.com/questions/4289331/how-to-extract-numbers-from-a-string-in-python
-        if int(ORDER_NUMBER) == [int(s) for s in i.split() if s.isdigit()][0]:
-            ORDER_NAMES.append(i)
+        try:
+            if int(ORDER_NUMBER) == [int(s) for s in i.split() if s.isdigit()][0]:
+                ORDER_NAMES.append(i)
+        except:
+            return "Aborted @ INT: " + ORDER_NUMBER
+
 
     if(len(ORDER_NAMES) == 0):
         print(ORDER_NUMBER + " Order Number is not Valid")
@@ -153,8 +157,11 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 
-    with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
-        JOB_INFO = json.load(json_file)
+    try:
+        with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file: 
+            JOB_INFO = json.load(json_file)
+    except:
+        return "Aborted @ JS#: " + ORDER_NUMBER + " " + ORDER_NAME
 
     # This calls the function that creates the banner sheet for the given order number
     BANNER_SHEET_FILE = banner_sheet(
@@ -401,7 +408,10 @@ def main():
             try:
                 D110_IP = int(
                     input("Choose a Printer: 156 (" + colored("0", "cyan") + "), 162 (" + colored("1", "cyan") + "), Auto (" + colored("2", "cyan") + "): "))
-                break
+                if D110_IP == 1 or D110_IP == 2 or D110_IP == 0:
+                    break
+                else:
+                    pass
             except:
                 pass
         loop = True
