@@ -85,7 +85,9 @@ def can_run(JOB_INFO, COLOR, page_counts):
     if(JOB_INFO.get('Ran', False) == "True"):
         return False
     if(JOB_INFO.get('Stapling', False)):
-        if(JOB_INFO.get('Stapling', False) != "Upper Left - portrait"):
+        if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait" or JOB_INFO.get('Stapling', False) == "None"):
+            None
+        else:
             return False
     if(JOB_INFO.get('Front Cover', False)):
         return False
@@ -120,7 +122,6 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
                 ORDER_NAMES.append(i)
         except:
             return "Aborted @ INT: " + ORDER_NUMBER
-
 
     if(len(ORDER_NAMES) == 0):
         print(ORDER_NUMBER + " Order Number is not Valid")
@@ -158,7 +159,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 
     try:
-        with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file: 
+        with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
             JOB_INFO = json.load(json_file)
     except:
         return "Aborted @ JS#: " + ORDER_NUMBER + " " + ORDER_NAME
