@@ -7,8 +7,10 @@ session_start(); #Prevents Reset of Login State
   <title>CPD SO Printing</title>
   <link rel='icon' href='images/favicon.ico' type='image/x-icon'/ >
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/main.css">
-<script src="js.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
 
 <script>
 if ( window.history.replaceState ) {  //Makes Redirects After Html Forms not leave data in url.
@@ -53,8 +55,59 @@ if (isset($_POST['FIO'])) #Same as Info Button, but opens all the files.
 }
 $Folders = FolderList($folder);
 
-foreach( $Folders as $Folder)
-  echo $Folder . " <br>";
+$json = " ";
+
+foreach( $Folders as $foldername){
+#  echo $foldername . " <br>";
+ if (file_exists ( $folder . "/" . $foldername ."/" . $foldername . '.json' )){
+
+  $data = file_get_contents($folder . "/" . $foldername ."/" . $foldername . '.json');
+  $json = $json . $data . ",\n";
+};
+}
+$folder = $folder . "/Archive";
+$Folders = FolderList($folder);
+
+
+foreach( $Folders as $foldername){
+#  echo $foldername . " <br>";
+ if (file_exists ( $folder . "/" . $foldername ."/" . $foldername . '.json' )){
+
+  $data = file_get_contents($folder . "/" . $foldername ."/" . $foldername . '.json');
+  $json = $json . $data . ",\n";
+};
+}
+
+
 ?>
+<script type="text/javascript">
+
+
+$(document).ready(function() {
+
+  var aDemoItems =  [<?php echo $json; ?> ];
+//    var aDemoItems  = oResults.lDemographicItems; //
+    var jsonString = JSON.stringify(aDemoItems  ) //for testing
+
+   //Load  datatable
+    var oTblReport = $("#tblReportResultsDemographics")
+
+    oTblReport.DataTable ({
+        data: aDemoItems,
+        "columns" : [
+            { "data" : "Order Number", "title" : "Order Number"},
+            { "data" : "Order Subject", "title" : "Order Subject"},
+            { "data" : "Date Ordered",  "title" : "Date Ordered"},
+            { "data" : "First Name",  "title" : "First Name"},
+            { "data" : "Last Name",  "title" : "Last Name"}
+
+
+
+        ]
+    });
+});
+</script>
+<table id="tblReportResultsDemographics" class="display" width="100%"></table>
+
       </body>
       </html>
