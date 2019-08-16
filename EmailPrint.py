@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20190809"
+__version__ = "v201908015"
 
 # Built-In Libraries
 import os
@@ -29,7 +29,7 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
     for i in range(len(email)):
         if "<p>Your copy job has been submitted as shown below:</p>" in email[i]:
             start_line = i
-            end_line = len(email)-7
+            end_line = len(email)-8
     html = ""
     for i in range(start_line, end_line):
         temp = email[i]
@@ -107,13 +107,13 @@ def main():
     folders = folder_list(OUTPUT_DIRECTORY)
     ORDER_NAMES = []
     for ORDER_NUMBER in range(int(Start), int(End)+1):
-        
+
         ORDER_NUMBER = str(ORDER_NUMBER)
         for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
             if ORDER_NUMBER in i:
                 ORDER_NAMES.append(i)
     for ORDER_NAME in ORDER_NAMES:
-        #Email_Printer(ORDER_NAME)
+        # Email_Printer(ORDER_NAME)
         PATH = OUTPUT_DIRECTORY+ORDER_NAME+"/Tickets/"+ORDER_NAME+".pdf.ps"
         if os.path.exists(PATH) == False:
             continue
