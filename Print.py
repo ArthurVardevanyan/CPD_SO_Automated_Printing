@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190809"
+__version__ = "v20190815"
 
 # Built-In Libraries
 from PostScript import file_merge
@@ -121,7 +121,12 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
             if int(ORDER_NUMBER) == [int(s) for s in i.split() if s.isdigit()][0]:
                 ORDER_NAMES.append(i)
         except:
-            return "Aborted @ INT: " + ORDER_NUMBER
+            try:
+                if int(ORDER_NUMBER[:5]) == int(i.split("-")[0]):
+                    if str(ORDER_NUMBER) in i:
+                        ORDER_NAMES.append(i)
+            except:
+                return "Aborted @ INT: " + ORDER_NUMBER
 
     if(len(ORDER_NAMES) == 0):
         print(ORDER_NUMBER + " Order Number is not Valid")

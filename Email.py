@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190809"
+__version__ = "v20190815"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -11,13 +11,11 @@ import time
 import shutil
 import re
 import getpass
+from datetime import datetime
 
 # Downloaded Libraries
-from termcolor import colored 
+from termcolor import colored
 from colorama import init
-
-# use Colorama to make Termcolor work on Windows too
-init()
 
 # Local Files
 from GDrive import Google_Drive_Downloader
@@ -26,7 +24,9 @@ from PostScript import postscript_conversion
 from PostScript import file_merge
 from files import page_counts
 from EmailPrint import Email_Printer
+# use Colorama to make Termcolor work on Windows too
 
+init()
 print("School Order Downloader Revision: ", __version__)
 
 IMAP_SERVER = 'imap.gmail.com'
@@ -62,7 +62,7 @@ def link_extractor(EmailBody, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
         # Calls the Google Drive Downloader Function in GDrive.py
         count = 0
         for ids in file_links:
-            count +=1
+            count += 1
             Google_Drive_Downloader(
                 ids, OrderNumber, OUTPUT_DIRECTORY, Subject, count, Error)
     else:
@@ -79,6 +79,7 @@ def process_mailbox(M):
 
     emails_proccessed = 0
     for num in data[0].split():
+        time = datetime.today().strftime('%M%S')
         ORDER_NUMBER = ""
         error_state = ""
 
@@ -109,11 +110,13 @@ def process_mailbox(M):
         if rv != 'OK':
             print("ERROR getting message", num)
             return
+        # Adds some randomness to the order number's using time
+        ORDER_NUMBER = ORDER_NUMBER + "-" + time
         print("Order: ", ORDER_NUMBER, " ", subject)
 
         try:
             os.makedirs(OUTPUT_DIRECTORY +
-                        error_state+ORDER_NUMBER+" "+subject)
+                        error_state+ORDER_NUMBER + " "+subject)
         except OSError:
             print("Creation of the directory %s failed" %
                   OUTPUT_DIRECTORY+error_state+"/"+subject)
@@ -132,7 +135,7 @@ def process_mailbox(M):
             f.close()
         try:
             # Create JSON file with Job Requirements
-            JOB_INFO = school_data_json(ORDER_NUMBER, "School_Orders")
+            JOB_INFO = school_data_json(ORDER_NUMBER, subject, "School_Orders")
         except:
             print("JSON File Failed")
         try:
