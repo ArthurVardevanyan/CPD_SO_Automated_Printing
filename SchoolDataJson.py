@@ -23,7 +23,7 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 
     school_data["Order Number"] = ORDER_NUMBER
-    school_data["Order Subject"] = ORDER_NAME[5:]
+    school_data["Order Subject"] = subject
     school_data["Files"] = {}
 
     # This gets the number of pages for every pdf file for the job.
