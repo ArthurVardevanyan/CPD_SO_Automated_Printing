@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190815"
+__version__ = "v20190818"
 
 # Built-In Libraries
 from PostScript import file_merge
@@ -44,7 +44,7 @@ def print_processor(print_que):
                 os.system(print_que[0])
                 print((str(print_que[0]).replace(
                     "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
-                    '-P PS "C:/S/School_Orders/', "").split("-J")[0]))
+                    '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.pop(0)
                 printed = 0
                 print_count_2 += 1
@@ -122,7 +122,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
                 ORDER_NAMES.append(i)
         except:
             try:
-                if int(ORDER_NUMBER[:5]) == int(i.split("-")[0]):
+                if int(ORDER_NUMBER[:5]) == int(i[:5]):
                     if str(ORDER_NUMBER) in i:
                         ORDER_NAMES.append(i)
             except:
@@ -332,7 +332,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
         for i in range(len(files)):
             file_names = ['PJL_Commands/input.ps', OUTPUT_DIRECTORY+"/"+ORDER_NAME +
                           "/PostScript/"+files[i]+".ps", 'PJL_Commands/End.ps']
-            with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP/"+files[i][:35][:-4]+".ps", 'wb') as outfile:
+            with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP/"+files[i][:40][:-4]+".ps", 'wb') as outfile:
                 for fname in file_names:
                     with open(fname, 'rb') as infile:
                         for line in infile:
@@ -381,7 +381,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
                 Print_Files[j] + '" -J "' + Print_Files[j] + '"'
             print(lpr_path.replace(
                 "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
-                '-P PS "C:/S/School_Orders/', "").split("-J")[0])
+                '-P PS "C:/S/SO/', "").split("-J")[0])
             print_que.append(lpr_path)
 
     print("\n")
@@ -432,7 +432,7 @@ def main():
                 print('\n'.join(map(str, ORDER_NUMBER)))
                 for orders in ORDER_NUMBER:
                     printed.append(
-                        printing(str(orders), "School_Orders", D110_IP, COLOR, print_que))
+                        printing(str(orders), "SO", D110_IP, COLOR, print_que))
                 print("\n")
                 print('\n'.join(map(str, printed)))
                 print(print_count)

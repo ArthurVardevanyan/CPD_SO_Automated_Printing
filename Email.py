@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190815"
+__version__ = "v20190818"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -32,7 +32,7 @@ print("School Order Downloader Revision: ", __version__)
 IMAP_SERVER = 'imap.gmail.com'
 EMAIL_ACCOUNT = "@gmail.com"
 EMAIL_FOLDER = "Inbox"
-OUTPUT_DIRECTORY = 'School_Orders/'
+OUTPUT_DIRECTORY = 'SO/'
 PASSWORD = getpass.getpass()
 
 # This Function extracts the Google Drive FileIDs from the contents of the Email
@@ -135,12 +135,12 @@ def process_mailbox(M):
             f.close()
         try:
             # Create JSON file with Job Requirements
-            JOB_INFO = school_data_json(ORDER_NUMBER, subject, "School_Orders")
+            JOB_INFO = school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY)
         except:
             print("JSON File Failed")
         try:
             # Create PostScript File
-            postscript_conversion(ORDER_NUMBER, "School_Orders")
+            postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
         except:
             print("PostScript Conversion Failed")
         try:
