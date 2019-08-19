@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v201908015"
+__version__ = "v201908018"
 
 # Built-In Libraries
 import os
@@ -14,7 +14,7 @@ from files import file_list
 from PostScript import ticket_conversion
 from Print import print_processor
 # https://micropyramid.com/blog/how-to-create-pdf-files-in-python-using-pdfkit/
-OUTPUT_DIRECTORY = 'School_Orders/'
+OUTPUT_DIRECTORY = 'SO/'
 
 
 def Email_Html(ORDER_NAME, PATH, NAME, Files):
@@ -87,7 +87,7 @@ def Email_Printer(ORDER_NAME):
                 items + ": " + str(JOB_INFO_FILES.get(items))[20:][:-1])  # Remove clutter from string
         NAME = "<b>Bill To: " + \
             JOB_INFO.get('First Name', False) + ' ' + \
-            JOB_INFO.get('Last Name', False) + "</b>"
+            JOB_INFO.get('Last Name', False) + "</b><br>"  + ORDER_NAME + "<br>"
     except:
         print("JSON open-failure")
     Email_Html(ORDER_NAME, OUTPUT_DIRECTORY+'/'+ORDER_NAME, NAME, files_list)
