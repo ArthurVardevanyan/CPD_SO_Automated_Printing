@@ -29,7 +29,7 @@ if ( window.history.replaceState ) {  //Makes Redirects After Html Forms not lea
     <br><br><br>
     <?php
 include 'Functions.php';
-$folder = "School_Orders";
+$folder = "SO";
 
 if (isset($_POST['FI'])) #When just the INFO button is prssed, it gets the file info.
 {
@@ -75,8 +75,24 @@ foreach( $Folders as $foldername){
 
   $data = file_get_contents($folder . "/" . $foldername ."/" . $foldername . '.json');
   $json = $json . $data . ",\n";
-};
+
+  };
+
 }
+$jt = "[" . substr($json, 0, -2) . "]";
+
+$json_a = json_decode($jt, true);
+
+$a=array();
+
+foreach ($json_a as $person_name => $person_a) {
+    #echo $person_a['Date Ordered'] . "<br>";
+    array_push($a,$person_a['Date Ordered']);
+}
+print_r(array_count_values($a));
+
+
+
 
 
 ?>
