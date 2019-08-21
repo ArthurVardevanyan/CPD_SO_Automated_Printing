@@ -118,15 +118,11 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
             continue
         # https://stackoverflow.com/questions/4289331/how-to-extract-numbers-from-a-string-in-python
         try:
-            if int(ORDER_NUMBER) == [int(s) for s in i.split() if s.isdigit()][0]:
-                ORDER_NAMES.append(i)
+            if int(ORDER_NUMBER[:5]) == int(i[:5]):
+                if str(ORDER_NUMBER) in i:
+                    ORDER_NAMES.append(i)
         except:
-            try:
-                if int(ORDER_NUMBER[:5]) == int(i[:5]):
-                    if str(ORDER_NUMBER) in i:
-                        ORDER_NAMES.append(i)
-            except:
-                return "Aborted @ INT: " + ORDER_NUMBER
+           return "Aborted @ INT: " + ORDER_NUMBER
 
     if(len(ORDER_NAMES) == 0):
         print(ORDER_NUMBER + " Order Number is not Valid")
