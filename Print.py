@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190818"
+__version__ = "v20190823"
 
 # Built-In Libraries
 from PostScript import file_merge
@@ -96,11 +96,11 @@ def can_run(JOB_INFO, COLOR, page_counts):
     if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White" and COLOR == 0):
         return False
     # Temperarory Disable Collated Jobs with more than 5 Pages, as the printer does not sleep sheet.
-    if(JOB_INFO.get('Collation', False) == "Collated"):
-        if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait"):
-            return True
-        if page_counts / len(JOB_INFO.get('Files', False)) >= 5:
-            return False
+    # if(JOB_INFO.get('Collation', False) == "Collated"):
+    #   if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait"):
+    #        return True
+    #    if page_counts / len(JOB_INFO.get('Files', False)) >= 5:
+    #        return False
     return True
 
 
@@ -122,7 +122,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
                 if str(ORDER_NUMBER) in i:
                     ORDER_NAMES.append(i)
         except:
-           return "Aborted @ INT: " + ORDER_NUMBER
+            return "Aborted @ INT: " + ORDER_NUMBER
 
     if(len(ORDER_NAMES) == 0):
         print(ORDER_NUMBER + " Order Number is not Valid")
@@ -193,10 +193,12 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
         if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
             duplex = str.encode(
                 '@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>\n')
+            duplex_state = 2
             print('Double Sided')
         else:
             duplex = str.encode(
                 '@PJL XCPT <sides syntax="keyword">one-sided</sides>\n')
+            duplex_state = 1
             print('Single Sided')
         if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait"):
             stapling = str.encode(
@@ -291,6 +293,14 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
                 '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             lines.insert(i, str.encode(
                 '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n'))
+            print("\nSplit-Sheeting!")
+        # Add SlipSheets to Large Collated Sets
+        if page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(collation) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]):
+            lines[i] = str.encode(
+                '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
+            lines.insert(i, str.encode(
+                '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n'))
+            print("\nSplit-Sheeting!")
 
     with open('PJL_Commands/input.ps', 'wb') as f:
         for item in lines:
@@ -298,7 +308,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     MERGED = False
     # If it makes sense to use merged files, it uses them.
     if str('<sheet-collate syntax="keyword">uncollated') in str(collation) and len(JOB_INFO.get('Files', False)) != 1:
-        if page_counts / len(JOB_INFO.get('Files', False)) >= 10:
+        if page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10:
             MERGED = False
             print("DUE TO PAGE COUNT, MERGED TURNED OFF")
         else:
