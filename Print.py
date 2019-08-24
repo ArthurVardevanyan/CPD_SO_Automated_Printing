@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190823"
+__version__ = "v20190824"
 
 # Built-In Libraries
 from PostScript import file_merge
@@ -95,12 +95,6 @@ def can_run(JOB_INFO, COLOR, page_counts):
         return False
     if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White" and COLOR == 0):
         return False
-    # Temperarory Disable Collated Jobs with more than 5 Pages, as the printer does not sleep sheet.
-    # if(JOB_INFO.get('Collation', False) == "Collated"):
-    #   if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait"):
-    #        return True
-    #    if page_counts / len(JOB_INFO.get('Files', False)) >= 5:
-    #        return False
     return True
 
 
@@ -295,7 +289,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
                 '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n'))
             print("\nSplit-Sheeting!")
         # Add SlipSheets to Large Collated Sets
-        if page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(collation) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]):
+        if page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(collation) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and (JOB_INFO.get('Stapling', False) != "Upper Left - portrait"):
             lines[i] = str.encode(
                 '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             lines.insert(i, str.encode(
