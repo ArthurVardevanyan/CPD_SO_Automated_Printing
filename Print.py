@@ -1,10 +1,12 @@
 # Print.py
 __version__ = "v20190824"
 
-# Built-In Libraries
+# Local Files
 from PostScript import file_merge
 from files import file_list, folder_list, postscript_list
 from BannerSheet import banner_sheet
+
+# Built-In Libraries
 import os
 import glob
 import json
@@ -17,28 +19,32 @@ from colorama import init
 # use Colorama to make Termcolor work on Windows too
 init()
 
-# Local Files
 
 # Global Variables
-D110_162 = 0
-D110_156 = 1
-print_count = 0
-print_count_2 = 0
+
+# Load Balancing
+D110_162 = 0  # Impressions ran on this machine
+D110_156 = 1  # Impressions ran on this machine
+
+# Variables for Safety check to not send more jobs than the printer can hold.
+jobs_since_reset = 0
+jobs_ran = 0
 
 
 def print_processor(print_que):
     # Runs through the list of files to send to the printers, pausing for input as needed.
     print(colored("!--DO NOT CLOSE--!", "red"))
-
-    printed = 0
+    ID_LIMIT = 40
     run = True
-    global print_count_2
+    global jobs_ran
+    global jobs_since_reset
     while run:
-        if print_count_2 >= 40:
-            print("Printed so Far: " + str(print_count_2))
+        if jobs_ran >= ID_LIMIT:
+            print("Printed so Far: " + str(jobs_ran))
             input(
                 "Please Confirm Printers Will Support 40 More Job IDS before pressing enter: ")
-            print_count_2 = 0
+            jobs_ran = 0
+            jobs_since_reset -= ID_LIMIT
         if len(print_que) > 0:
             if("banner" not in print_que[0]):
                 os.system(print_que[0])
@@ -46,14 +52,11 @@ def print_processor(print_que):
                     "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.pop(0)
-                printed = 0
-                print_count_2 += 1
+                jobs_ran += 1
         else:
-            if printed == 0:
-                print(colored("\n!--PROCESSING CAUGHT UP--!:   ", "green"))
-                printed = 1
-                run = False
-                print_count_2 += 1
+            print(colored("\n!--PROCESSING CAUGHT UP--!:   ", "green"))
+            run = False
+            jobs_ran += 1
 
 
 def impression_counter(PAGE_COUNTS, COPIES):
@@ -110,7 +113,6 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
         if(i == "Archive" or i == "Error"):
             continue
-        # https://stackoverflow.com/questions/4289331/how-to-extract-numbers-from-a-string-in-python
         try:
             if int(ORDER_NUMBER[:5]) == int(i[:5]):
                 if str(ORDER_NUMBER) in i:
@@ -296,6 +298,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
                 '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n'))
             print("\nSplit-Sheeting!")
 
+    # The Postscript/PJL commands file that gets inserted before the file.
     with open('PJL_Commands/input.ps', 'wb') as f:
         for item in lines:
             f.write(item)
@@ -309,6 +312,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
             MERGED = True
             print("THESE FILES WERE MERGED!")
 
+    # Create Directory for Print Ready Files
     try:
         os.makedirs(OUTPUT_DIRECTORY +
                     "/"+ORDER_NAME + "/PSP")
@@ -362,9 +366,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     except:
         print("Temp File Remove Failed")
 
-    global print_count
+    global jobs_since_reset
     print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
-    print_count += 1
+    jobs_since_reset += 1
     for i in range(SETS):
         for j in range(len(Print_Files)):
             print("File Name: " + Print_Files[j])
@@ -375,7 +379,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     print_que.append(lpr_path)
     for i in range(SETS):
         for j in range(len(Print_Files)):
-            print_count += 1
+            jobs_since_reset += 1
             lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
             lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
                 Print_Files[j] + '" -J "' + Print_Files[j] + '"'
@@ -389,6 +393,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
 
 
 def main():
+    # Contains the list of final commands for all the orders that were proccessed to be run.
     print_que = []
     print("\nTerminal AutoPrinting REV: " + colored(__version__, "magenta"))
     print("Supported are :\n• Simplex & Duplex Printing (Long Edge)\n• 3-Hole Punch\n• Top Left Portrait Staple")
@@ -399,6 +404,7 @@ def main():
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
     print(colored("Purple Paper", "magenta") +
           " (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
+    # Check if user wants to processes jobs with colored paper, if disabled this adds protection against accidentally running jobs on colored paper.
     while True:
         try:
             COLOR = 1 if int(
@@ -409,6 +415,7 @@ def main():
     else:
         print("Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
     loop = True
+    # Lets the user choose with printer they would like to use, or if they want to autoload balance between both printers.
     while(loop):
         while True:
             try:
@@ -421,7 +428,8 @@ def main():
             except:
                 pass
         loop = True
-        ORDER_NUMBER = []
+        ORDER_NUMBER = []  # The List of order numbers to validate and run
+        # Contains the list of orders that were processed and also displays the state of them. ex, ran automatically, with manual input, invalid, aborted, etc.
         printed = []
         while(True):
             temp = str(input("Type In an Order Number: "))
@@ -432,14 +440,14 @@ def main():
                 print('\n'.join(map(str, ORDER_NUMBER)))
                 for orders in ORDER_NUMBER:
                     printed.append(
-                        printing(str(orders), "SO", D110_IP, COLOR, print_que))
+                        printing(str(orders), "SO", D110_IP, COLOR, print_que))  # Does all the processing for the orders
                 print("\n")
                 print('\n'.join(map(str, printed)))
-                print(print_count)
-                print_processor(print_que)
+                print(jobs_since_reset)
+                print_processor(print_que)  # Does the printing
                 print("\n")
                 print('\n'.join(map(str, printed)))
-                print(print_count)
+                print(jobs_since_reset)
                 while True:
                     try:
                         loop = True if int(
@@ -449,7 +457,7 @@ def main():
                         pass
 
                 os.system('clear')  # on linux
-                os.system('CLS')  # on windows
+                os.system('CLS')    # on windows
                 break
 
 
