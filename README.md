@@ -3,14 +3,12 @@
 A Specialized Script for Running one Customers High Volume Orders
 
 ### Known Bugs:
-* Entering an Order # Shorter than the desired one may result in the incorrect order getting picked. Generally not an issue, order can be skipped on confirm screen.
-* Occasionally Customer Provides two Jobs with the same order number, in that case, one is picked, and if it is not the right one, you can not run that order.
 * If the Order has Invalid* or Unrealistic inputs, if a human does not catch it, the order will be wrong. (Some Invalid inputs will be caught by the script)
 * Can't Print Password Locked or Corrupt Files.
 
 ### TODO
 
-* Add Slip-sheets to collated sets with high page counts, ~10 or more sheets
+* More Features
 
 
 ## Three Main Files:
