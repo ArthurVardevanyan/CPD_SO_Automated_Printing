@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190824"
+__version__ = "v20190920"
 
 # Local Files
 from PostScript import file_merge
@@ -241,9 +241,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     if(SPI != (0,0)):
         SETS = SPI[0]
         COPIES_PER_SET = SPI[1]
-        print("Sets: ", SETS)
-        print("CPS : ", COPIES_PER_SET)
-        print("\n!--I WILL TAKE IT FROM HERE--! - SPI Processing")
+        print("Sets: ", colored(SETS, "magenta"))
+        print("CPS : ", colored(COPIES_PER_SET, "magenta"))
+        print("\n!--I WILL TAKE IT FROM HERE & DONE WITH SPECIAL INSTRUCTION PROCESSING --!")
         print_result = "SUCCESS!     : "
     elif(JOB_INFO.get('Special Instructions', False) == False and JOB_INFO.get('Slip Sheets / Shrink Wrap', False) == False):
         SETS = 1
