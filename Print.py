@@ -5,6 +5,7 @@ __version__ = "v20190824"
 from PostScript import file_merge
 from files import file_list, folder_list, postscript_list
 from BannerSheet import banner_sheet
+from spi import Special_Instructions
 
 # Built-In Libraries
 import os
@@ -236,7 +237,15 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     if(JOB_INFO.get('Slip Sheets / Shrink Wrap', False)):
         print("SPECIAL INSTRUCTIONS: " +
               JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
-    if(JOB_INFO.get('Special Instructions', False) == False and JOB_INFO.get('Slip Sheets / Shrink Wrap', False) == False):
+    SPI = Special_Instructions(JOB_INFO)
+    if(SPI != (0,0)):
+        SETS = SPI[0]
+        COPIES_PER_SET = SPI[1]
+        print("Sets: ", SETS)
+        print("CPS : ", COPIES_PER_SET)
+        print("\n!--I WILL TAKE IT FROM HERE--! - SPI Processing")
+        print_result = "SUCCESS!     : "
+    elif(JOB_INFO.get('Special Instructions', False) == False and JOB_INFO.get('Slip Sheets / Shrink Wrap', False) == False):
         SETS = 1
         COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
         print("\n!--I WILL TAKE IT FROM HERE--!")
