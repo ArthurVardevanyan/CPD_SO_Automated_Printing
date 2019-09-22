@@ -1,3 +1,4 @@
+# Special Instructions Processing
 __version__ = "v20190920"
 
 import json
@@ -21,11 +22,11 @@ def Special_Instructions_Processing(QTY, str):
                 if(QTY % min(Numbers) == 0):
                     return int(QTY / min(Numbers)), min(Numbers)
                 else:
-                    return 0,1
+                    return 0, 1
             if("complete" in str or "set" in str):
-                return 0 , min(Numbers)
+                return 0, min(Numbers)
         if("set" in str or "slip" in str):
-            return 0,1
+            return 0, 1
         return 0, 0
     else:
         return 0, 0
@@ -41,7 +42,7 @@ def Special_Instructions(JOB_INFO):
         return 0, 0
     if(SLIO == (0, 1)):
         return 0, 0
-    if (SPIO == SLIO == (0,0)):
+    if (SPIO == SLIO == (0, 0)):
         return 1, QTY
     if (SPIO == SLIO):
         return SPIO
@@ -55,6 +56,5 @@ def Special_Instructions(JOB_INFO):
     if(SPIO[0] == 0):
         if(int(SLIO[0]) == SPIO[1]):
             return SLIO
- 
 
     return 0, 0

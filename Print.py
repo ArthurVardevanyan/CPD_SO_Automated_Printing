@@ -238,18 +238,19 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
         print("SPECIAL INSTRUCTIONS: " +
               JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
     SPI = Special_Instructions(JOB_INFO)
-    if(SPI != (0,0)):
-        SETS = SPI[0]
-        COPIES_PER_SET = SPI[1]
-        print("Sets: ", colored(SETS, "magenta"))
-        print("CPS : ", colored(COPIES_PER_SET, "magenta"))
-        print("\n!--I WILL TAKE IT FROM HERE & DONE WITH SPECIAL INSTRUCTION PROCESSING --!")
-        print_result = "SUCCESS!     : "
-    elif(JOB_INFO.get('Special Instructions', False) == False and JOB_INFO.get('Slip Sheets / Shrink Wrap', False) == False):
+    if(JOB_INFO.get('Special Instructions', False) == False and JOB_INFO.get('Slip Sheets / Shrink Wrap', False) == False):
         SETS = 1
         COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
         print("\n!--I WILL TAKE IT FROM HERE--!")
         print_result = "SUCCESS!     : "
+    elif(SPI != (0, 0)):
+        SETS = SPI[0]
+        COPIES_PER_SET = SPI[1]
+        print("Sets: ", colored(SETS, "magenta"))
+        print("CPS : ", colored(COPIES_PER_SET, "magenta"))
+        print(
+            "\n!--I WILL TAKE IT FROM HERE & DONE WITH SPECIAL INSTRUCTION PROCESSING --!")
+        print_result = "SUCCESS SPI!  : "
     else:
         # If their are special instructions prompt the user to manually enter copies and set counts
         print("If more than one set is required, do the appropriate calculation to determine correct amount of Sets and Copies per Set")
