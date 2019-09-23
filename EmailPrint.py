@@ -87,23 +87,84 @@ def Email_Printer(ORDER_NAME):
                 items + ": " + str(JOB_INFO_FILES.get(items))[20:][:-1])  # Remove clutter from string
         NAME = "<b>Bill To: " + \
             JOB_INFO.get('First Name', False) + ' ' + \
-            JOB_INFO.get('Last Name', False) + "</b><br>"  + ORDER_NAME + "<br>"
+            JOB_INFO.get('Last Name', False) + "</b><br>" + ORDER_NAME + "<br>"
     except:
         print("JSON open-failure")
     Email_Html(ORDER_NAME, OUTPUT_DIRECTORY+'/'+ORDER_NAME, NAME, files_list)
     print(ORDER_NAME)
 
 
-print_que = []
 print_count = 0
 print_count_2 = 0
 
 
+def Email_Print(ORDER_NAME, AUTORUN, print_que, stacker):
+    LPR = "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "
+ # Email_Printer(ORDER_NAME)
+    PATH = OUTPUT_DIRECTORY+ORDER_NAME+"/Tickets/"+ORDER_NAME+".pdf.ps"
+    if os.path.exists(PATH) == False:
+        return 0
+    else:
+        MEDIA_COLOR = ("white", "blue", "yellow", "green", "pink",
+                       "ivory", "gray", "buff", "goldenrod,", "red", "orange")
+        # Allows differnet color banner sheets. Common Pastel/Astrobrights Colors
+        banner_sheet_color = MEDIA_COLOR[0]
+        # Read in Template BannerSheet PostScript File with PJL Commands for Xerox D110 Printer
+        with open('PJL_Commands/BannerSheet.ps', 'rb') as f:
+            pjl_lines = f.readlines()
+
+        # Swap template color for color of choice
+        for i in range(len(pjl_lines)):
+            if str('<media-color syntax="keyword">') in str(pjl_lines[i]):
+                pjl_lines[i] = str.encode(
+                    '@PJL XCPT <media-color syntax="keyword">' + banner_sheet_color + '</media-color>\n')
+        banner_sheet_color = MEDIA_COLOR[1]
+        # Read in Template BannerSheet PostScript File with PJL Commands for Xerox D110 Printer
+        with open('PJL_Commands/BannerSheet.ps', 'rb') as f:
+            pjl_lines_2 = f.readlines()
+
+        # Swap template color for color of choice
+        for i in range(len(pjl_lines_2)):
+            if str('<media-color syntax="keyword">') in str(pjl_lines_2[i]):
+                pjl_lines_2[i] = str.encode(
+                    '@PJL XCPT <media-color syntax="keyword">' + banner_sheet_color + '</media-color>\n')
+
+        with open('PJL_Commands/input.ps', 'wb') as f:
+            for item in pjl_lines:
+                f.write(item)
+
+        file_names = ['PJL_Commands/input.ps',
+                      PATH, 'PJL_Commands/End.ps']
+        with open(PATH+"1.ps", 'wb') as outfile:
+            for fname in file_names:
+                with open(fname, 'rb') as infile:
+                    for line in infile:
+                        outfile.write(line)
+        with open('PJL_Commands/input.ps', 'wb') as f:
+            for item in pjl_lines_2:
+                f.write(item)
+
+        file_names = ['PJL_Commands/input.ps',
+                      PATH, 'PJL_Commands/End.ps']
+        with open(PATH+"2.ps", 'wb') as outfile:
+            for fname in file_names:
+                with open(fname, 'rb') as infile:
+                    for line in infile:
+                        outfile.write(line)
+
+        print_que.append(LPR + '"' + PATH+"1.ps" +
+                         '" -J "' + ORDER_NAME + '"')
+        print_que.append(LPR + '"' + PATH+"2.ps" +
+                         '" -J "' + ORDER_NAME + '"')
+        return 1
+
+
 def main():
+    print_que = []
+    AUTORUN = False
     count = 0
     Start = str(input("Start #: "))
     End = str(input("End   #: "))
-    LPR = "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "
     folders = folder_list(OUTPUT_DIRECTORY)
     ORDER_NAMES = []
     for ORDER_NUMBER in range(int(Start), int(End)+1):
@@ -113,63 +174,7 @@ def main():
             if ORDER_NUMBER in i:
                 ORDER_NAMES.append(i)
     for ORDER_NAME in ORDER_NAMES:
-        # Email_Printer(ORDER_NAME)
-        PATH = OUTPUT_DIRECTORY+ORDER_NAME+"/Tickets/"+ORDER_NAME+".pdf.ps"
-        if os.path.exists(PATH) == False:
-            continue
-        else:
-            MEDIA_COLOR = ("white", "blue", "yellow", "green", "pink",
-                           "ivory", "gray", "buff", "goldenrod,", "red", "orange")
-            # Allows differnet color banner sheets. Common Pastel/Astrobrights Colors
-            banner_sheet_color = MEDIA_COLOR[0]
-            # Read in Template BannerSheet PostScript File with PJL Commands for Xerox D110 Printer
-            with open('PJL_Commands/BannerSheet.ps', 'rb') as f:
-                pjl_lines = f.readlines()
-
-            # Swap template color for color of choice
-            for i in range(len(pjl_lines)):
-                if str('<media-color syntax="keyword">') in str(pjl_lines[i]):
-                    pjl_lines[i] = str.encode(
-                        '@PJL XCPT <media-color syntax="keyword">' + banner_sheet_color + '</media-color>\n')
-            banner_sheet_color = MEDIA_COLOR[1]
-            # Read in Template BannerSheet PostScript File with PJL Commands for Xerox D110 Printer
-            with open('PJL_Commands/BannerSheet.ps', 'rb') as f:
-                pjl_lines_2 = f.readlines()
-
-            # Swap template color for color of choice
-            for i in range(len(pjl_lines_2)):
-                if str('<media-color syntax="keyword">') in str(pjl_lines_2[i]):
-                    pjl_lines_2[i] = str.encode(
-                        '@PJL XCPT <media-color syntax="keyword">' + banner_sheet_color + '</media-color>\n')
-
-            with open('PJL_Commands/input.ps', 'wb') as f:
-                for item in pjl_lines:
-                    f.write(item)
-
-            file_names = ['PJL_Commands/input.ps',
-                          PATH, 'PJL_Commands/End.ps']
-            with open(PATH+"1.ps", 'wb') as outfile:
-                for fname in file_names:
-                    with open(fname, 'rb') as infile:
-                        for line in infile:
-                            outfile.write(line)
-            with open('PJL_Commands/input.ps', 'wb') as f:
-                for item in pjl_lines_2:
-                    f.write(item)
-
-            file_names = ['PJL_Commands/input.ps',
-                          PATH, 'PJL_Commands/End.ps']
-            with open(PATH+"2.ps", 'wb') as outfile:
-                for fname in file_names:
-                    with open(fname, 'rb') as infile:
-                        for line in infile:
-                            outfile.write(line)
-
-            print_que.append(LPR + '"' + PATH+"1.ps" +
-                             '" -J "' + ORDER_NAME + '"')
-            print_que.append(LPR + '"' + PATH+"2.ps" +
-                             '" -J "' + ORDER_NAME + '"')
-            count += 1
+        count += Email_Print(ORDER_NAME, AUTORUN, print_que, "stacker")
 
     print_processor(print_que)
     try:

@@ -24,6 +24,7 @@ from PostScript import postscript_conversion
 from PostScript import file_merge
 from files import page_counts
 from EmailPrint import Email_Printer
+from Print import printing
 # use Colorama to make Termcolor work on Windows too
 
 init()
@@ -34,7 +35,7 @@ EMAIL_ACCOUNT = "@gmail.com"
 EMAIL_FOLDER = "Inbox"
 OUTPUT_DIRECTORY = 'SO/'
 PASSWORD = getpass.getpass()
-
+AUTORUN = False
 # This Function extracts the Google Drive FileIDs from the contents of the Email
 
 
@@ -169,6 +170,13 @@ def process_mailbox(M):
         except:
             print("Email Conversion Failed")
         emails_proccessed += 1
+        if(AUTORUN):
+            D110_IP = 1
+            COLOR = 0
+            EMAILPRINT = True
+            print_que = []
+            printing(ORDER_NUMBER, "SO", D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT)
+
     return emails_proccessed
 
 
