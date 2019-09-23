@@ -152,7 +152,7 @@ def process_mailbox(M):
                 DUPLEX_STATE = False
                 print('Single Sided')
             if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-                if page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject) / len(JOB_INFO.get('Files', False)) >= 10:
+                if page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject) / len(JOB_INFO.get('Files', False))  / DUPLEX_STATE  >= 10:
                     print("DUE TO PAGE COUNT, MERGED TURNED OFF")
                 else:
                     file_merge(OUTPUT_DIRECTORY, ORDER_NUMBER +
