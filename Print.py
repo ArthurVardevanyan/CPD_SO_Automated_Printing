@@ -6,11 +6,13 @@ from PostScript import file_merge
 from files import file_list, folder_list, postscript_list
 from BannerSheet import banner_sheet
 from spi import Special_Instructions
+from EmailPrint import Email_Print
 
 # Built-In Libraries
 import os
 import glob
 import json
+import sys
 
 # Downloaded Libraries
 from PyPDF2 import PdfFileReader
@@ -42,6 +44,8 @@ def print_processor(print_que):
     while run:
         if jobs_ran >= ID_LIMIT:
             print("Printed so Far: " + str(jobs_ran))
+            sys.stdout.write('\a\a\a')
+            sys.stdout.flush()
             input(
                 "Please Confirm Printers Will Support 40 More Job IDS before pressing enter: ")
             jobs_ran = 0
@@ -102,9 +106,10 @@ def can_run(JOB_INFO, COLOR, page_counts):
     return True
 
 
-def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
+def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT):
     # Runs the bulk of code
-
+    if(AUTORUN):
+        PRINTER = 1
     ORDER_NAME = "No Order Selected"  # Default Value
     print_result = ''  # Used for Status Output
     page_counts = 0  # Used for counting impressions for current order and adding to total for load balancing between printers
@@ -120,38 +125,43 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
                     ORDER_NAMES.append(i)
         except:
             return "Aborted @ INT: " + ORDER_NUMBER
-
-    if(len(ORDER_NAMES) == 0):
-        print(ORDER_NUMBER + " Order Number is not Valid")
-        return "ON Not Valid : " + ORDER_NUMBER
-    if(len(ORDER_NAMES) == 1):
-        ORDER_NAME = ORDER_NAMES[0]
-        print(ORDER_NAME)
-        while True:
-            try:
-                if(int(input("Confirm Order Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + ") ")) == 0):
-                    return "Aborted @ CO#: " + ORDER_NAME
-                break
-            except:
-                pass
-    if(len(ORDER_NAMES) > 1):
-        print(colored(
-            "!--WARNING--! - DUPLICATE ORDER NUMBERS - PROCEED WITH CAUTION", "red"))
-        for order_name in ORDER_NAMES:
+    if(not AUTORUN):
+        if(len(ORDER_NAMES) == 0):
+            print(ORDER_NUMBER + " Order Number is not Valid")
+            return "ON Not Valid : " + ORDER_NUMBER
+        if(len(ORDER_NAMES) == 1):
+            ORDER_NAME = ORDER_NAMES[0]
+            print(ORDER_NAME)
             while True:
                 try:
-                    print(order_name)
                     if(int(input("Confirm Order Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + ") ")) == 0):
-                        break
-                    else:
-                        ORDER_NAME = order_name
-                        break
+                        return "Aborted @ CO#: " + ORDER_NAME
+                    break
                 except:
                     pass
-            if(ORDER_NAME != "No Order Selected"):
-                break
-        if(ORDER_NAME == "No Order Selected"):
-            return "Aborted @ CO#: " + ORDER_NUMBER + " " + ORDER_NAME
+        if(len(ORDER_NAMES) > 1):
+            print(colored(
+                "!--WARNING--! - DUPLICATE ORDER NUMBERS - PROCEED WITH CAUTION", "red"))
+            for order_name in ORDER_NAMES:
+                while True:
+                    try:
+                        print(order_name)
+                        if(int(input("Confirm Order Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + ") ")) == 0):
+                            break
+                        else:
+                            ORDER_NAME = order_name
+                            break
+                    except:
+                        pass
+                if(ORDER_NAME != "No Order Selected"):
+                    break
+            if(ORDER_NAME == "No Order Selected"):
+                return "Aborted @ CO#: " + ORDER_NUMBER + " " + ORDER_NAME
+    else:
+        try:
+            ORDER_NAME = str(ORDER_NAMES[0])
+        except:
+            return "Order DNE: " + ORDER_NAME
 
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
@@ -230,7 +240,11 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
                   JOB_INFO.get('Special Instructions', False))
     else:
         print(colored("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.", "red"))
-        return "Not Supported:  " + ORDER_NAME
+        if(not AUTORUN):
+            return "Not Supported:  " + ORDER_NAME
+        else:
+            if(EMAILPRINT):
+                Email_Print(ORDER_NAME, AUTORUN, print_que, "toptray")
     print("Number of (Total) Copies Listed Per File: " +
           colored(JOB_INFO.get('Copies', False), "magenta"))
 
@@ -252,27 +266,32 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
             "\n!--I WILL TAKE IT FROM HERE & DONE WITH SPECIAL INSTRUCTION PROCESSING --!")
         print_result = "SUCCESS SPI!  : "
     else:
-        # If their are special instructions prompt the user to manually enter copies and set counts
-        print("If more than one set is required, do the appropriate calculation to determine correct amount of Sets and Copies per Set")
+        if(not AUTORUN):
+            # If their are special instructions prompt the user to manually enter copies and set counts
+            print("If more than one set is required, do the appropriate calculation to determine correct amount of Sets and Copies per Set")
 
-        while True:
-            try:
-                SETS = int(input("\nHow Many Sets?: "))
-                if(SETS == 0):
-                    return "Aborted @ Set: " + ORDER_NAME
-                break
-            except:
-                pass
-        while True:
-            try:
-                COPIES_PER_SET = int(input("How Many Copies Per Set?: "))
-                if(COPIES_PER_SET == 0):
-                    return "Aborted @ CPS: " + ORDER_NAME
-                break
-            except:
-                pass
+            while True:
+                try:
+                    SETS = int(input("\nHow Many Sets?: "))
+                    if(SETS == 0):
+                        return "Aborted @ Set: " + ORDER_NAME
+                    break
+                except:
+                    pass
+            while True:
+                try:
+                    COPIES_PER_SET = int(input("How Many Copies Per Set?: "))
+                    if(COPIES_PER_SET == 0):
+                        return "Aborted @ CPS: " + ORDER_NAME
+                    break
+                except:
+                    pass
+            print_result = "Manual Input : "
+        else:
+            if(EMAILPRINT):
+                Email_Print(ORDER_NAME, AUTORUN, print_que, "toptray")
+            return "Not Supported S:  " + ORDER_NAME
 
-        print_result = "Manual Input : "
     COPIES_COMMAND = str.encode(
         '@PJL XCPT <copies syntax="integer">'+str(COPIES_PER_SET)+'</copies>\n')
     with open('PJL_Commands/PJL.ps', 'rb') as f:
@@ -376,13 +395,15 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
     except:
         print("Temp File Remove Failed")
 
+    if(AUTORUN and EMAILPRINT):
+        Email_Print(ORDER_NAME, AUTORUN, print_que, "stacker")
+
     global jobs_since_reset
     print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
     jobs_since_reset += 1
     for i in range(SETS):
         for j in range(len(Print_Files)):
             print("File Name: " + Print_Files[j])
-
     lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
     print(lpr_path)
     # Change Path so only File Name Shows up on Printer per File Banner Sheet
@@ -403,6 +424,10 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que):
 
 
 def main():
+    AUTORUN = False
+    SEQUENTIAL = False
+    EMAILPRINT = False
+
     # Contains the list of final commands for all the orders that were proccessed to be run.
     print_que = []
     print("\nTerminal AutoPrinting REV: " + colored(__version__, "magenta"))
@@ -443,14 +468,19 @@ def main():
         printed = []
         while(True):
             temp = str(input("Type In an Order Number: "))
-            if(temp != "run"):
+            if(temp != "run" and SEQUENTIAL == False):
                 ORDER_NUMBER.append(temp)
+            elif(temp != "run" and SEQUENTIAL == True):
+                Start = str(input("Start #: "))
+                End = str(input("End   #: "))
+                for ORDER_NUMBERS in range(int(Start), int(End)+1):
+                    ORDER_NUMBER.append(ORDER_NUMBERS)
             else:
                 print("\nI am Going to Run:")
                 print('\n'.join(map(str, ORDER_NUMBER)))
                 for orders in ORDER_NUMBER:
                     printed.append(
-                        printing(str(orders), "SO", D110_IP, COLOR, print_que))  # Does all the processing for the orders
+                        printing(str(orders), "SO", D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT))  # Does all the processing for the orders
                 print("\n")
                 print('\n'.join(map(str, printed)))
                 print(jobs_since_reset)
