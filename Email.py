@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190818"
+__version__ = "v20190922"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -147,12 +147,14 @@ def process_mailbox(M):
             # Merge Uncollated Files
             if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
                 DUPLEX_STATE = True
+                duplex_state = 2
                 print('Double Sided')
             else:
                 DUPLEX_STATE = False
+                duplex_state = 1
                 print('Single Sided')
             if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-                if page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject) / len(JOB_INFO.get('Files', False))  / DUPLEX_STATE  >= 10:
+                if page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject) / len(JOB_INFO.get('Files', False))  / duplex_state  >= 10:
                     print("DUE TO PAGE COUNT, MERGED TURNED OFF")
                 else:
                     file_merge(OUTPUT_DIRECTORY, ORDER_NUMBER +
