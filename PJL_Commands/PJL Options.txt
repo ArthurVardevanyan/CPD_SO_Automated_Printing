@@ -39,3 +39,8 @@ Media Weight
 Media Color
 <media-color syntax="keyword">white</media-color>
 
+Stacker
+<output-bin syntax="keyword">stacker</output-bin>
+<output-bin syntax="keyword">top</output-bin>
+
+

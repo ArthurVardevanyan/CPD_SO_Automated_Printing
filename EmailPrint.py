@@ -98,7 +98,7 @@ print_count = 0
 print_count_2 = 0
 
 
-def Email_Print(ORDER_NAME, AUTORUN, print_que, stacker):
+def Email_Print(ORDER_NAME, AUTORUN, print_que, STACKER):
     LPR = "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "
  # Email_Printer(ORDER_NAME)
     PATH = OUTPUT_DIRECTORY+ORDER_NAME+"/Tickets/"+ORDER_NAME+".pdf.ps"
@@ -128,6 +128,15 @@ def Email_Print(ORDER_NAME, AUTORUN, print_que, stacker):
             if str('<media-color syntax="keyword">') in str(pjl_lines_2[i]):
                 pjl_lines_2[i] = str.encode(
                     '@PJL XCPT <media-color syntax="keyword">' + banner_sheet_color + '</media-color>\n')
+        if(AUTORUN and STACKER == "toptray"):
+            for i in range(len(pjl_lines)):
+                if str('<output-bin syntax="keyword">') in str(pjl_lines_2[i]):
+                    pjl_lines_2[i] = str.encode(
+                        '@PJL XCPT 		<output-bin syntax="keyword">top</output-bin>\n')
+            for i in range(len(pjl_lines_2)):
+                if str('<output-bin syntax="keyword">') in str(pjl_lines_2[i]):
+                    pjl_lines_2[i] = str.encode(
+                        '@PJL XCPT 		<output-bin syntax="keyword">top</output-bin>\n')
 
         with open('PJL_Commands/input.ps', 'wb') as f:
             for item in pjl_lines:
