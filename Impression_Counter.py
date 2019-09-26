@@ -1,13 +1,16 @@
+# Impression Counter
+__version__ = "v20190926"
 import json
 from files import folder_list
 from files import file_list
 import pprint
 
 
-OUTPUT_DIRECTORY = 'School_Orders/'
+OUTPUT_DIRECTORY = 'SO/'
 
+print("\nTerminal AutoPrinting REV: " + __version__)
 Start = str(input("Start #: "))
-End = str(input("End #: "))
+End = str(input("End   #: "))
 Job_Specs = {}
 Total_Copies = 0
 Total_Staples = 0
@@ -24,8 +27,13 @@ for ORDER_NUMBER in range(int(Start), int(End)+1):
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 
-    with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
-        JOB_INFO = json.load(json_file)
+    try:
+        with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
+            JOB_INFO = json.load(json_file)
+    except:
+        print("JSON File Failed")
+        continue
+    
 
     JOB_INFO_FILES = JOB_INFO.get('Files', False)
     copy_count = 0
