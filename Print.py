@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190920"
+__version__ = "v20190926"
 
 # Local Files
 from PostScript import file_merge
