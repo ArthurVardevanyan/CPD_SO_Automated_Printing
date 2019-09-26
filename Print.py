@@ -170,7 +170,16 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
             JOB_INFO = json.load(json_file)
     except:
-        return "Aborted @ JS#: " + ORDER_NUMBER + " " + ORDER_NAME
+        if(not AUTORUN):
+            return "Aborted @ JS#: " + ORDER_NUMBER + " " + ORDER_NAME
+        else:
+            if(EMAILPRINT):
+                Email_Print(ORDER_NAME, AUTORUN, print_que, "toptray")
+                try:
+                    os.remove("PJL_Commands/input.ps")  # remove temp file
+                except:
+                    print("Temp File Remove Failed")
+                return "Not Supported S:  " + ORDER_NAME
 
     # This calls the function that creates the banner sheet for the given order number
     BANNER_SHEET_FILE = banner_sheet(
@@ -245,6 +254,12 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         else:
             if(EMAILPRINT):
                 Email_Print(ORDER_NAME, AUTORUN, print_que, "toptray")
+                try:
+                    os.remove("PJL_Commands/input.ps")  # remove temp file
+                except:
+                    print("Temp File Remove Failed")
+            return "Not Supported S:  " + ORDER_NAME
+
     print("Number of (Total) Copies Listed Per File: " +
           colored(JOB_INFO.get('Copies', False), "magenta"))
 
@@ -290,7 +305,11 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         else:
             if(EMAILPRINT):
                 Email_Print(ORDER_NAME, AUTORUN, print_que, "toptray")
-            return "Not Supported S:  " + ORDER_NAME
+            try:
+                os.remove("PJL_Commands/input.ps")  # remove temp file
+            except:
+                print("Temp File Remove Failed")
+            return "Not Supported SPI:  " + ORDER_NAME
 
     COPIES_COMMAND = str.encode(
         '@PJL XCPT <copies syntax="integer">'+str(COPIES_PER_SET)+'</copies>\n')
@@ -397,7 +416,11 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
 
     if(AUTORUN and EMAILPRINT):
         Email_Print(ORDER_NAME, AUTORUN, print_que, "stacker")
-
+    try:
+        os.remove("PJL_Commands/input.ps")  # remove temp file
+    except:
+        print("Temp File Remove Failed")
+        
     global jobs_since_reset
     print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
     jobs_since_reset += 1
@@ -424,9 +447,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
 
 
 def main():
-    AUTORUN = False
+    AUTORUN = True
     SEQUENTIAL = False
-    EMAILPRINT = False
+    EMAILPRINT = True
 
     # Contains the list of final commands for all the orders that were proccessed to be run.
     print_que = []
