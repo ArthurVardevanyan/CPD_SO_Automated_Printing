@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190922"
+__version__ = "v20190926"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -24,17 +24,18 @@ from PostScript import postscript_conversion
 from PostScript import file_merge
 from files import page_counts
 from EmailPrint import Email_Printer
+from Print import printing
+from Print import print_processor
 # use Colorama to make Termcolor work on Windows too
 
 init()
 print("School Order Downloader Revision: ", __version__)
 
 IMAP_SERVER = 'imap.gmail.com'
-EMAIL_ACCOUNT = "@gmail.com"
 EMAIL_FOLDER = "Inbox"
 OUTPUT_DIRECTORY = 'SO/'
 PASSWORD = getpass.getpass()
-
+AUTORUN = False
 # This Function extracts the Google Drive FileIDs from the contents of the Email
 
 
@@ -135,7 +136,8 @@ def process_mailbox(M):
             f.close()
         try:
             # Create JSON file with Job Requirements
-            JOB_INFO = school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY)
+            JOB_INFO = school_data_json(
+                ORDER_NUMBER, subject, OUTPUT_DIRECTORY)
         except:
             print("JSON File Failed")
         try:
@@ -154,7 +156,7 @@ def process_mailbox(M):
                 duplex_state = 1
                 print('Single Sided')
             if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-                if page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject) / len(JOB_INFO.get('Files', False))  / duplex_state  >= 10:
+                if page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject) / len(JOB_INFO.get('Files', False)) / duplex_state >= 10:
                     print("DUE TO PAGE COUNT, MERGED TURNED OFF")
                 else:
                     file_merge(OUTPUT_DIRECTORY, ORDER_NUMBER +
@@ -165,14 +167,31 @@ def process_mailbox(M):
             print("File Merge Failure")
         try:
             # Create Email Html Pdf & PS
-            Email_Printer(ORDER_NUMBER+" " + subject)
+            Email_Printer(ORDER_NUMBER+" " + subject, error_state)
         except:
             print("Email Conversion Failed")
         emails_proccessed += 1
+        if(AUTORUN):
+            D110_IP = 1
+            COLOR = 0
+            EMAILPRINT = True
+            print_que = []
+            printing(ORDER_NUMBER, "SO", D110_IP, COLOR,
+                     print_que, AUTORUN, EMAILPRINT)
+            print_processor(print_que)
+
     return emails_proccessed
 
 
 def main():
+    EMAIL_ACCOUNT = "@gmail.com"
+    try:
+        with open("Credentials/creds.txt") as f:
+            cred = f.readlines()
+        cred = [x.strip() for x in cred]
+        EMAIL_ACCOUNT = str(cred[0]) + EMAIL_ACCOUNT
+    except:
+        print("Crential Failure")
     M = imaplib.IMAP4_SSL(IMAP_SERVER)
     M.login(EMAIL_ACCOUNT, PASSWORD)  # Credentials Info
     rv, data = M.select(EMAIL_FOLDER)  # pylint: disable=unused-variable
