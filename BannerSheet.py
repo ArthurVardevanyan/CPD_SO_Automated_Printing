@@ -10,6 +10,14 @@ import json
 def banner_sheet(JOB_INFO, OUTPUT_PATH):
     NAME = "CHANGE ME"
     LOC = "CHANGE ME"
+    try:
+        with open("Credentials/creds.txt") as f:
+            cred = f.readlines()
+        cred = [x.strip() for x in cred]
+        NAME = str(cred[1])
+        LOC = str(cred[2])
+    except:
+        print("Crential Failure")
 
     MEDIA_COLOR = ("white", "blue", "yellow", "green", "pink",
                    "ivory", "gray", "buff", "goldenrod,", "red", "orange")
