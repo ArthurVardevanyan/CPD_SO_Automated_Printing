@@ -34,6 +34,8 @@ Converts the Email text into a JSON file
 Downloads the files for the order from Google Drive
 #### BannerSheet.py  
 Generates a custom banner sheet for running these jobs. Outputted in front of each job before all the files get outputted.  
+#### spi.py
+Reads the Special Instructions, and determines information based on that.
 
 ## PJL_Commands 
 This folder contains the resources for the Printer Job Language (PJL) Commands needed to output the postscript files on the printer.  

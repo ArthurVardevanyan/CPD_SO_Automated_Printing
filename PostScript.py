@@ -15,13 +15,13 @@ from PyPDF2 import PdfFileReader
 from files import folder_list
 from files import file_list
 
+GHOSTSCRIPT_PARAM = '-dNumRenderingThreads=4 -dBandBufferSpace=500000000 -sBandListStorage=memory -dBufferSpace=1000000000 -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="'
+GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
+# GHOSTSCRIPT_PATH = 'gs' #Linux
+
 
 def ticket_conversion(PATH):
-    # Windows
-    GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
-    #GHOSTSCRIPT_PATH = 'gs' #Linux
-    # This gets the number of pages for every pdf file for the job.
-    os.system(GHOSTSCRIPT_PATH + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="' +
+    os.system(GHOSTSCRIPT_PATH + GHOSTSCRIPT_PARAM +
               PATH+'.ps" "'+PATH+'" -c quit')
 
 
@@ -41,21 +41,13 @@ def postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY):
     except OSError:
         print("Creation of the directory failed " +
               "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PostScript")
-
-    # Windows
-    GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
-    # GHOSTSCRIPT_PATH = 'gs' #Linux
-    # This gets the number of pages for every pdf file for the job.
     for i in range(len(files)):
-        os.system(GHOSTSCRIPT_PATH + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="'+OUTPUT_DIRECTORY+'"/"' +
+        os.system(GHOSTSCRIPT_PATH + GHOSTSCRIPT_PARAM+OUTPUT_DIRECTORY+'"/"' +
                   ORDER_NAME+'"/PostScript/"'+files[i]+'.ps" "'+OUTPUT_DIRECTORY+'"/"'+ORDER_NAME+'"/"'+files[i]+'" -c quit')
 
 
 def file_merge(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE):
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
-    # Windows
-    GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
-    # GHOSTSCRIPT_PATH = 'gs' #Linux
     files_path = ''
     if DUPLEX_STATE == True:  # Adds blanks for doublesided uncollated printing
         for i in range(len(files)):
@@ -67,7 +59,7 @@ def file_merge(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE):
                     '/PostScript/'+files[i] + '.ps"'
                 src = '"' + OUTPUT_DIRECTORY+'/' + \
                     ORDER_NAME + '/'+files[i] + '"'
-                ghostscript_command = GHOSTSCRIPT_PATH + ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile=' + \
+                ghostscript_command = GHOSTSCRIPT_PATH + GHOSTSCRIPT_PARAM + \
                     output+' '+src + ' PJL_Commands/Blank.ps -c quit'
                 os.system(ghostscript_command)
 
