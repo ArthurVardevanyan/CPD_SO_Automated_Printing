@@ -131,7 +131,7 @@ def Email_Print(ORDER_NAME, AUTORUN, print_que, STACKER):
         if(AUTORUN and STACKER == "toptray"):
             for i in range(len(pjl_lines)):
                 if str('<output-bin syntax="keyword">') in str(pjl_lines_2[i]):
-                    pjl_lines_2[i] = str.encode(
+                    pjl_lines[i] = str.encode(
                         '@PJL XCPT 		<output-bin syntax="keyword">top</output-bin>\n')
             for i in range(len(pjl_lines_2)):
                 if str('<output-bin syntax="keyword">') in str(pjl_lines_2[i]):
