@@ -13,6 +13,7 @@ import os
 import glob
 import json
 import sys
+import time
 
 # Downloaded Libraries
 from PyPDF2 import PdfFileReader
@@ -34,6 +35,11 @@ jobs_since_reset = 0
 jobs_ran = 0
 
 
+def print_status(ip):
+    status = os.popen('lpq -S '+ip+' -P PS  -l').read()
+    return len(status)
+
+
 def print_processor(print_que):
     # Runs through the list of files to send to the printers, pausing for input as needed.
     print(colored("!--DO NOT CLOSE--!", "red"))
@@ -42,14 +48,21 @@ def print_processor(print_que):
     global jobs_ran
     global jobs_since_reset
     while run:
-        if jobs_ran >= ID_LIMIT:
+        Q_Jobs = 0
+        if "10.56.54.162" in print_que[0]:
+            Q_Jobs = print_status("10.56.54.162")
+        else:
+            Q_Jobs = print_status("10.56.54.156")
+        if Q_Jobs >= ID_LIMIT:
             print("Printed so Far: " + str(jobs_ran))
             sys.stdout.write('\a\a\a')
             sys.stdout.flush()
-            input(
-                "Please Confirm Printers Will Support 40 More Job IDS before pressing enter: ")
+            # input(
+            #    "Please Confirm Printers Will Support 40 More Job IDS before pressing enter: ")
             jobs_ran = 0
             jobs_since_reset -= ID_LIMIT
+            time.sleep(100)
+            continue
         if len(print_que) > 0:
             if("banner" not in print_que[0]):
                 os.system(print_que[0])
@@ -420,7 +433,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:
         print("Temp File Remove Failed")
-        
+
     global jobs_since_reset
     print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
     jobs_since_reset += 1
