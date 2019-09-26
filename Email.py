@@ -32,7 +32,6 @@ init()
 print("School Order Downloader Revision: ", __version__)
 
 IMAP_SERVER = 'imap.gmail.com'
-EMAIL_ACCOUNT = "@gmail.com"
 EMAIL_FOLDER = "Inbox"
 OUTPUT_DIRECTORY = 'SO/'
 PASSWORD = getpass.getpass()
@@ -185,6 +184,14 @@ def process_mailbox(M):
 
 
 def main():
+    EMAIL_ACCOUNT = "@gmail.com"
+    try:
+        with open("Credentials/creds.txt") as f:
+            cred = f.readlines()
+        cred = [x.strip() for x in cred]
+        EMAIL_ACCOUNT = str(cred[0]) + EMAIL_ACCOUNT
+    except:
+        print("Crential Failure")
     M = imaplib.IMAP4_SSL(IMAP_SERVER)
     M.login(EMAIL_ACCOUNT, PASSWORD)  # Credentials Info
     rv, data = M.select(EMAIL_FOLDER)  # pylint: disable=unused-variable
