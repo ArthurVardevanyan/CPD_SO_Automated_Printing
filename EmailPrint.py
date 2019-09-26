@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v201908018"
+__version__ = "v20190926"
 
 # Built-In Libraries
 import os
@@ -12,7 +12,6 @@ import pdfkit
 from files import folder_list
 from files import file_list
 from PostScript import ticket_conversion
-from Print import print_processor
 # https://micropyramid.com/blog/how-to-create-pdf-files-in-python-using-pdfkit/
 OUTPUT_DIRECTORY = 'SO/'
 
@@ -73,12 +72,12 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
 # for ORDER_NUMBER in range(int(Start), int(End)+1):
 
 
-def Email_Printer(ORDER_NAME):
+def Email_Printer(ORDER_NAME, error_state):
 
     files_list = []
     NAME = ""
     try:
-        with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
+        with open(OUTPUT_DIRECTORY+'/'+error_state + ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
             JOB_INFO = json.load(json_file)
         JOB_INFO_FILES = JOB_INFO.get('Files', False)
 
@@ -90,7 +89,8 @@ def Email_Printer(ORDER_NAME):
             JOB_INFO.get('Last Name', False) + "</b><br>" + ORDER_NAME + "<br>"
     except:
         print("JSON open-failure")
-    Email_Html(ORDER_NAME, OUTPUT_DIRECTORY+'/'+ORDER_NAME, NAME, files_list)
+    Email_Html(ORDER_NAME, OUTPUT_DIRECTORY+'/' +
+               error_state+ORDER_NAME, NAME, files_list)
     print(ORDER_NAME)
 
 
@@ -169,6 +169,9 @@ def Email_Print(ORDER_NAME, AUTORUN, print_que, STACKER):
 
 
 def main():
+    # circular dependency
+    from Print import print_processor
+
     print_que = []
     AUTORUN = False
     count = 0

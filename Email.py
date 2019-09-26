@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190922"
+__version__ = "v20190926"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -137,7 +137,8 @@ def process_mailbox(M):
             f.close()
         try:
             # Create JSON file with Job Requirements
-            JOB_INFO = school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY)
+            JOB_INFO = school_data_json(
+                ORDER_NUMBER, subject, OUTPUT_DIRECTORY)
         except:
             print("JSON File Failed")
         try:
@@ -156,7 +157,7 @@ def process_mailbox(M):
                 duplex_state = 1
                 print('Single Sided')
             if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-                if page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject) / len(JOB_INFO.get('Files', False))  / duplex_state  >= 10:
+                if page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject) / len(JOB_INFO.get('Files', False)) / duplex_state >= 10:
                     print("DUE TO PAGE COUNT, MERGED TURNED OFF")
                 else:
                     file_merge(OUTPUT_DIRECTORY, ORDER_NUMBER +
@@ -167,7 +168,7 @@ def process_mailbox(M):
             print("File Merge Failure")
         try:
             # Create Email Html Pdf & PS
-            Email_Printer(ORDER_NUMBER+" " + subject)
+            Email_Printer(ORDER_NUMBER+" " + subject, error_state)
         except:
             print("Email Conversion Failed")
         emails_proccessed += 1
@@ -176,7 +177,8 @@ def process_mailbox(M):
             COLOR = 0
             EMAILPRINT = True
             print_que = []
-            printing(ORDER_NUMBER, "SO", D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT)
+            printing(ORDER_NUMBER, "SO", D110_IP, COLOR,
+                     print_que, AUTORUN, EMAILPRINT)
             print_processor(print_que)
 
     return emails_proccessed

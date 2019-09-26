@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20190920"
+__version__ = "v20190926"
 
 # Built-In Libraries
 import json
@@ -16,7 +16,7 @@ from files import file_list
 
 def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
     school_data = {'Account ID': 'CHANGE ME'}
-    
+
     ORDER_NAME = ORDER_NUMBER + " " + subject
 
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
@@ -105,7 +105,7 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
         if test_string in email[i]:
             line = email[i].split(test_string)
             extra = ""
-            j=1
+            j = 1
             while(not ("Special Instructions " in email[i+j] or "Deliver to: " in email[i+j])):
                 extra = " " + extra + " " + email[i+j]
                 j += 1
@@ -114,7 +114,7 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
         if test_string in email[i]:
             line = email[i].split(test_string)
             extra = ""
-            j=1
+            j = 1
             while(not("Deliver to: " in email[i+j])):
                 extra = " " + extra + " " + email[i+j]
                 j += 1
