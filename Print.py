@@ -49,10 +49,11 @@ def print_processor(print_que):
     global jobs_since_reset
     while run:
         Q_Jobs = 0
-        if "10.56.54.162" in print_que[0]:
-            Q_Jobs = print_status("10.56.54.162")
-        else:
-            Q_Jobs = print_status("10.56.54.156")
+        if len(print_que) > 0:
+            if "10.56.54.162" in print_que[0]:
+                Q_Jobs = print_status("10.56.54.162")
+            else:
+                Q_Jobs = print_status("10.56.54.156")
         if Q_Jobs >= ID_LIMIT:
             print("Printed so Far: " + str(jobs_ran))
             sys.stdout.write('\a\a\a')
@@ -271,7 +272,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                     os.remove("PJL_Commands/input.ps")  # remove temp file
                 except:
                     print("Temp File Remove Failed")
-            return "Not Supported S:  " + ORDER_NAME
+            return "Not Supported AutoS: " + ORDER_NAME
 
     print("Number of (Total) Copies Listed Per File: " +
           colored(JOB_INFO.get('Copies', False), "magenta"))
@@ -292,7 +293,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         print("CPS : ", colored(COPIES_PER_SET, "magenta"))
         print(
             "\n!--I WILL TAKE IT FROM HERE & DONE WITH SPECIAL INSTRUCTION PROCESSING --!")
-        print_result = "SUCCESS SPI!  : "
+        print_result = "SUCCESS SPI! : "
     else:
         if(not AUTORUN):
             # If their are special instructions prompt the user to manually enter copies and set counts
@@ -322,7 +323,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 os.remove("PJL_Commands/input.ps")  # remove temp file
             except:
                 print("Temp File Remove Failed")
-            return "Not Supported SPI:  " + ORDER_NAME
+            return "Not Supported SPI  : " + ORDER_NAME
 
     COPIES_COMMAND = str.encode(
         '@PJL XCPT <copies syntax="integer">'+str(COPIES_PER_SET)+'</copies>\n')
@@ -460,9 +461,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
 
 
 def main():
-    AUTORUN = True
+    AUTORUN = False
     SEQUENTIAL = False
-    EMAILPRINT = True
+    EMAILPRINT = False
 
     # Contains the list of final commands for all the orders that were proccessed to be run.
     print_que = []
@@ -502,8 +503,10 @@ def main():
         ORDER_NUMBER = []  # The List of order numbers to validate and run
         # Contains the list of orders that were processed and also displays the state of them. ex, ran automatically, with manual input, invalid, aborted, etc.
         printed = []
+        temp = ""
         while(True):
-            temp = str(input("Type In an Order Number: "))
+            if(SEQUENTIAL == False):
+                temp = str(input("Type In an Order Number: "))
             if(temp != "run" and SEQUENTIAL == False):
                 ORDER_NUMBER.append(temp)
             elif(temp != "run" and SEQUENTIAL == True):
@@ -511,6 +514,7 @@ def main():
                 End = str(input("End   #: "))
                 for ORDER_NUMBERS in range(int(Start), int(End)+1):
                     ORDER_NUMBER.append(ORDER_NUMBERS)
+                temp = "run"
             else:
                 print("\nI am Going to Run:")
                 print('\n'.join(map(str, ORDER_NUMBER)))

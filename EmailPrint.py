@@ -100,7 +100,7 @@ print_count_2 = 0
 
 def Email_Print(ORDER_NAME, AUTORUN, print_que, STACKER):
     LPR = "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "
- # Email_Printer(ORDER_NAME)
+    #Email_Printer(ORDER_NAME, "")
     PATH = OUTPUT_DIRECTORY+ORDER_NAME+"/Tickets/"+ORDER_NAME+".pdf.ps"
     if os.path.exists(PATH) == False:
         return 0
