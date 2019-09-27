@@ -7,7 +7,7 @@ def Special_Instructions_Processing(QTY, str):
     # https://stackoverflow.com/a/4289557
     if(str == False):
         return 0, 0
-    str = str.replace('"', " ").replace('-', " ").replace('.', " ")
+    str = str.replace('"', " ").replace('-', " ").replace('.', " ").replace('th ', " ").replace(', ', " ").lower()
     Numbers = [int(s) for s in str.split() if s.isdigit()]
 
     if(len(Numbers) != 0):
@@ -24,7 +24,7 @@ def Special_Instructions_Processing(QTY, str):
                     return 0, 1
             if("complete" in str or "set" in str):
                 return 0, min(Numbers)
-        if("set" in str or "slip" in str):
+        if("set" in str or "slip" in str or "page" in str or "sort" in str or "group" in str):
             return 0, 1
         return 0, 0
     else:
