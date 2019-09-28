@@ -14,6 +14,7 @@ import glob
 import json
 import sys
 import time
+import subprocess
 
 # Downloaded Libraries
 from PyPDF2 import PdfFileReader
@@ -36,8 +37,14 @@ jobs_ran = 0
 
 
 def print_status(ip):
-    status = os.popen('lpq -S '+ip+' -P PS  -l').read()
-    return len(status)
+    status = subprocess.Popen(["C:/Windows/SysNative/lpq.exe", "-S", ip, "-P","PS", "-l"], stdout=subprocess.PIPE, shell=True)
+    (out, err) = status.communicate() # pylint: disable=unused-variable
+    out = out.splitlines()
+    count = 0
+    for line in out:
+        if ":" in str(line):
+            count += 1
+    return count
 
 
 def print_processor(print_que):
@@ -56,8 +63,7 @@ def print_processor(print_que):
                 Q_Jobs = print_status("10.56.54.156")
         if Q_Jobs >= ID_LIMIT:
             print("Printed so Far: " + str(jobs_ran))
-            sys.stdout.write('\a\a\a')
-            sys.stdout.flush()
+            print("Waiting For Jobs to Clear Up")
             # input(
             #    "Please Confirm Printers Will Support 40 More Job IDS before pressing enter: ")
             jobs_ran = 0
