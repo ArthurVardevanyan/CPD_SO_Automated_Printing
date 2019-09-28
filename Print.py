@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190926"
+__version__ = "v20190928"
 
 # Local Files
 from PostScript import file_merge
@@ -113,7 +113,7 @@ def can_run(JOB_INFO, COLOR, page_counts):
     if(JOB_INFO.get('Ran', False) == "True"):
         return False
     if(JOB_INFO.get('Stapling', False)):
-        if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait" or JOB_INFO.get('Stapling', False) == "None"):
+        if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait" or JOB_INFO.get('Stapling', False) == "Upper Left - landscape" or JOB_INFO.get('Stapling', False) == "None"):
             None
         else:
             return False
@@ -198,7 +198,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 try:
                     os.remove("PJL_Commands/input.ps")  # remove temp file
                 except:
-                    print("Temp File Remove Failed")
+                    None
                 return "Not Supported S:  " + ORDER_NAME
 
     # This calls the function that creates the banner sheet for the given order number
@@ -244,6 +244,14 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                     '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
                 print("Collation Overide - Collated")
             print("Staple - Upper Left - portrait")
+        elif(JOB_INFO.get('Stapling', False) == "Upper Left - landscape"):
+            stapling = str.encode(
+                '@PJL XCPT <value syntax="enum">21</value>\n')
+            if str('<sheet-collate syntax="keyword">uncollated') in str(collation):
+                collation = str.encode(
+                    '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
+                print("Collation Overide - Collated")
+            print("Staple - Upper Left - landscape")
         else:
             stapling = str.encode('')
         if(JOB_INFO.get('Drilling', False) == "Yes"):
@@ -252,7 +260,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             print('Hole Punched')
         else:
             hole_punch = str.encode('')
-        if(JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and JOB_INFO.get('Drilling', False) != "Yes"):
+        if((JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and JOB_INFO.get('Stapling', False) != "Upper Left - landscape") and JOB_INFO.get('Drilling', False) != "Yes"):
             default = str.encode(
                 '@PJL XCPT <value syntax="enum">3</value>\n')
             print('No Finishing')
@@ -277,7 +285,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 try:
                     os.remove("PJL_Commands/input.ps")  # remove temp file
                 except:
-                    print("Temp File Remove Failed")
+                    None
             return "Not Supported AutoS: " + ORDER_NAME
 
     print("Number of (Total) Copies Listed Per File: " +
@@ -298,7 +306,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         print("Sets: ", colored(SETS, "magenta"))
         print("CPS : ", colored(COPIES_PER_SET, "magenta"))
         print(
-            "\n!--I WILL TAKE IT FROM HERE & DONE WITH SPECIAL INSTRUCTION PROCESSING --!")
+            "\n!--I WILL TAKE IT FROM HERE & DONE WITH SPECIAL INSTRUCTION PROCESSING --!\n")
         print_result = "SUCCESS SPI! : "
     else:
         if(not AUTORUN):
@@ -328,7 +336,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             try:
                 os.remove("PJL_Commands/input.ps")  # remove temp file
             except:
-                print("Temp File Remove Failed")
+               None
             return "Not Supported SPI  : " + ORDER_NAME
 
     COPIES_COMMAND = str.encode(
@@ -359,7 +367,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n'))
             print("\nSplit-Sheeting!")
         # Add SlipSheets to Large Collated Sets
-        if page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(collation) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and (JOB_INFO.get('Stapling', False) != "Upper Left - portrait"):
+        if (page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(collation) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and
+                JOB_INFO.get('Stapling', False) != "Upper Left - portrait"  and (JOB_INFO.get('Stapling', False) != "Upper Left - landscape")):
             lines[i] = str.encode(
                 '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             lines.insert(i, str.encode(
@@ -432,7 +441,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     try:
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:
-        print("Temp File Remove Failed")
+        None
 
     if(AUTORUN and EMAILPRINT):
         Email_Print(ORDER_NAME, AUTORUN, print_que, "stacker")

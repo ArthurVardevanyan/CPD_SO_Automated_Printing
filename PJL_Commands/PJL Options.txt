@@ -12,7 +12,7 @@ Finishing Default
 Stapling Portrait Top Left
 <value syntax="enum">20</value>
 Stapling LandScape Top Left
-<value syntax="enum">20</value>
+<value syntax="enum">21</value>
 Stapling Portrait Double Left
 <value syntax="enum">23</value>
 3 Hole Punch
