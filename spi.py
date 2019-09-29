@@ -1,17 +1,20 @@
-__version__ = "v20190920"
+__version__ = "v20190928"
 
 import json
 
 
 def Special_Instructions_Processing(QTY, str):
-    # https://stackoverflow.com/a/4289557
     if(str == False):
         return 0, 0
-    str = str.replace('"', " ").replace('-', " ").replace('.', " ").replace('th ', " ").replace(', ', " ").lower()
+    # Remove Unwanted Characters
+    str = str.replace('"', " ").replace('-', " ").replace('.',
+                                                          " ").replace('th ', " ").replace(', ', " ").lower()
+    # https://stackoverflow.com/a/4289557
+    # Separate Integers From Strings
     Numbers = [int(s) for s in str.split() if s.isdigit()]
 
+    # Determine Correct Output for QTY and CPS
     if(len(Numbers) != 0):
-
         if(QTY == min(Numbers) * max(Numbers)):
             return min(Numbers), max(Numbers)
         if(QTY == min(Numbers) == max(Numbers)):
@@ -32,11 +35,15 @@ def Special_Instructions_Processing(QTY, str):
 
 
 def Special_Instructions(JOB_INFO):
-    SPINumbers = JOB_INFO.get('Special Instructions', False)
-    ShrinkNumbers = JOB_INFO.get('Slip Sheets / Shrink Wrap', False)
+   # Get Information from JSON file, QTY, Comment Line #1 & #2
+   # Process the information from both comment sections
     QTY = int(JOB_INFO.get('Copies', False))
-    SPIO = Special_Instructions_Processing(QTY, SPINumbers)
-    SLIO = Special_Instructions_Processing(QTY, ShrinkNumbers)
+    SPIO = Special_Instructions_Processing(
+        QTY, JOB_INFO.get('Special Instructions', False))
+    SLIO = Special_Instructions_Processing(
+        QTY, JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
+
+    # Output States
     if(SPIO == (0, 1)):
         return 0, 0
     if(SLIO == (0, 1)):

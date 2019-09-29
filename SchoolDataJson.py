@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20190926"
+__version__ = "v20190928"
 
 # Built-In Libraries
 import json
@@ -7,11 +7,10 @@ import os
 import glob
 
 # Downloaded Libraries
-from PyPDF2 import PdfFileReader
+import PyPDF2
 
 # Local Files
-from files import folder_list
-from files import file_list
+import files
 
 
 def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
@@ -20,18 +19,18 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
     ORDER_NAME = ORDER_NUMBER + " " + subject
 
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
-    files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
+    FILES = files.file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 
     school_data["Order Number"] = ORDER_NUMBER
     school_data["Order Subject"] = subject
     school_data["Files"] = {}
 
     # This gets the number of pages for every pdf file for the job.
-    for i in range(len(files)):
-        pdf = PdfFileReader(
-            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+files[i], "rb"))
+    for i in range(len(FILES)):
+        pdf = PyPDF2.PdfFileReader(
+            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+FILES[i], "rb"))
         school_data["Files"]["File " +
-                             str(i+1)] = {"File Name": files[i],  "Page Count": str(pdf.getNumPages())}
+                             str(i+1)] = {"File Name": FILES[i],  "Page Count": str(pdf.getNumPages())}
 
     # Imports the Email contents line by line.
     email = [line.rstrip('\n') for line in open(

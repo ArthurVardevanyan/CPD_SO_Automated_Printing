@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20190926"
+__version__ = "v20190928"
 
 # Built-In Libraries
 import os
@@ -9,9 +9,9 @@ import json
 import pdfkit
 
 # Local Files
-from files import folder_list
-from files import file_list
-from PostScript import ticket_conversion
+import files
+import PostScript 
+import printer
 # https://micropyramid.com/blog/how-to-create-pdf-files-in-python-using-pdfkit/
 OUTPUT_DIRECTORY = 'SO/'
 
@@ -64,7 +64,7 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
     config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
     pdfkit.from_string(html, PATH + "/Tickets/" +
                        ORDER_NAME+'.pdf', options=options, configuration=config)
-    ticket_conversion(PATH + "/Tickets/"+ORDER_NAME+'.pdf')
+    PostScript.ticket_conversion(PATH + "/Tickets/"+ORDER_NAME+'.pdf')
 
 # Start = str(input("Start #: "))
 # End = str(input("End #: "))
@@ -169,15 +169,13 @@ def Email_Print(ORDER_NAME, AUTORUN, print_que, STACKER):
 
 
 def main():
-    # circular dependency
-    from Print import print_processor
-
+    
     print_que = []
     AUTORUN = False
     count = 0
     Start = str(input("Start #: "))
     End = str(input("End   #: "))
-    folders = folder_list(OUTPUT_DIRECTORY)
+    folders = files.folder_list(OUTPUT_DIRECTORY)
     ORDER_NAMES = []
     for ORDER_NUMBER in range(int(Start), int(End)+1):
 
@@ -188,7 +186,7 @@ def main():
     for ORDER_NAME in ORDER_NAMES:
         count += Email_Print(ORDER_NAME, AUTORUN, print_que, "stacker")
 
-    print_processor(print_que)
+    printer.print_processor(print_que)
     try:
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:

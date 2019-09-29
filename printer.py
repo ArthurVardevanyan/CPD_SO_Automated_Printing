@@ -7,11 +7,11 @@ import time
 import subprocess
 
 # Downloaded Libraries
-from termcolor import colored
-from colorama import init
+import termcolor
+import colorama 
 
 # use Colorama to make Termcolor work on Windows too
-init()
+colorama.init()
 
 
 def print_status(ip):
@@ -28,7 +28,7 @@ def print_status(ip):
 
 def print_processor(print_que):
     # Runs through the list of files to send to the printers, pausing for input as needed.
-    print(colored("!--DO NOT CLOSE--!", "red"))
+    print(termcolor.colored("!--DO NOT CLOSE--!", "red"))
     print(len(print_que))
     ID_LIMIT = 40
     run = True
@@ -57,6 +57,6 @@ def print_processor(print_que):
                 print_que.pop(0)
                 jobs_ran += 1
         else:
-            print(colored("\n!--PROCESSING CAUGHT UP--!:   ", "green"))
+            print(termcolor.colored("\n!--PROCESSING CAUGHT UP--!:   ", "green"))
             run = False
             jobs_ran += 1

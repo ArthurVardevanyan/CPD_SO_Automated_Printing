@@ -2,27 +2,25 @@
 __version__ = "v20190928"
 
 # Local Files
-from PostScript import file_merge
-from files import file_list, folder_list, postscript_list
-from BannerSheet import banner_sheet
-from spi import Special_Instructions
-from EmailPrint import Email_Print
+import files
+import BannerSheet
+import spi
+import EmailPrint
+import printer
 
 # Built-In Libraries
 import os
 import glob
 import json
-import sys
-import time
-import subprocess
+
 
 # Downloaded Libraries
-from PyPDF2 import PdfFileReader
+import PyPDF2
 from termcolor import colored
-from colorama import init
+import colorama
 
 # use Colorama to make Termcolor work on Windows too
-init()
+colorama.init()
 
 
 # Global Variables
@@ -30,58 +28,6 @@ init()
 # Load Balancing
 D110_162 = 0  # Impressions ran on this machine
 D110_156 = 1  # Impressions ran on this machine
-
-# Variables for Safety check to not send more jobs than the printer can hold.
-jobs_since_reset = 0
-jobs_ran = 0
-
-
-def print_status(ip):
-    status = subprocess.Popen(["C:/Windows/SysNative/lpq.exe", "-S", ip, "-P","PS", "-l"], stdout=subprocess.PIPE, shell=True)
-    (out, err) = status.communicate() # pylint: disable=unused-variable
-    out = out.splitlines()
-    count = 0
-    for line in out:
-        if ":" in str(line):
-            count += 1
-    return count
-
-
-def print_processor(print_que):
-    # Runs through the list of files to send to the printers, pausing for input as needed.
-    print(colored("!--DO NOT CLOSE--!", "red"))
-    ID_LIMIT = 40
-    run = True
-    global jobs_ran
-    global jobs_since_reset
-    while run:
-        Q_Jobs = 0
-        if len(print_que) > 0:
-            if "10.56.54.162" in print_que[0]:
-                Q_Jobs = print_status("10.56.54.162")
-            else:
-                Q_Jobs = print_status("10.56.54.156")
-        if Q_Jobs >= ID_LIMIT:
-            print("Printed so Far: " + str(jobs_ran))
-            print("Waiting For Jobs to Clear Up")
-            # input(
-            #    "Please Confirm Printers Will Support 40 More Job IDS before pressing enter: ")
-            jobs_ran = 0
-            jobs_since_reset -= ID_LIMIT
-            time.sleep(100)
-            continue
-        if len(print_que) > 0:
-            if("banner" not in print_que[0]):
-                os.system(print_que[0])
-                print((str(print_que[0]).replace(
-                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
-                    '-P PS "C:/S/SO/', "").split("-J")[0]))
-                print_que.pop(0)
-                jobs_ran += 1
-        else:
-            print(colored("\n!--PROCESSING CAUGHT UP--!:   ", "green"))
-            run = False
-            jobs_ran += 1
 
 
 def impression_counter(PAGE_COUNTS, COPIES):
@@ -135,7 +81,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     page_counts = 0  # Used for counting impressions for current order and adding to total for load balancing between printers
     # Calls a function in files.py, which gets a list of all the orders downladed
     ORDER_NAMES = []
-    Folders = folder_list(OUTPUT_DIRECTORY)
+    Folders = files.folder_list(OUTPUT_DIRECTORY)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
         if(i == "Archive" or i == "Error"):
             continue
@@ -184,7 +130,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             return "Order DNE: " + ORDER_NAME
 
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
-    files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
+    FILES = files.file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 
     try:
         with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
@@ -194,7 +140,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             return "Aborted @ JS#: " + ORDER_NUMBER + " " + ORDER_NAME
         else:
             if(EMAILPRINT):
-                Email_Print(ORDER_NAME, AUTORUN, print_que, "toptray")
+                EmailPrint.Email_Print(
+                    ORDER_NAME, AUTORUN, print_que, "toptray")
                 try:
                     os.remove("PJL_Commands/input.ps")  # remove temp file
                 except:
@@ -202,15 +149,15 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 return "Not Supported S:  " + ORDER_NAME
 
     # This calls the function that creates the banner sheet for the given order number
-    BANNER_SHEET_FILE = banner_sheet(
+    BANNER_SHEET_FILE = BannerSheet.banner_sheet(
         JOB_INFO, OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/')
 
     # This gets the number of pages for every pdf file for the job.
-    for i in range(len(files)):
-        pdf = PdfFileReader(
-            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+files[i], "rb"))
+    for i in range(len(FILES)):
+        pdf = PyPDF2.PdfFileReader(
+            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+FILES[i], "rb"))
         print("Page Count: " + colored(str(pdf.getNumPages()), "magenta") +
-              " FileName: " + files[i])
+              " FileName: " + FILES[i])
         page_counts = page_counts + pdf.getNumPages()
 
     # Checks if the job specs can be ran, and then sets the correct PJL commands
@@ -281,7 +228,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             return "Not Supported:  " + ORDER_NAME
         else:
             if(EMAILPRINT):
-                Email_Print(ORDER_NAME, AUTORUN, print_que, "toptray")
+                EmailPrint.Email_Print(
+                    ORDER_NAME, AUTORUN, print_que, "toptray")
                 try:
                     os.remove("PJL_Commands/input.ps")  # remove temp file
                 except:
@@ -294,7 +242,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     if(JOB_INFO.get('Slip Sheets / Shrink Wrap', False)):
         print("SPECIAL INSTRUCTIONS: " +
               JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
-    SPI = Special_Instructions(JOB_INFO)
+    SPI = spi.Special_Instructions(JOB_INFO)
     if(JOB_INFO.get('Special Instructions', False) == False and JOB_INFO.get('Slip Sheets / Shrink Wrap', False) == False):
         SETS = 1
         COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
@@ -332,11 +280,12 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             print_result = "Manual Input : "
         else:
             if(EMAILPRINT):
-                Email_Print(ORDER_NAME, AUTORUN, print_que, "toptray")
+                EmailPrint.Email_Print(
+                    ORDER_NAME, AUTORUN, print_que, "toptray")
             try:
                 os.remove("PJL_Commands/input.ps")  # remove temp file
             except:
-               None
+                None
             return "Not Supported SPI  : " + ORDER_NAME
 
     COPIES_COMMAND = str.encode(
@@ -368,7 +317,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             print("\nSplit-Sheeting!")
         # Add SlipSheets to Large Collated Sets
         if (page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(collation) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and
-                JOB_INFO.get('Stapling', False) != "Upper Left - portrait"  and (JOB_INFO.get('Stapling', False) != "Upper Left - landscape")):
+                JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and (JOB_INFO.get('Stapling', False) != "Upper Left - landscape")):
             lines[i] = str.encode(
                 '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             lines.insert(i, str.encode(
@@ -410,17 +359,17 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                         outfile.write(line)
     if MERGED == False:
         # Add the PJL Commands to the files in preperation to print.
-        for i in range(len(files)):
+        for i in range(len(FILES)):
             file_names = ['PJL_Commands/input.ps', OUTPUT_DIRECTORY+"/"+ORDER_NAME +
-                          "/PostScript/"+files[i]+".ps", 'PJL_Commands/End.ps']
-            with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP/"+files[i][:40][:-4]+".ps", 'wb') as outfile:
+                          "/PostScript/"+FILES[i]+".ps", 'PJL_Commands/End.ps']
+            with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
                 for fname in file_names:
                     with open(fname, 'rb') as infile:
                         for line in infile:
                             outfile.write(line)
 
     # Gets list of Files in the Postscript Print Ready Folder
-    Print_Files = postscript_list(OUTPUT_DIRECTORY, ORDER_NAME, "PSP")
+    Print_Files = files.postscript_list(OUTPUT_DIRECTORY, ORDER_NAME, "PSP")
 
     if PRINTER == 0:
         D110_IP = 0
@@ -444,15 +393,13 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         None
 
     if(AUTORUN and EMAILPRINT):
-        Email_Print(ORDER_NAME, AUTORUN, print_que, "stacker")
+        EmailPrint.Email_Print(ORDER_NAME, AUTORUN, print_que, "stacker")
     try:
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:
         print("Temp File Remove Failed")
 
-    global jobs_since_reset
     print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
-    jobs_since_reset += 1
     for i in range(SETS):
         for j in range(len(Print_Files)):
             print("File Name: " + Print_Files[j])
@@ -462,7 +409,6 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     print_que.append(lpr_path)
     for i in range(SETS):
         for j in range(len(Print_Files)):
-            jobs_since_reset += 1
             lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
             lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
                 Print_Files[j] + '" -J "' + Print_Files[j] + '"'
@@ -483,8 +429,6 @@ def main():
     # Contains the list of final commands for all the orders that were proccessed to be run.
     print_que = []
     print("\nTerminal AutoPrinting REV: " + colored(__version__, "magenta"))
-    print("Supported are :\n• Simplex & Duplex Printing (Long Edge)\n• 3-Hole Punch\n• Top Left Portrait Staple")
-    print("• White Paper, Colored Paper & Cardstock\n• SlipSheeting\n• Splitting Jobs Into Sets\n• Balancing Load Between Two Printers\n")
     print('Type Your Order Number and Hit Enter,\nType "' +
           colored('run', 'green') + '" then hit enter when your all set. \n')
     print("Compatible Jobs will AutoRun, jobs will pause for requested input if needed.")
@@ -538,11 +482,9 @@ def main():
                         printing(str(orders), "SO", D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT))  # Does all the processing for the orders
                 print("\n")
                 print('\n'.join(map(str, printed)))
-                print(jobs_since_reset)
-                print_processor(print_que)  # Does the printing
+                printer.print_processor(print_que)  # Does the printing
                 print("\n")
                 print('\n'.join(map(str, printed)))
-                print(jobs_since_reset)
                 while True:
                     try:
                         loop = True if int(
