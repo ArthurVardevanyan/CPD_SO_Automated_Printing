@@ -1,8 +1,7 @@
 # Impression Counter
-__version__ = "v20190926"
+__version__ = "v20190928"
 import json
-from files import folder_list
-from files import file_list
+import files
 import pprint
 
 
@@ -18,14 +17,14 @@ for ORDER_NUMBER in range(int(Start), int(End)+1):
     ORDER_NUMBER = str(ORDER_NUMBER)
     ORDER_NAME = " "  # This is the Order Name taken from the subject line.=
     # Calls a function in files.py, which gets a list of all the orders downladed
-    folders = folder_list(OUTPUT_DIRECTORY)
+    folders = files.folder_list(OUTPUT_DIRECTORY)
     for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
         if ORDER_NUMBER in i:
             ORDER_NAME = i
     if ORDER_NAME == " ":
         continue
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
-    files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
+    FILES = files.file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 
     try:
         with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:

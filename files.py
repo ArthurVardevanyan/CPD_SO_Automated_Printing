@@ -1,13 +1,12 @@
 # files.py
-__version__ = "v20190810"
+__version__ = "v20190928"
 
 # Built-In Libraries
 import os
 import glob
 
 # Downloaded Libraries
-from PyPDF2 import PdfFileReader
-
+import PyPDF2
 
 def folder_list(folder):
     # Grabs the list of folders
@@ -38,7 +37,7 @@ def page_counts(OUTPUT_DIRECTORY, ORDER_NAME):
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
     page_count = 0
     for i in range(len(files)):
-        pdf = PdfFileReader(
+        pdf = PyPDF2.PdfFileReader(
             open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+files[i], "rb"))
         page_count = page_count + pdf.getNumPages()
     return page_count

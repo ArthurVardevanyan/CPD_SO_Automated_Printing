@@ -11,24 +11,25 @@ import time
 import shutil
 import re
 import getpass
-from datetime import datetime
+import datetime
 
 # Downloaded Libraries
-from termcolor import colored
-from colorama import init
+import termcolor
+import colorama
+
 
 # Local Files
-from GDrive import Google_Drive_Downloader
-from SchoolDataJson import school_data_json
-from PostScript import postscript_conversion
-from PostScript import file_merge
-from files import page_counts
-from EmailPrint import Email_Printer
-from Print import printing
-from Print import print_processor
-# use Colorama to make Termcolor work on Windows too
+import GDrive 
+import SchoolDataJson
+import PostScript
+import files
+import EmailPrint
+import Print
+import printer
 
-init()
+# use Colorama to make Termcolor work on Windows too
+colorama.init()
+
 print("School Order Downloader Revision: ", __version__)
 
 IMAP_SERVER = 'imap.gmail.com'
@@ -64,7 +65,7 @@ def link_extractor(EmailBody, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
         count = 0
         for ids in file_links:
             count += 1
-            Google_Drive_Downloader(
+            GDrive.Google_Drive_Downloader(
                 ids, OrderNumber, OUTPUT_DIRECTORY, Subject, count, Error)
     else:
         print("This Isn't A School Order")
@@ -80,7 +81,7 @@ def process_mailbox(M):
 
     emails_proccessed = 0
     for num in data[0].split():
-        time = datetime.today().strftime('%M%S')
+        time = datetime.datetime.today().strftime('%M%S')
         ORDER_NUMBER = ""
         error_state = ""
 
@@ -136,13 +137,13 @@ def process_mailbox(M):
             f.close()
         try:
             # Create JSON file with Job Requirements
-            JOB_INFO = school_data_json(
+            JOB_INFO = SchoolDataJson.school_data_json(
                 ORDER_NUMBER, subject, OUTPUT_DIRECTORY)
         except:
             print("JSON File Failed")
         try:
             # Create PostScript File
-            postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
+            PostScript.postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
         except:
             print("PostScript Conversion Failed")
         try:
@@ -156,10 +157,10 @@ def process_mailbox(M):
                 duplex_state = 1
                 print('Single Sided')
             if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-                if page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject) / len(JOB_INFO.get('Files', False)) / duplex_state >= 10:
+                if files.page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject) / len(JOB_INFO.get('Files', False)) / duplex_state >= 10:
                     print("DUE TO PAGE COUNT, MERGED TURNED OFF")
                 else:
-                    file_merge(OUTPUT_DIRECTORY, ORDER_NUMBER +
+                    PostScript.file_merge(OUTPUT_DIRECTORY, ORDER_NUMBER +
                                " " + subject, DUPLEX_STATE)
             else:
                 print("Not Merging")
@@ -167,7 +168,7 @@ def process_mailbox(M):
             print("File Merge Failure")
         try:
             # Create Email Html Pdf & PS
-            Email_Printer(ORDER_NUMBER+" " + subject, error_state)
+            EmailPrint.Email_Printer(ORDER_NUMBER+" " + subject, error_state)
         except:
             print("Email Conversion Failed")
         emails_proccessed += 1
@@ -176,9 +177,9 @@ def process_mailbox(M):
             COLOR = 0
             EMAILPRINT = True
             print_que = []
-            printing(ORDER_NUMBER, "SO", D110_IP, COLOR,
-                     print_que, AUTORUN, EMAILPRINT)
-            print_processor(print_que)
+            Print.printing(ORDER_NUMBER, "SO", D110_IP, COLOR,
+                           print_que, AUTORUN, EMAILPRINT)
+            printer.print_processor(print_que)
 
     return emails_proccessed
 
@@ -212,7 +213,7 @@ def main():
                 print("\n\n\n\n\n\n\n\n")
                 print("Emails Proccessed: ", EMAILS_PROCCESSED)
                 print("Im Resting, Check Back Later:")
-                print(colored("!--DO NOT CLOSE--!", "red"))
+                print(termcolor.colored("!--DO NOT CLOSE--!", "red"))
                 print("School Order Downloader Revision: ", __version__)
                 print("Running Again") if rv == 'OK' else print(
                     "ERROR: Unable to open mailbox ", rv)
