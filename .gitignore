@@ -4,7 +4,7 @@ School_Orders/
 /tests/SO/*/PSP
 /tests/SO/*/PostScript
 /tests/SO/*/*Banner*.ps
-
+input.ps
 Credentials/
 __pycache__/
 .vscode/

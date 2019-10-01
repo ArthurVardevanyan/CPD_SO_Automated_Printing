@@ -67,6 +67,7 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
         pdfkit.from_string(html, PATH + "/Tickets/" +
                         ORDER_NAME+'.pdf', options=options, configuration=config)
     PostScript.ticket_conversion(PATH + "/Tickets/"+ORDER_NAME+'.pdf')
+    return 1
 
 # Start = str(input("Start #: "))
 # End = str(input("End #: "))
@@ -94,6 +95,7 @@ def Email_Printer(OUTPUT_DIRECTORY, ORDER_NAME, error_state):
     Email_Html(ORDER_NAME, OUTPUT_DIRECTORY+'/' +
                error_state+ORDER_NAME, NAME, files_list)
     print(ORDER_NAME)
+    return 1
 
 
 print_count = 0

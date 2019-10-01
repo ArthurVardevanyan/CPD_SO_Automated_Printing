@@ -91,7 +91,6 @@ class Testing(unittest.TestCase):
             "Slip Sheets / Shrink Wrap": "2 group of 80",
             "Special Instructions": "2 groups of 80",
         }), (2, 80))
-        
 
     def test_manual_input(self):
         self.assertEqual(instructions.Special_Instructions({
@@ -127,7 +126,129 @@ class Testing(unittest.TestCase):
             "Slip Sheets / Shrink Wrap": "Can each file be sorted into 2 groups of 60.",
             "Special Instructions": "Each file in 2 groups of 60",
         }), (0, 0))
-        
+
+    def test_default(self):
+        self.assertEqual(instructions.default({"Order Number": "11344-2704"}),
+                         str.encode('@PJL XCPT <value syntax="enum">3</value>\n'))
+        self.assertEqual(instructions.default({
+            "Stapling": "Upper Left - portrait",
+        }), str.encode(''))
+        self.assertEqual(instructions.default({
+            "Stapling": "Upper Left - landscape",
+        }), str.encode(''))
+        self.assertEqual(instructions.default({
+            "Drilling": "Yes",
+        }), str.encode(''))
+        self.assertEqual(instructions.default({
+            "Drilling": "Yes",
+            "Stapling": "Upper Left - landscape",
+        }), str.encode(''))
+        self.assertEqual(instructions.default({
+            "Drilling": "Yes",
+            "Stapling": "Upper Left - portrait",
+        }), str.encode(''))
+
+    def test_collation(self):
+        self.assertEqual(instructions.collation({"Collation": "Collated"}),
+                         str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n'))
+        self.assertEqual(instructions.collation({"Collation": "Uncollated"}),
+                         str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n'))
+
+    def test_duplex(self):
+        self.assertEqual(instructions.duplex({"Duplex": "Two-sided (back to back)"}),
+                         (str.encode('@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>\n'), 2))
+        self.assertEqual(instructions.duplex({"Duplex": "one-sided"}),
+                         (str.encode('@PJL XCPT <sides syntax="keyword">one-sided</sides>\n'), 1))
+
+    def test_stapling(self):
+        self.assertEqual(instructions.stapling({}, str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')),
+                         (str.encode(''), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
+
+    def test_stapling(self):
+        self.assertEqual(instructions.stapling({}, str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')),
+                         (str.encode(''), str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')))
+
+    def test_stapling(self):
+        self.assertEqual(instructions.stapling({"Stapling": "Upper Left - portrait"}, str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')),
+                         (str.encode('@PJL XCPT <value syntax="enum">20</value>\n'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
+
+    def test_stapling(self):
+        self.assertEqual(instructions.stapling({"Stapling": "Upper Left - portrait"}, str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')),
+                         (str.encode('@PJL XCPT <value syntax="enum">20</value>\n'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
+
+    def test_stapling(self):
+        self.assertEqual(instructions.stapling({"Stapling": "Upper Left - landscape"}, str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')),
+                         (str.encode('@PJL XCPT <value syntax="enum">21</value>\n'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
+
+    def test_stapling(self):
+        self.assertEqual(instructions.stapling({"Stapling": "Upper Left - landscape"}, str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')),
+                         (str.encode('@PJL XCPT <value syntax="enum">21</value>\n'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
+
+    def test_drilling(self):
+        self.assertEqual(instructions.drilling({"Drilling": "Yes"}),
+                         str.encode('@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>\n'))
+        self.assertEqual(instructions.drilling({}),
+                         str.encode(''))
+
+    def test_weight_extract(self):
+        self.assertEqual(instructions.weight_extract({"Paper": "8.5 x 11 Paper White"}),
+                         str.encode('@PJL XCPT <media-type syntax="keyword">use-ready</media-type>\n'))
+
+    def test_weight_extract(self):
+        self.assertEqual(instructions.weight_extract({"Paper": "8.5 x 11 Card Stock White"}),
+                         str.encode('@PJL XCPT <media-type syntax="keyword">stationery-heavyweight</media-type>\n'))
+
+    def test_color_extract(self):
+        self.assertEqual(instructions.color_extract({"Paper": "8.5 x 11 Paper White"}),
+                         str.encode('@PJL XCPT <media-color syntax="keyword">white</media-color>\n'))
+        self.assertEqual(instructions.color_extract({"Paper": "8.5 x 11 Cad Stock White"}),
+                         str.encode('@PJL XCPT <media-color syntax="keyword">white</media-color>\n'))
+        self.assertEqual(instructions.color_extract({"Paper": "8.5 x 11 Paper Canary"}),
+                         str.encode('@PJL XCPT <media-color syntax="keyword">yellow</media-color>\n'))
+        self.assertEqual(instructions.color_extract({"Paper": "8.5 x 11 Paper Yellow"}),
+                         str.encode('@PJL XCPT <media-color syntax="keyword">yellow</media-color>\n'))
+        self.assertEqual(instructions.color_extract({"Paper": "8.5 x 11 Paper Pink"}),
+                         str.encode('@PJL XCPT <media-color syntax="keyword">pink</media-color>\n'))
+        self.assertEqual(instructions.color_extract({"Paper": "8.5 x 11 Paper Green"}),
+                         str.encode('@PJL XCPT <media-color syntax="keyword">green</media-color>\n'))
+        self.assertEqual(instructions.color_extract({"Paper": "8.5 x 11 Paper Blue"}),
+                         str.encode('@PJL XCPT <media-color syntax="keyword">blue</media-color>\n'))
+        self.assertEqual(instructions.color_extract({"Paper": "8.5 x 11 Paper Ivory"}),
+                         str.encode('@PJL XCPT <media-color syntax="keyword">ivory</media-color>\n'))
+
+    def test_pjl_insert(self):
+        self.assertFalse(instructions.pjl_insert({
+            "Files": {
+                "File 1": {
+                    "File Name": "11344-2704.01 Test File.pdf",
+                    "Page Count": "9"
+                }
+            },
+            "Duplex": "Two-sided (back to back)",
+            "Collation": "Collated",
+            "Paper": "8.5 x 11 Paper White",
+            "Stapling": "Upper Left - portrait",
+        }, 30, 9))
+        with open('PJL_Commands/input.ps', 'r') as f:
+            data = f.readlines()
+        count = 0
+        for line in data:
+            if '@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>' in line:
+                count += 1
+            if '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>' in line:
+                count += 1
+            if '@PJL XCPT <media-type syntax="keyword">user-ready<media-type>' in line:
+                count += 1
+            if '@PJL XCPT <media-color syntax="keyword">white</media-color>' in line:
+                count += 1
+            if '@PJL XCPT <value syntax="enum">20</value>' in line:
+                count += 1
+        try:
+            os.remove("PJL_Commands/input.ps")  # remove temp file
+        except:
+            self.fail("No File")
+        if count != 4:
+            self.fail(count)
 
 
 if __name__ == '__main__':
