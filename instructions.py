@@ -148,7 +148,8 @@ def color_extract(JOB_INFO):
 
 
 def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
-
+    print('\nChosen Options:')
+   
     COLLATION = collation(JOB_INFO)
     DUPLEX, duplex_state = duplex(JOB_INFO)
     STAPLING, COLLATION = stapling(JOB_INFO, COLLATION)
@@ -156,6 +157,7 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
     DEFAULT = default(JOB_INFO)
     media_color = color_extract(JOB_INFO)
     media_type = weight_extract(JOB_INFO)
+    
     COPIES_COMMAND = str.encode(
         '@PJL XCPT <copies syntax="integer">'+str(COPIES_PER_SET)+'</copies>\n')
     with open('PJL_Commands/PJL.ps', 'rb') as f:
