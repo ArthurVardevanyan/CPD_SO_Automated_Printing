@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20190928"
+__version__ = "v20191001"
 
 # Local Files
 import files
@@ -143,7 +143,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             return "Aborted @ JS#: " + ORDER_NUMBER + " " + ORDER_NAME
         else:
             if(EMAILPRINT):
-                EmailPrint.Email_Print(
+                EmailPrint.Email_Print(OUTPUT_DIRECTORY,
                     ORDER_NAME, AUTORUN, print_que, "toptray")
                 return "Not Supported S:  " + ORDER_NAME
 
@@ -158,7 +158,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             return "Not Supported:  " + ORDER_NAME
         else:
             if(EMAILPRINT):
-                EmailPrint.Email_Print(
+                EmailPrint.Email_Print(OUTPUT_DIRECTORY,
                     ORDER_NAME, AUTORUN, print_que, "toptray")
             return "Not Supported AutoS: " + ORDER_NAME
 
@@ -208,7 +208,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             print_result = "Manual Input : "
         else:
             if(EMAILPRINT):
-                EmailPrint.Email_Print(
+                EmailPrint.Email_Print(OUTPUT_DIRECTORY,
                     ORDER_NAME, AUTORUN, print_que, "toptray")
 
             return "Not Supported SPI  : " + ORDER_NAME
@@ -263,7 +263,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         print("Temp File Remove Failed")
 
     if(AUTORUN and EMAILPRINT):
-        EmailPrint.Email_Print(ORDER_NAME, AUTORUN, print_que, "stacker")
+        EmailPrint.Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, "stacker")
 
     print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
     for i in range(SETS):

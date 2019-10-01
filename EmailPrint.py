@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20190928"
+__version__ = "v20191001"
 
 # Built-In Libraries
 import os
@@ -13,8 +13,6 @@ import files
 import PostScript 
 import printer
 # https://micropyramid.com/blog/how-to-create-pdf-files-in-python-using-pdfkit/
-OUTPUT_DIRECTORY = 'SO/'
-
 
 def Email_Html(ORDER_NAME, PATH, NAME, Files):
     try:
@@ -60,10 +58,14 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
         'margin-bottom': '0.2in',
         'margin-left': '0.2in',
     }
-    path_wkthmltopdf = r'C:\Program Files (x86)\wkhtmltopdf\bin\wkhtmltopdf.exe'
-    config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-    pdfkit.from_string(html, PATH + "/Tickets/" +
-                       ORDER_NAME+'.pdf', options=options, configuration=config)
+    if(os.name == "posix"):
+        pdfkit.from_string(html, PATH + "/Tickets/" +
+                        ORDER_NAME+'.pdf', options=options,)
+    else:
+        path_wkthmltopdf = r'C:\Program Files (x86)\wkhtmltopdf\bin\wkhtmltopdf.exe'
+        config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+        pdfkit.from_string(html, PATH + "/Tickets/" +
+                        ORDER_NAME+'.pdf', options=options, configuration=config)
     PostScript.ticket_conversion(PATH + "/Tickets/"+ORDER_NAME+'.pdf')
 
 # Start = str(input("Start #: "))
@@ -72,7 +74,7 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
 # for ORDER_NUMBER in range(int(Start), int(End)+1):
 
 
-def Email_Printer(ORDER_NAME, error_state):
+def Email_Printer(OUTPUT_DIRECTORY, ORDER_NAME, error_state):
 
     files_list = []
     NAME = ""
@@ -98,10 +100,11 @@ print_count = 0
 print_count_2 = 0
 
 
-def Email_Print(ORDER_NAME, AUTORUN, print_que, STACKER):
+def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, STACKER):
     LPR = "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "
-    #Email_Printer(ORDER_NAME, "")
-    PATH = OUTPUT_DIRECTORY+ORDER_NAME+"/Tickets/"+ORDER_NAME+".pdf.ps"
+    PATH = OUTPUT_DIRECTORY+"/"+ORDER_NAME+"/Tickets/"+ORDER_NAME+".pdf.ps"
+    if os.path.exists(PATH) == False:
+        Email_Printer(OUTPUT_DIRECTORY, ORDER_NAME, "")
     if os.path.exists(PATH) == False:
         return 0
     else:
@@ -173,7 +176,7 @@ def Email_Print(ORDER_NAME, AUTORUN, print_que, STACKER):
 
 
 def main():
-    
+    OUTPUT_DIRECTORY = 'tests/SO'
     print_que = []
     AUTORUN = False
     count = 0
@@ -188,7 +191,7 @@ def main():
             if ORDER_NUMBER in i:
                 ORDER_NAMES.append(i)
     for ORDER_NAME in ORDER_NAMES:
-        count += Email_Print(ORDER_NAME, AUTORUN, print_que, "stacker")
+        count += Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, "stacker")
 
     printer.print_processor(print_que)
    
