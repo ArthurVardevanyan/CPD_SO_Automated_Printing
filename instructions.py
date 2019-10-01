@@ -206,3 +206,4 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
         else:
             return True
             print("THESE FILES WERE MERGED!")
+    return False

@@ -1,5 +1,10 @@
 School_Orders/
 /SO/
+/tests/SO/*/Tickets
+/tests/SO/*/PSP
+/tests/SO/*/PostScript
+/tests/SO/*/*Banner*.ps
+
 Credentials/
 __pycache__/
 .vscode/
