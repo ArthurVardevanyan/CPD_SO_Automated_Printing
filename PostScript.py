@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20190928"
+__version__ = "v20191001"
 
 # Built-In Libraries
 import json
@@ -14,7 +14,10 @@ import PyPDF2
 # Local Files
 import files
 
-GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
+if(os.name == "posix"):
+    GHOSTSCRIPT_PATH = 'gs'
+else:
+    GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
 
 
 def ticket_conversion(PATH):
@@ -75,3 +78,4 @@ def file_merge(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE):
     # Processes the Conversion
     os.system(ghostscript_command)
     return True
+
