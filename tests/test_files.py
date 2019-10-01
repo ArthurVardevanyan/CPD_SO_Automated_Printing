@@ -1,6 +1,7 @@
 import unittest
 import os
 import sys
+import files
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 
@@ -24,5 +25,4 @@ class Testing(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    import files
     unittest.main()
