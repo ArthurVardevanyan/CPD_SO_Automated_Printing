@@ -6,11 +6,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 # https://stackoverflow.com/a/1732477
 
 testmodules = [
-    'test_instructions',
+    'test_EmailPrint',
     'test_PostScript',
     'test_files',
     'test_SchoolDataJson',
     'test_instructions',
+    'test_Print',
 ]
 
 suite = unittest.TestSuite()

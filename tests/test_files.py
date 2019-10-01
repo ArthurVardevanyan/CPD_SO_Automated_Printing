@@ -1,8 +1,8 @@
 import unittest
 import os
 import sys
-import files
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+import files
 
 
 class Testing(unittest.TestCase):
