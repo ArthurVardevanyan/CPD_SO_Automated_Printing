@@ -45,18 +45,6 @@ def impression_counter(PAGE_COUNTS, COPIES, PRINTER):
         D110_162 += PAGE_COUNTS * COPIES
         return 1
 
-
-#def page_count(OUTPUT_DIRECTORY, ORDER_NAME, FILES):
-#    page_counts = 0  # Used for counting impressions for current order and adding to total for load balancing between printers
-#    for i in range(len(FILES)):
-#        pdf = PyPDF2.PdfFileReader(
-#            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+FILES[i], "rb"))
-#        print("Page Count: " + colored(str(pdf.getNumPages()), "magenta") +
-#              " FileName: " + FILES[i])
-#        page_counts = page_counts + pdf.getNumPages()
-#    return page_counts
-
-
 def can_run(JOB_INFO, COLOR):
     # Determines if jobs is able to be ran or not using this script
     if(JOB_INFO.get('Ran', False) == "True"):
