@@ -176,7 +176,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, STACKER):
 
 
 def main():
-    OUTPUT_DIRECTORY = 'tests/SO'
+    OUTPUT_DIRECTORY = 'SO'
     print_que = []
     AUTORUN = False
     count = 0

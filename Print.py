@@ -214,7 +214,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             return "Not Supported SPI  : " + ORDER_NAME
 
     # This gets the number of pages for every pdf file for the job.
-    page_counts = files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME, FILES)
+    page_counts = files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME)
     MERGED = False
     # Sets the correct PJL commands
     MERGED = instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
