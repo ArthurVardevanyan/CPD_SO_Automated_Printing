@@ -46,18 +46,18 @@ def impression_counter(PAGE_COUNTS, COPIES, PRINTER):
         return 1
 
 
-def page_count(OUTPUT_DIRECTORY, ORDER_NAME, FILES):
-    page_counts = 0  # Used for counting impressions for current order and adding to total for load balancing between printers
-    for i in range(len(FILES)):
-        pdf = PyPDF2.PdfFileReader(
-            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+FILES[i], "rb"))
-        print("Page Count: " + colored(str(pdf.getNumPages()), "magenta") +
-              " FileName: " + FILES[i])
-        page_counts = page_counts + pdf.getNumPages()
-    return page_counts
+#def page_count(OUTPUT_DIRECTORY, ORDER_NAME, FILES):
+#    page_counts = 0  # Used for counting impressions for current order and adding to total for load balancing between printers
+#    for i in range(len(FILES)):
+#        pdf = PyPDF2.PdfFileReader(
+#            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+FILES[i], "rb"))
+#        print("Page Count: " + colored(str(pdf.getNumPages()), "magenta") +
+#              " FileName: " + FILES[i])
+#        page_counts = page_counts + pdf.getNumPages()
+#    return page_counts
 
 
-def can_run(JOB_INFO, COLOR, page_counts):
+def can_run(JOB_INFO, COLOR):
     # Determines if jobs is able to be ran or not using this script
     if(JOB_INFO.get('Ran', False) == "True"):
         return False
@@ -145,28 +145,14 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             if(EMAILPRINT):
                 EmailPrint.Email_Print(
                     ORDER_NAME, AUTORUN, print_que, "toptray")
-                try:
-                    os.remove("PJL_Commands/input.ps")  # remove temp file
-                except:
-                    None
                 return "Not Supported S:  " + ORDER_NAME
 
     # This calls the function that creates the banner sheet for the given order number
     BANNER_SHEET_FILE = BannerSheet.banner_sheet(
         JOB_INFO, OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/')
 
-    # This gets the number of pages for every pdf file for the job.
-
-    page_counts = page_count(OUTPUT_DIRECTORY, ORDER_NAME, FILES)
-    # Checks if the job specs can be ran, and then sets the correct PJL commands
-
-    if (can_run(JOB_INFO, COLOR, page_counts)):
-        print('\nChosen Options:')
-       
-        if(JOB_INFO.get('Special Instructions', False)):
-            print("SPECIAL INSTRUCTIONS: " +
-                  JOB_INFO.get('Special Instructions', False))
-    else:
+    # Checks if the job specs can be ran
+    if (not can_run(JOB_INFO, COLOR)):
         print(colored("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.", "red"))
         if(not AUTORUN):
             return "Not Supported:  " + ORDER_NAME
@@ -174,15 +160,13 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             if(EMAILPRINT):
                 EmailPrint.Email_Print(
                     ORDER_NAME, AUTORUN, print_que, "toptray")
-                try:
-                    os.remove("PJL_Commands/input.ps")  # remove temp file
-                except:
-                    None
             return "Not Supported AutoS: " + ORDER_NAME
 
     print("Number of (Total) Copies Listed Per File: " +
           colored(JOB_INFO.get('Copies', False), "magenta"))
-
+    if(JOB_INFO.get('Special Instructions', False)):
+        print("SPECIAL INSTRUCTIONS: " +
+              JOB_INFO.get('Special Instructions', False))
     if(JOB_INFO.get('Slip Sheets / Shrink Wrap', False)):
         print("SPECIAL INSTRUCTIONS: " +
               JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
@@ -226,13 +210,13 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             if(EMAILPRINT):
                 EmailPrint.Email_Print(
                     ORDER_NAME, AUTORUN, print_que, "toptray")
-            try:
-                os.remove("PJL_Commands/input.ps")  # remove temp file
-            except:
-                None
+
             return "Not Supported SPI  : " + ORDER_NAME
 
+    # This gets the number of pages for every pdf file for the job.
+    page_counts = files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME, FILES)
     MERGED = False
+    # Sets the correct PJL commands
     MERGED = instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
     # Create Directory for Print Ready Files
     try:
@@ -276,14 +260,10 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     try:
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:
-        None
+        print("Temp File Remove Failed")
 
     if(AUTORUN and EMAILPRINT):
         EmailPrint.Email_Print(ORDER_NAME, AUTORUN, print_que, "stacker")
-    try:
-        os.remove("PJL_Commands/input.ps")  # remove temp file
-    except:
-        print("Temp File Remove Failed")
 
     print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
     for i in range(SETS):
@@ -311,16 +291,8 @@ def main():
     AUTORUN = False
     SEQUENTIAL = False
     EMAILPRINT = False
-
     # Contains the list of final commands for all the orders that were proccessed to be run.
     print_que = []
-    print("\nTerminal AutoPrinting REV: " + colored(__version__, "magenta"))
-    print('Type Your Order Number and Hit Enter,\nType "' +
-          colored('run', 'green') + '" then hit enter when your all set. \n')
-    print("Compatible Jobs will AutoRun, jobs will pause for requested input if needed.")
-    print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
-    print(colored("Purple Paper", "magenta") +
-          " (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
     # Check if user wants to processes jobs with colored paper, if disabled this adds protection against accidentally running jobs on colored paper.
     while True:
         try:
@@ -385,4 +357,11 @@ def main():
 
 
 if __name__ == "__main__":
+    print("\nTerminal AutoPrinting REV: " + colored(__version__, "magenta"))
+    print('Type Your Order Number and Hit Enter,\nType "' +
+          colored('run', 'green') + '" then hit enter when your all set. \n')
+    print("Compatible Jobs will AutoRun, jobs will pause for requested input if needed.")
+    print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
+    print(colored("Purple Paper", "magenta") +
+          " (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
     main()

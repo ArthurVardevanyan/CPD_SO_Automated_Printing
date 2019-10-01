@@ -165,6 +165,10 @@ def Email_Print(ORDER_NAME, AUTORUN, print_que, STACKER):
                          '" -J "' + ORDER_NAME + '"')
         print_que.append(LPR + '"' + PATH+"2.ps" +
                          '" -J "' + ORDER_NAME + '"')
+        try:
+            os.remove("PJL_Commands/input.ps")  # remove temp file
+        except:
+            print("Temp File Remove Failed")
         return 1
 
 
@@ -187,10 +191,7 @@ def main():
         count += Email_Print(ORDER_NAME, AUTORUN, print_que, "stacker")
 
     printer.print_processor(print_que)
-    try:
-        os.remove("PJL_Commands/input.ps")  # remove temp file
-    except:
-        print("Temp File Remove Failed")
+   
     print(str(count) + " Order(s) Ran")
     quit = str(input("Press Any Key To Exit"))
     print(quit)
