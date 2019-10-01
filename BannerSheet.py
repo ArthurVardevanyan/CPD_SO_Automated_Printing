@@ -17,7 +17,7 @@ def banner_sheet(JOB_INFO, OUTPUT_PATH):
         NAME = str(cred[1])
         LOC = str(cred[2])
     except:
-        print("Crential Failure")
+        print("Credential Failure")
 
     MEDIA_COLOR = ("white", "blue", "yellow", "green", "pink",
                    "ivory", "gray", "buff", "goldenrod,", "red", "orange")
