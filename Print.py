@@ -4,7 +4,7 @@ __version__ = "v20190928"
 # Local Files
 import files
 import BannerSheet
-import spi
+import instructions
 import EmailPrint
 import printer
 
@@ -30,7 +30,11 @@ D110_162 = 0  # Impressions ran on this machine
 D110_156 = 1  # Impressions ran on this machine
 
 
-def impression_counter(PAGE_COUNTS, COPIES):
+def impression_counter(PAGE_COUNTS, COPIES, PRINTER):
+    if PRINTER == 0:
+        return 0
+    if PRINTER == 1:
+        return 1
     # Counts the number of impressions that are sent to each printer for load balancing
     global D110_156
     global D110_162
@@ -42,16 +46,15 @@ def impression_counter(PAGE_COUNTS, COPIES):
         return 1
 
 
-def weight_extract(JOB_INFO):
-    # Converts Input from given form to the value the printer needs
-    paper = (str(JOB_INFO.get('Paper', False))).lower()
-    return "stationery-heavyweight" if "card stock" in paper else "use-ready"
-
-
-def color_extract(JOB_INFO):
-    # Converts Input from given form to the value the printer needs
-    color = (str(JOB_INFO.get('Paper', False))).split()[-1].lower()
-    return 'yellow' if color == 'canary' else color
+def page_count(OUTPUT_DIRECTORY, ORDER_NAME, FILES):
+    page_counts = 0  # Used for counting impressions for current order and adding to total for load balancing between printers
+    for i in range(len(FILES)):
+        pdf = PyPDF2.PdfFileReader(
+            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+FILES[i], "rb"))
+        print("Page Count: " + colored(str(pdf.getNumPages()), "magenta") +
+              " FileName: " + FILES[i])
+        page_counts = page_counts + pdf.getNumPages()
+    return page_counts
 
 
 def can_run(JOB_INFO, COLOR, page_counts):
@@ -78,7 +81,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         PRINTER = 1
     ORDER_NAME = "No Order Selected"  # Default Value
     print_result = ''  # Used for Status Output
-    page_counts = 0  # Used for counting impressions for current order and adding to total for load balancing between printers
+
     # Calls a function in files.py, which gets a list of all the orders downladed
     ORDER_NAMES = []
     Folders = files.folder_list(OUTPUT_DIRECTORY)
@@ -153,72 +156,13 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         JOB_INFO, OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/')
 
     # This gets the number of pages for every pdf file for the job.
-    for i in range(len(FILES)):
-        pdf = PyPDF2.PdfFileReader(
-            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+FILES[i], "rb"))
-        print("Page Count: " + colored(str(pdf.getNumPages()), "magenta") +
-              " FileName: " + FILES[i])
-        page_counts = page_counts + pdf.getNumPages()
 
+    page_counts = page_count(OUTPUT_DIRECTORY, ORDER_NAME, FILES)
     # Checks if the job specs can be ran, and then sets the correct PJL commands
-    JOB_COLOR = color_extract(JOB_INFO)
-    JOB_WEIGHT = weight_extract(JOB_INFO)
+
     if (can_run(JOB_INFO, COLOR, page_counts)):
         print('\nChosen Options:')
-        if(JOB_INFO.get('Collation', False) == "Collated"):
-            collation = str.encode(
-                '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
-            print('Collated')
-        else:
-            collation = str.encode(
-                '@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')
-            print('UnCollated')
-        if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
-            duplex = str.encode(
-                '@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>\n')
-            duplex_state = 2
-            print('Double Sided')
-        else:
-            duplex = str.encode(
-                '@PJL XCPT <sides syntax="keyword">one-sided</sides>\n')
-            duplex_state = 1
-            print('Single Sided')
-        if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait"):
-            stapling = str.encode(
-                '@PJL XCPT <value syntax="enum">20</value>\n')
-            if str('<sheet-collate syntax="keyword">uncollated') in str(collation):
-                collation = str.encode(
-                    '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
-                print("Collation Overide - Collated")
-            print("Staple - Upper Left - portrait")
-        elif(JOB_INFO.get('Stapling', False) == "Upper Left - landscape"):
-            stapling = str.encode(
-                '@PJL XCPT <value syntax="enum">21</value>\n')
-            if str('<sheet-collate syntax="keyword">uncollated') in str(collation):
-                collation = str.encode(
-                    '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
-                print("Collation Overide - Collated")
-            print("Staple - Upper Left - landscape")
-        else:
-            stapling = str.encode('')
-        if(JOB_INFO.get('Drilling', False) == "Yes"):
-            hole_punch = str.encode(
-                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>\n')
-            print('Hole Punched')
-        else:
-            hole_punch = str.encode('')
-        if((JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and JOB_INFO.get('Stapling', False) != "Upper Left - landscape") and JOB_INFO.get('Drilling', False) != "Yes"):
-            default = str.encode(
-                '@PJL XCPT <value syntax="enum">3</value>\n')
-            print('No Finishing')
-        else:
-            default = str.encode('')
-        media_color = str.encode(
-            '@PJL XCPT <media-color syntax="keyword">'+JOB_COLOR+'</media-color>\n')
-        media_type = str.encode(
-            '@PJL XCPT <media-type syntax="keyword">'+JOB_WEIGHT+'</media-type>\n')
-        print(JOB_COLOR)
-        print(JOB_WEIGHT)
+       
         if(JOB_INFO.get('Special Instructions', False)):
             print("SPECIAL INSTRUCTIONS: " +
                   JOB_INFO.get('Special Instructions', False))
@@ -242,15 +186,15 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     if(JOB_INFO.get('Slip Sheets / Shrink Wrap', False)):
         print("SPECIAL INSTRUCTIONS: " +
               JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
-    SPI = spi.Special_Instructions(JOB_INFO)
+    SIP = instructions.Special_Instructions(JOB_INFO)
     if(JOB_INFO.get('Special Instructions', False) == False and JOB_INFO.get('Slip Sheets / Shrink Wrap', False) == False):
         SETS = 1
         COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
         print("\n!--I WILL TAKE IT FROM HERE--!")
         print_result = "SUCCESS!     : "
-    elif(SPI != (0, 0)):
-        SETS = SPI[0]
-        COPIES_PER_SET = SPI[1]
+    elif(SIP != (0, 0)):
+        SETS = SIP[0]
+        COPIES_PER_SET = SIP[1]
         print("Sets: ", colored(SETS, "magenta"))
         print("CPS : ", colored(COPIES_PER_SET, "magenta"))
         print(
@@ -288,56 +232,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 None
             return "Not Supported SPI  : " + ORDER_NAME
 
-    COPIES_COMMAND = str.encode(
-        '@PJL XCPT <copies syntax="integer">'+str(COPIES_PER_SET)+'</copies>\n')
-    with open('PJL_Commands/PJL.ps', 'rb') as f:
-        lines = f.readlines()
-    # Modifies the PJL file before adding it to the postscript files
-    for i in range(len(lines)):
-        if str('<media-color syntax="keyword">') in str(lines[i]):
-            lines[i] = media_color
-        if str('<media-type syntax="keyword">') in str(lines[i]):
-            lines[i] = media_type
-        if str('<copies syntax="integer">') in str(lines[i]):
-            lines[i] = COPIES_COMMAND
-        if str('<value syntax="enum">3</value>') in str(lines[i]):
-            lines[i] = default
-            if str('<value syntax="enum">3</value>') not in str(default):
-                lines.insert(i, stapling)
-                lines.insert(i+1, hole_punch)
-        if str('<sheet-collate syntax="keyword">') in str(lines[i]):
-            lines[i] = collation
-        if str('<sides syntax="keyword">one-sided</sides>') in str(lines[i]):
-            lines[i] = duplex
-        if str('<sheet-collate syntax="keyword">uncollated') in str(collation) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]):
-            lines[i] = str.encode(
-                '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
-            lines.insert(i, str.encode(
-                '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n'))
-            print("\nSplit-Sheeting!")
-        # Add SlipSheets to Large Collated Sets
-        if (page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(collation) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and
-                JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and (JOB_INFO.get('Stapling', False) != "Upper Left - landscape")):
-            lines[i] = str.encode(
-                '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
-            lines.insert(i, str.encode(
-                '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n'))
-            print("\nSplit-Sheeting!")
-
-    # The Postscript/PJL commands file that gets inserted before the file.
-    with open('PJL_Commands/input.ps', 'wb') as f:
-        for item in lines:
-            f.write(item)
     MERGED = False
-    # If it makes sense to use merged files, it uses them.
-    if str('<sheet-collate syntax="keyword">uncollated') in str(collation) and len(JOB_INFO.get('Files', False)) != 1:
-        if page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10:
-            MERGED = False
-            print("DUE TO PAGE COUNT, MERGED TURNED OFF")
-        else:
-            MERGED = True
-            print("THESE FILES WERE MERGED!")
-
+    MERGED = instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
     # Create Directory for Print Ready Files
     try:
         os.makedirs(OUTPUT_DIRECTORY +
@@ -357,7 +253,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 with open(fname, 'rb') as infile:
                     for line in infile:
                         outfile.write(line)
-    if MERGED == False:
+    elif MERGED == False:
         # Add the PJL Commands to the files in preperation to print.
         for i in range(len(FILES)):
             file_names = ['PJL_Commands/input.ps', OUTPUT_DIRECTORY+"/"+ORDER_NAME +
@@ -371,19 +267,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     # Gets list of Files in the Postscript Print Ready Folder
     Print_Files = files.postscript_list(OUTPUT_DIRECTORY, ORDER_NAME, "PSP")
 
-    if PRINTER == 0:
-        D110_IP = 0
-        D110 = "156 : "
-    if PRINTER == 1:
-        D110_IP = 1
-        D110 = "162 : "
-    if PRINTER == 2:
-        D110_IP = impression_counter(page_counts, int(
-            JOB_INFO.get('Copies', False)))  # Keeps track of how much each printer has printed for load balancing
-        if D110_IP == 0:
-            D110 = "156 : "
-        if D110_IP == 1:
-            D110 = "162 : "
+    D110_IP = impression_counter(page_counts, int(
+        JOB_INFO.get('Copies', False)), PRINTER)  # Keeps track of how much each printer has printed for load balancing
+
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
@@ -418,7 +304,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             print_que.append(lpr_path)
 
     print("\n")
-    return print_result + D110 + ORDER_NAME
+    return print_result + LPR[D110_IP][41:44] + " : " + ORDER_NAME
 
 
 def main():
