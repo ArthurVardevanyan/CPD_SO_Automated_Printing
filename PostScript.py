@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20191001"
+__version__ = "v20191002"
 
 # Built-In Libraries
 import json
@@ -53,7 +53,7 @@ def postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY):
 def file_merge(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE):
     FILES = files.file_list(OUTPUT_DIRECTORY, ORDER_NAME)
     files_path = ''
-    if DUPLEX_STATE == True:  # Adds blanks for doublesided uncollated printing
+    if DUPLEX_STATE == 2:  # Adds blanks for doublesided uncollated printing
         for i in range(len(FILES)):
             pdf = PyPDF2.PdfFileReader(
                 open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+FILES[i], "rb"))
