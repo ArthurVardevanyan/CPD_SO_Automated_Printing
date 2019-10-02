@@ -34,6 +34,31 @@ class Testing(unittest.TestCase):
             "Slip Sheets / Shrink Wrap": "Shrink wrap every 30 sets",
             "Deliver To Name": "Address="
         })
+        self.assertEqual(SchoolDataJson.school_data_json("11345-3704", "First Last - Test 2", "tests/SO"),
+                         {
+            "Account ID": "CHANGE ME",
+            "Order Number": "11345-3704",
+            "Order Subject": "First Last - Test 2",
+            "Files": {
+                "File 1": {
+                    "File Name": "11345-3704.01 First Last - Test 2.pdf",
+                    "Page Count": "9"
+                }
+            },
+            "Date Ordered": "Sep 28, 2019",
+            "Ran": "False",
+            "Email": "flast@domain.us",
+            "Last Name": "Last",
+            "First Name": "First",
+            "Phone Number": "000-000-0000",
+            "Building": "1",
+            "Copies": "125",
+            "Duplex": "One-sided",
+            "Collation": "Uncollated",
+            "Paper": "8.5 x 11 Paper White",
+            "Special Instructions": "Please make 25 copies of each page, UNCOLLATED. Please    separate the copied pages with a colored slip sheet. Please make 5 sets of the copied pages. Please separate the 5  sets with a different colored sheet of paper.",
+            "Deliver To Name": "Address="
+        })
 
 
 if __name__ == '__main__':

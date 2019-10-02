@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191001"
+__version__ = "v20191002"
 
 # Local Files
 import files
@@ -57,6 +57,10 @@ def can_run(JOB_INFO, COLOR):
     if(JOB_INFO.get('Front Cover', False)):
         return False
     if(JOB_INFO.get('Back Cover', False)):
+        return False
+    if(JOB_INFO.get('Booklets', False)):
+        return False
+    if("11 x 17" in str(JOB_INFO.get('Paper', False))):
         return False
     if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White" and COLOR == 0):
         return False
