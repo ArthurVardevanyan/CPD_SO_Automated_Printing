@@ -8,7 +8,7 @@ from oauth2client import file, client, tools
 
 # Built-In Libraries
 import re
-__version__ = "v20190810"
+__version__ = "v20191002"
 
 # Source https://developers.google.com/drive/api/v3/quickstart/python
 # Source https://stackoverflow.com/questions/52211886/downloading-file-from-google-drive-using-api-nameerror-name-service-is-not-d
@@ -48,10 +48,12 @@ def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, c
         # will write file using the file_name
         if count < 10:
             count = str("0")+str(count)
-        with open(OUTPUT_DIRECTORY+ERROR_STATE+ORDER_NUMBER+ " " + SUBJECT+"/" + ORDER_NUMBER +"." +str(count) + " " + file_name, mode="wb") as f:
+        elif count > 10:
+            return 2
+        with open(OUTPUT_DIRECTORY+"/" + ERROR_STATE+"/" + ORDER_NUMBER + " " + SUBJECT+"/" + ORDER_NUMBER + "." + str(count) + " " + file_name, mode="wb") as f:
             f.write(result)
         print("Finished writing " + file_name)
-
+        return 1
     except:
-
         print("DRIVE FAILED: LINK (or path) PROBABLY DOES NOT EXIST: ", DRIVE_ID)
+        return 0
