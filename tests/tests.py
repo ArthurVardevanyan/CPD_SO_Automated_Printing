@@ -1,11 +1,12 @@
-import unittest
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+import unittest
 
 # https://stackoverflow.com/a/1732477
 
 testmodules = [
+    'test_GDrive',
     'test_EmailPrint',
     'test_PostScript',
     'test_files',
@@ -13,6 +14,8 @@ testmodules = [
     'test_instructions',
     'test_Print',
 ]
+# RUN AT LEAST ONCE BEFORE CHECKING RESULTS
+# FIRST RUN WILL GENERATE FILES NEEDED FOR SOME TESTS
 
 suite = unittest.TestSuite()
 

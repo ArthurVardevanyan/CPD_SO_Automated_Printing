@@ -11,6 +11,9 @@ class Testing(unittest.TestCase):
         self.assertIsNone(PostScript.postscript_conversion("11344-2704", "tests/SO"))
         self.assertTrue(True, os.path.exists(
             "tests/SO/11344-2704 First Last - Test 1/PostScript/11344-2704.01 Test File.pdf.ps"))
+        self.assertIsNone(PostScript.postscript_conversion("11345-3704", "tests/SO"))
+        self.assertTrue(True, os.path.exists(
+            "tests/SO/11344-2704 First Last - Test 2/PostScript/11345-3704.01 Test File.pdf.ps"))
 
 
 if __name__ == '__main__':
