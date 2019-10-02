@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191001"
+__version__ = "v20191002"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -19,7 +19,7 @@ import colorama
 
 
 # Local Files
-import GDrive 
+import GDrive
 import SchoolDataJson
 import PostScript
 import files
@@ -37,11 +37,24 @@ EMAIL_FOLDER = "Inbox"
 OUTPUT_DIRECTORY = 'SO/'
 PASSWORD = getpass.getpass()
 AUTORUN = False
-# This Function extracts the Google Drive FileIDs from the contents of the Email
 
 
-def link_extractor(EmailBody, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
-    file_links = EmailBody[0]
+def link_cleanup(file_links):
+ # Removing Unwanted Characters
+    if(len(file_links) != 0):
+        for i in range(len(file_links)):
+            file_links[i] = file_links[i][2:].strip()
+            file_links[i] = file_links[i].replace("3D", "", 1).replace(
+                "https://drive.google.com/open?id", "").replace("\\r", "").replace("\\n", "")
+            file_links[i] = re.sub(r'[\\\:*?\"<>|.;=\]\']', "", file_links[i])
+            print(file_links[i])
+        return file_links
+    else:
+        return []
+
+
+def link_extractor(file_links):
+    # This Function extracts the Google Drive FileIDs from the contents of the Email
     # Checks if the email is indeed a School Order and not something else.
     if ("Attach your file(s) in PDF format." in file_links):
         file_links = file_links.split("Number of Copies Needed per File", 1)
@@ -52,23 +65,82 @@ def link_extractor(EmailBody, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
         file_links = str(file_links)
         file_links = file_links.split("File ")
         file_links.pop(0)
+        return file_links
+    else:
+        return []
 
-        # Removing Unwanted Characters
-        for i in range(len(file_links)):
-            file_links[i] = file_links[i][2:].strip()
-            file_links[i] = file_links[i].replace("3D", "", 1).replace(
-                "https://drive.google.com/open?id", "").replace("\\r", "").replace("\\n", "")
-            file_links[i] = re.sub(r'[\\\:*?\"<>|.;=\]\']', "", file_links[i])
-            print(file_links[i])
 
+def Drive_Downloader(EmailBody, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
+    file_links = link_extractor(EmailBody[0])
+    file_links = link_cleanup(file_links)
+    if(len(file_links) != 0):
         # Calls the Google Drive Downloader Function in GDrive.py
         count = 0
         for ids in file_links:
             count += 1
             GDrive.Google_Drive_Downloader(
                 ids, OrderNumber, OUTPUT_DIRECTORY, Subject, count, Error)
+        return 1
     else:
         print("This Isn't A School Order")
+        return 0
+
+
+def subject_line(subject):
+    # Stripping Unwanted Content
+    subject = str(subject[1][0][1]).replace(
+        "Subject: ", "").replace("Copy Job - ", "")
+    subject = subject[2:-9].strip()
+    subject = re.sub(r'[/\r\n\\:*?\"()<>|.;]', " ", subject)
+    # Keeps only the First 35 Characters of the subject.
+    subject = subject[:35].rstrip()
+    return subject
+
+
+def order_number_random(ORDER_NUMBER):
+    time = datetime.datetime.today().strftime('%M%S')
+    return ORDER_NUMBER + "-" + time
+
+
+def order_number_extract(data):
+    email_body = str(data[0][1])
+
+    try:  # Checks if Email is Indeed A School Order, Strips Unwanted Information
+        email_body = email_body.split("Order Number:", 1)
+        ORDER_NUMBER = str(email_body[1])
+        ORDER_NUMBER = ORDER_NUMBER[:9].strip()
+        ORDER_NUMBER = ORDER_NUMBER.replace('\\r', "").replace(" ", "")
+        ORDER_NUMBER = re.sub(r'[\\*]', "", ORDER_NUMBER)
+        email_body.pop(0)
+        # Adds some randomness to the order number's using time
+        ORDER_NUMBER = order_number_random(ORDER_NUMBER)
+        return ORDER_NUMBER, email_body, ""
+    except:
+        print("This Email is Not Standard, Will Still Attempt to Download Files.")
+        error_state = "Error/"
+        return "", email_body, error_state
+
+
+def duplex_state(JOB_INFO):
+    if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
+        return 2
+        print('Double Sided')
+    else:
+        return 1
+        print('Single Sided')
+
+
+def merging(OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO):
+
+    if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
+        if files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME) / len(JOB_INFO.get('Files', False)) / duplex_state(JOB_INFO) >= 10:
+            print("DUE TO PAGE COUNT, MERGED TURNED OFF")
+            return 0
+        else:
+            return 1
+    else:
+        print("Not Merging")
+        return 0
 
 
 def process_mailbox(M):
@@ -81,58 +153,36 @@ def process_mailbox(M):
 
     emails_proccessed = 0
     for num in data[0].split():
-        time = datetime.datetime.today().strftime('%M%S')
-        ORDER_NUMBER = ""
-        error_state = ""
 
         rv, data = M.fetch(num, '(UID BODY[TEXT])')  # Email Body
         # Email Subject
-        subject = M.fetch(num, '(UID BODY[HEADER.FIELDS (Subject)])')
-        # Stripping Unwanted Content
-        subject = str(subject[1][0][1]).replace(
-            "Subject: ", "").replace("Copy Job - ", "")
-        subject = subject[2:-9].strip()
-        subject = re.sub(r'[/\r\n\\:*?\"()<>|.;]', " ", subject)
-        # Keeps only the First 35 Characters of the subject.
-        subject = subject[:35].rstrip()
+        subject = subject_line(
+            M.fetch(num, '(UID BODY[HEADER.FIELDS (Subject)])'))
 
-        email_body = str(data[0][1])
-
-        try:  # Checks if Email is Indeed A School Order, Strips Unwanted Information
-            email_body = email_body.split("Order Number:", 1)
-            ORDER_NUMBER = str(email_body[1])
-            ORDER_NUMBER = ORDER_NUMBER[:9].strip()
-            ORDER_NUMBER = ORDER_NUMBER.replace('\\r', "").replace(" ", "")
-            ORDER_NUMBER = re.sub(r'[\\*]', "", ORDER_NUMBER)
-            email_body.pop(0)
-        except:
-            print("This Email is Not Standard, Will Still Attempt to Download Files.")
-            error_state = "Error/"
-
+        ORDER_NUMBER, email_body, error_state, = order_number_extract(data)
+        print("Order: ", ORDER_NUMBER, " ", subject)
+        ORDER_NAME = ORDER_NUMBER+" " + subject
         if rv != 'OK':
             print("ERROR getting message", num)
             return
-        # Adds some randomness to the order number's using time
-        ORDER_NUMBER = ORDER_NUMBER + "-" + time
-        print("Order: ", ORDER_NUMBER, " ", subject)
 
         try:
             os.makedirs(OUTPUT_DIRECTORY +
-                        error_state+ORDER_NUMBER + " "+subject)
+                        error_state+ORDER_NAME)
         except OSError:
             print("Creation of the directory %s failed" %
                   OUTPUT_DIRECTORY+error_state+"/"+subject)
-            print("Successfully created the directory %s " %
-                  OUTPUT_DIRECTORY+error_state+"/"+subject)
-        if("Re:" in subject):  # Ignore Replies from Teachers
+        print("Successfully created the directory %s " %
+              OUTPUT_DIRECTORY+error_state+"/"+subject)
+        if("Re:" in subject):  # Ignore Replies
             print("This is a reply, skipping")
         else:
             # Calls Google Drive Link Extractor
-            link_extractor(email_body, ORDER_NUMBER,
-                           OUTPUT_DIRECTORY, subject, error_state)
+            Drive_Downloader(email_body, ORDER_NUMBER,
+                             OUTPUT_DIRECTORY, subject, error_state)
             # Makes a file and Writes Email Contents to it.
-            f = open(OUTPUT_DIRECTORY+error_state+ORDER_NUMBER+" " +
-                     subject + "/" + ORDER_NUMBER+" " + subject+'.txt', 'wb')
+            f = open(OUTPUT_DIRECTORY+error_state +
+                     ORDER_NAME + "/" + ORDER_NAME+'.txt', 'wb')
             f.write(data[0][1])
             f.close()
         try:
@@ -148,27 +198,15 @@ def process_mailbox(M):
             print("PostScript Conversion Failed")
         try:
             # Merge Uncollated Files
-            if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
-                DUPLEX_STATE = True
-                duplex_state = 2
-                print('Double Sided')
-            else:
-                DUPLEX_STATE = False
-                duplex_state = 1
-                print('Single Sided')
-            if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-                if files.page_counts(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject) / len(JOB_INFO.get('Files', False)) / duplex_state >= 10:
-                    print("DUE TO PAGE COUNT, MERGED TURNED OFF")
-                else:
-                    PostScript.file_merge(OUTPUT_DIRECTORY, ORDER_NUMBER +
-                               " " + subject, DUPLEX_STATE)
-            else:
-                print("Not Merging")
+            if(merging(OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO)):
+                PostScript.file_merge(
+                    OUTPUT_DIRECTORY, ORDER_NAME, duplex_state(JOB_INFO))
+
         except:
             print("File Merge Failure")
         try:
             # Create Email Html Pdf & PS
-            EmailPrint.Email_Printer(OUTPUT_DIRECTORY, ORDER_NUMBER+" " + subject, error_state)
+            EmailPrint.Email_Printer(OUTPUT_DIRECTORY, ORDER_NAME, error_state)
         except:
             print("Email Conversion Failed")
         emails_proccessed += 1
