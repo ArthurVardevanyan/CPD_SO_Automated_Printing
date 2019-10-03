@@ -1,0 +1,101 @@
+--000000000000cbe82a0593a45f86
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Your copy job has been submitted as shown below:
+
+*Order Number: **11345 *
+*Deliver To: **First Last** - **Address
+LN2 *
+
+*Timestamp: *Sep 28, 2019
+Email address flast@domain.us
+Your Last Name Last
+Your First Name First
+Your Call Back Number 000-000-0000
+Your building 1
+Description/Title of Copy Job Test 1
+Attach your file(s) in PDF format. File 1
+<https://drive.google.com/open?id=TEMP>
+Number of Copies Needed per File 125
+Printing Setup One-sided
+Collated or Uncollated Uncollated
+Paper Size, Type, and Color 8.5 x 11 Paper =E2=80=93 White
+Special Instructions Please make 25 copies of each page, UNCOLLATED. Please
+separate the copied pages with a colored slip sheet. Please make 5 sets of
+the copied pages. Please separate the 5 
+sets with a different colored sheet of paper.
+Deliver to: (Staff Member's Name) First Last
+Deliver To: Address=
+1
+flast@domain.us
+
+
+IF YOU HAVE ANY QUESTIONS, ISSUES OR WOULD LIKE TO CHECK THE STATUS OF YOUR
+COPY JOB, please call CPD directly at *1-000-000-0000, option 2*
+OR email them at contact@cpd.com.
+
+--000000000000cbe82a0593a45f86
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<p>Your copy job has been submitted as shown below:</p><p><strong>Order Num=
+ber: </strong><strong style=3D"background-color:rgb(250,204,204)">11345 </s=
+trong></p><h2><strong>Deliver To: </strong><strong style=3D"background-colo=
+r:rgb(250,204,204)">First Last</strong><strong> - </strong><strong styl=
+e=3D"background-color:rgb(250,204,204)">Address=
+LN2 </strong><strong>  </strong></h2><p><strong =
+style=3D"background-color:rgb(251,251,251)">Timestamp:  </strong>Sep 28, 20=
+19=20
+<br><table style=3D"border-radius:2px;margin:20px 0 25px;min-width:400px;bo=
+rder:1px solid #eee" cellspacing=3D"0" cellpadding=3D"10" border=3D"0"><tr =
+style=3D"background:#f9f9f9"><td style=3D"font-weight:bold;border-bottom:1p=
+x solid #eee;width:180px">Email address</td><td style=3D"border-bottom:1px =
+solid #eee"><a href=3D"mailto:flast@domain.us">pLast@domain=
+.com</a></td></tr><tr style=3D"background:"><td style=3D"font-weight:bold;bo=
+rder-bottom:1px solid #eee;width:180px">Your Last Name</td><td style=3D"bor=
+der-bottom:1px solid #eee">Last</td></tr><tr style=3D"background:"><td st=
+yle=3D"font-weight:bold;border-bottom:1px solid #eee;width:180px">Your Firs=
+t Name</td><td style=3D"border-bottom:1px solid #eee">First</td></tr><tr s=
+tyle=3D"background:"><td style=3D"font-weight:bold;border-bottom:1px solid =
+#eee;width:180px">Your Call Back Number</td><td style=3D"border-bottom:1px =
+solid #eee">000-000-0000</td></tr><tr style=3D"background:"><td style=3D"fo=
+nt-weight:bold;border-bottom:1px solid #eee;width:180px">Your building</td>=
+<td style=3D"border-bottom:1px solid #eee">1</td></tr><tr style=3D"back=
+ground:"><td style=3D"font-weight:bold;border-bottom:1px solid #eee;width:1=
+80px">Description/Title of Copy Job</td><td style=3D"border-bottom:1px soli=
+d #eee">Test 1</td></tr><tr style=3D"background:"><td style=3D"font-wei=
+ght:bold;border-bottom:1px solid #eee;width:180px">Attach your file(s) in P=
+DF format. </td><td style=3D"border-bottom:1px solid #eee"><a href=3D"https=
+://drive.google.com/open?id=TEMP">File 1</a>=
+</td></tr><tr style=3D"background:"><td style=3D"font-weight:bold;border-bo=
+ttom:1px solid #eee;width:180px">Number of Copies Needed per File</td><td s=
+tyle=3D"border-bottom:1px solid #eee">125</td></tr><tr style=3D"background:=
+"><td style=3D"font-weight:bold;border-bottom:1px solid #eee;width:180px">P=
+rinting Setup</td><td style=3D"border-bottom:1px solid #eee">One-sided=
+</td></tr><tr style=3D"background:"><td style=3D"font-weight:bold=
+;border-bottom:1px solid #eee;width:180px">Collated or Uncollated</td><td s=
+tyle=3D"border-bottom:1px solid #eee">Uncollated</td></tr><tr style=3D"backgr=
+ound:"><td style=3D"font-weight:bold;border-bottom:1px solid #eee;width:180=
+px">Paper Size, Type, and Color</td><td style=3D"border-bottom:1px solid #e=
+ee">8.5 x 11 Paper =E2=80=93 White</td></tr><tr style=3D"background:"=
+><td style=3D"font-weight:bold;border-bottom:1px solid #eee;width:180px">Sp=
+ecial Instructions</td><td style=3D"border-bottom:1px solid #eee">Please ma=
+ke 25 copies of each page, UNCOLLATED.  Please separate the copied pages wi=
+th a colored slip sheet.  Please make 5 sets of the copied pages =
+.  Please separate the 5 sets with a different colo=
+red sheet of paper.  Thank you.</td></tr><tr style=
+=3D"background:"><td style=3D"font-weight:bold;border-bottom:1px solid #eee=
+;width:180px">Deliver to: (Staff Member&#39;s Name)</td><td style=3D"border=
+-bottom:1px solid #eee">First Last</td></tr><tr style=3D"background:"><=
+td style=3D"font-weight:bold;border-bottom:1px solid #eee;width:180px">Deli=
+ver To:</td><td style=3D"border-bottom:1px solid #eee">ADDRESS=
+LN2</td></tr></table>
+<br><a href=3D"mailto:flast@domain.us">flast@domain.us</a><=
+/p><p>
+<br>IF YOU HAVE ANY QUESTIONS, ISSUES OR WOULD LIKE TO CHECK THE STATUS OF =
+YOUR COPY JOB, please call CPD directly at <strong>0-000-000-0000,=
+ option 2</strong> OR email them at  <a href=3D"mailto:contact@cpd=
+.com">contact@cpd.com</a>.</p>
+
+--000000000000cbe82a0593a45f86--

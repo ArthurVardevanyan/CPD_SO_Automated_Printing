@@ -12,6 +12,7 @@ testmodules = [
     'test_files',
     'test_SchoolDataJson',
     'test_instructions',
+    'test_Email',
     'test_Print',
 ]
 # RUN AT LEAST ONCE BEFORE CHECKING RESULTS
