@@ -30,14 +30,6 @@ import printer
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
 
-print("School Order Downloader Revision: ", __version__)
-
-IMAP_SERVER = 'imap.gmail.com'
-EMAIL_FOLDER = "Inbox"
-OUTPUT_DIRECTORY = 'SO/'
-PASSWORD = getpass.getpass()
-AUTORUN = False
-
 
 def link_cleanup(file_links):
  # Removing Unwanted Characters
@@ -130,10 +122,10 @@ def duplex_state(JOB_INFO):
         print('Single Sided')
 
 
-def merging(OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO):
+def merging(JOB_INFO, PAGE_COUNTS):
 
     if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-        if files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME) / len(JOB_INFO.get('Files', False)) / duplex_state(JOB_INFO) >= 10:
+        if PAGE_COUNTS / len(JOB_INFO.get('Files', False)) / duplex_state(JOB_INFO) >= 10:
             print("DUE TO PAGE COUNT, MERGED TURNED OFF")
             return 0
         else:
@@ -144,6 +136,7 @@ def merging(OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO):
 
 
 def process_mailbox(M):
+    OUTPUT_DIRECTORY = 'SO/'
 
     # Gets all the UNSEEN emails from the INBOX
     rv, data = M.search(None, 'UNSEEN')
@@ -198,7 +191,7 @@ def process_mailbox(M):
             print("PostScript Conversion Failed")
         try:
             # Merge Uncollated Files
-            if(merging(OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO)):
+            if(merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
                 PostScript.file_merge(
                     OUTPUT_DIRECTORY, ORDER_NAME, duplex_state(JOB_INFO))
 
@@ -210,6 +203,7 @@ def process_mailbox(M):
         except:
             print("Email Conversion Failed")
         emails_proccessed += 1
+        AUTORUN = False
         if(AUTORUN):
             D110_IP = 1
             COLOR = 0
@@ -223,6 +217,9 @@ def process_mailbox(M):
 
 
 def main():
+    IMAP_SERVER = 'imap.gmail.com'
+    EMAIL_FOLDER = "Inbox"
+    PASSWORD = getpass.getpass()
     EMAIL_ACCOUNT = "@gmail.com"
     try:
         with open("Credentials/creds.txt") as f:
@@ -230,7 +227,7 @@ def main():
         cred = [x.strip() for x in cred]
         EMAIL_ACCOUNT = str(cred[0]) + EMAIL_ACCOUNT
     except:
-        print("Crential Failure")
+        print("Credential Failure")
     M = imaplib.IMAP4_SSL(IMAP_SERVER)
     M.login(EMAIL_ACCOUNT, PASSWORD)  # Credentials Info
     rv, data = M.select(EMAIL_FOLDER)  # pylint: disable=unused-variable
@@ -268,4 +265,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print("School Order Downloader Revision: ", __version__)
     main()
