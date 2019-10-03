@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191002"
+__version__ = "v20191003"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -62,8 +62,8 @@ def link_extractor(file_links):
         return []
 
 
-def Drive_Downloader(EmailBody, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
-    file_links = link_extractor(EmailBody[0])
+def Drive_Downloader(email_body, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
+    file_links = link_extractor(email_body)
     file_links = link_cleanup(file_links)
     if(len(file_links) != 0):
         # Calls the Google Drive Downloader Function in GDrive.py
@@ -89,13 +89,12 @@ def subject_line(subject):
     return subject
 
 
-def order_number_random(ORDER_NUMBER):
+def order_number_random():
     time = datetime.datetime.today().strftime('%M%S')
-    return ORDER_NUMBER + "-" + time
+    return "-" + time
 
 
-def order_number_extract(data):
-    email_body = str(data[0][1])
+def order_number_extract(email_body, RANDOM):
 
     try:  # Checks if Email is Indeed A School Order, Strips Unwanted Information
         email_body = email_body.split("Order Number:", 1)
@@ -103,14 +102,12 @@ def order_number_extract(data):
         ORDER_NUMBER = ORDER_NUMBER[:9].strip()
         ORDER_NUMBER = ORDER_NUMBER.replace('\\r', "").replace(" ", "")
         ORDER_NUMBER = re.sub(r'[\\*]', "", ORDER_NUMBER)
-        email_body.pop(0)
         # Adds some randomness to the order number's using time
-        ORDER_NUMBER = order_number_random(ORDER_NUMBER)
-        return ORDER_NUMBER, email_body, ""
+        return ORDER_NUMBER + RANDOM, ""
     except:
         print("This Email is Not Standard, Will Still Attempt to Download Files.")
         error_state = "Error/"
-        return "", email_body, error_state
+        return "", error_state
 
 
 def duplex_state(JOB_INFO):
@@ -152,7 +149,9 @@ def process_mailbox(M):
         subject = subject_line(
             M.fetch(num, '(UID BODY[HEADER.FIELDS (Subject)])'))
 
-        ORDER_NUMBER, email_body, error_state, = order_number_extract(data)
+        email_body = data[0][1]
+        ORDER_NUMBER, error_state, = order_number_extract(
+            str(email_body), order_number_random())
         print("Order: ", ORDER_NUMBER, " ", subject)
         ORDER_NAME = ORDER_NUMBER+" " + subject
         if rv != 'OK':
@@ -171,12 +170,12 @@ def process_mailbox(M):
             print("This is a reply, skipping")
         else:
             # Calls Google Drive Link Extractor
-            Drive_Downloader(email_body, ORDER_NUMBER,
+            Drive_Downloader(str(email_body), ORDER_NUMBER,
                              OUTPUT_DIRECTORY, subject, error_state)
             # Makes a file and Writes Email Contents to it.
             f = open(OUTPUT_DIRECTORY+error_state +
                      ORDER_NAME + "/" + ORDER_NAME+'.txt', 'wb')
-            f.write(data[0][1])
+            f.write(email_body)
             f.close()
         try:
             # Create JSON file with Job Requirements
