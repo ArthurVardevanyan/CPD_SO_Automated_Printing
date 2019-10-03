@@ -4,6 +4,7 @@ School_Orders/
 /tests/SO/*/PSP
 /tests/SO/*/PostScript
 /tests/SO/*/*Banner*.ps
+/tests/SO/*/*.ps
 input.ps
 Credentials/
 __pycache__/

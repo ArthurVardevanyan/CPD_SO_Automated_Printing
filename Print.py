@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191002"
+__version__ = "v20191003"
 
 # Local Files
 import files
@@ -158,7 +158,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     # Runs the bulk of code
     if(AUTORUN):
         PRINTER = 1
-    
+
     print_result = ''  # Used for Status Output
 
     # Calls a function in files.py, which gets a list of all the orders downladed
@@ -298,8 +298,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     return print_result + LPR[D110_IP][41:44] + " : " + ORDER_NAME
 
 
-def main():
-    AUTORUN = False
+def main(AUTORUN):
     SEQUENTIAL = False
     EMAILPRINT = False
     # Contains the list of final commands for all the orders that were proccessed to be run.
@@ -365,6 +364,7 @@ def main():
                 os.system('clear')  # on linux
                 os.system('CLS')    # on windows
                 break
+    return 1
 
 
 if __name__ == "__main__":
@@ -375,4 +375,4 @@ if __name__ == "__main__":
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
     print(colored("Purple Paper", "magenta") +
           " (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
-    main()
+    main(False)
