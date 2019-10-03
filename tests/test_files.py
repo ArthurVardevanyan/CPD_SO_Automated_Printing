@@ -11,6 +11,7 @@ class Testing(unittest.TestCase):
         self.assertEqual(files.folder_list("tests/SO"), [
             "11344-2704 First Last - Test 1",
             "11345-3704 First Last - Test 2",
+            "11349-0311 First Last - Test 3",
             "Archive",  "Error"])
 
     def test_file_list(self):

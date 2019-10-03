@@ -79,7 +79,24 @@ class Testing(unittest.TestCase):
                          "SUCCESS SPI! : 162 : 11344-2704 First Last - Test 1")
         self.assertEqual(Print.printing("11345", "tests/SO", "162", 0, [], True, False),
                          "SUCCESS SPI! : 162 : 11345-3704 First Last - Test 2")
+        self.assertEqual(Print.printing("11349", "tests/SO", "162", 0, [], True, False),
+                         "SUCCESS SPI! : 162 : 11349-0311 First Last - Test 3")
 
-
+    def test_main(self):
+        with mock.patch('builtins.input', side_effect=[0,0,"run", 0]):
+            self.assertEqual(Print.main(False), 1)
+        with mock.patch('builtins.input', side_effect=[0,0,"run", 0]):
+            self.assertEqual(Print.main(True), 1)
+        with mock.patch('builtins.input', side_effect=[1,0,"run", 0]):
+            self.assertEqual(Print.main(True), 1)
+        with mock.patch('builtins.input', side_effect=[0,1,"run", 0]):
+            self.assertEqual(Print.main(True), 1)
+        with mock.patch('builtins.input', side_effect=[0,2,"run", 0]):
+            self.assertEqual(Print.main(True), 1)
+        with mock.patch('builtins.input', side_effect=[1,1,"run", 0]):
+            self.assertEqual(Print.main(True), 1)
+        with mock.patch('builtins.input', side_effect=[1,2,"run", 0]):
+            self.assertEqual(Print.main(True), 1)
+            
 if __name__ == '__main__':
     unittest.main()
