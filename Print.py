@@ -45,6 +45,7 @@ def impression_counter(PAGE_COUNTS, COPIES, PRINTER):
         D110_162 += PAGE_COUNTS * COPIES
         return 1
 
+
 def can_run(JOB_INFO, COLOR):
     # Determines if jobs is able to be ran or not using this script
     if(JOB_INFO.get('Ran', False) == "True"):
@@ -67,16 +68,9 @@ def can_run(JOB_INFO, COLOR):
     return True
 
 
-def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT):
-    # Runs the bulk of code
-    if(AUTORUN):
-        PRINTER = 1
+def order_selection(ORDER_NUMBER, Folders, AUTORUN):
     ORDER_NAME = "No Order Selected"  # Default Value
-    print_result = ''  # Used for Status Output
-
-    # Calls a function in files.py, which gets a list of all the orders downladed
     ORDER_NAMES = []
-    Folders = files.folder_list(OUTPUT_DIRECTORY)
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
         if(i == "Archive" or i == "Error"):
             continue
@@ -97,7 +91,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 try:
                     if(int(input("Confirm Order Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + ") ")) == 0):
                         return "Aborted @ CO#: " + ORDER_NAME
-                    break
+                    return ORDER_NAME
                 except:
                     pass
         if(len(ORDER_NAMES) > 1):
@@ -110,7 +104,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                         if(int(input("Confirm Order Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + ") ")) == 0):
                             break
                         else:
-                            ORDER_NAME = order_name
+                            return order_name
                             break
                     except:
                         pass
@@ -120,10 +114,59 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 return "Aborted @ CO#: " + ORDER_NUMBER + " " + ORDER_NAME
     else:
         try:
-            ORDER_NAME = str(ORDER_NAMES[0])
+            return str(ORDER_NAMES[0])
         except:
             return "Order DNE: " + ORDER_NAME
 
+
+def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES):
+
+    try:
+        os.makedirs(OUTPUT_DIRECTORY +
+                    "/"+ORDER_NAME + "/PSP")
+        print("Successfully created the directory " +
+              "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP")
+    except OSError:
+        print("Creation of the directory failed " +
+              "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP")
+
+    if MERGED == True:
+        # Add the PJL Commands to the merged file in preperation to print.
+        file_names = ['PJL_Commands/input.ps', OUTPUT_DIRECTORY+"/" +
+                      ORDER_NAME + "/"+ORDER_NAME+".ps", 'PJL_Commands/End.ps']
+        with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP/"+ORDER_NAME+".ps", 'wb') as outfile:
+            for fname in file_names:
+                with open(fname, 'rb') as infile:
+                    for line in infile:
+                        outfile.write(line)
+        return 1
+    elif MERGED == False:
+        # Add the PJL Commands to the files in preperation to print.
+        for i in range(len(FILES)):
+            file_names = ['PJL_Commands/input.ps', OUTPUT_DIRECTORY+"/"+ORDER_NAME +
+                          "/PostScript/"+FILES[i]+".ps", 'PJL_Commands/End.ps']
+            with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
+                for fname in file_names:
+                    with open(fname, 'rb') as infile:
+                        for line in infile:
+                            outfile.write(line)
+        return 1
+    return 0
+
+
+def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT):
+    # Runs the bulk of code
+    if(AUTORUN):
+        PRINTER = 1
+    
+    print_result = ''  # Used for Status Output
+
+    # Calls a function in files.py, which gets a list of all the orders downladed
+    Folders = files.folder_list(OUTPUT_DIRECTORY)
+
+    ORDER_NAME = order_selection(ORDER_NUMBER, Folders, AUTORUN)
+    if("Order DNE" in ORDER_NAME or "Aborted @ CO#" in ORDER_NAME or "ON Not Valid" in ORDER_NAME or "Aborted @ INT: " in ORDER_NAME):
+        return ORDER_NAME
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     FILES = files.file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 
@@ -136,7 +179,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                    ORDER_NAME, AUTORUN, print_que, "toptray")
+                                       ORDER_NAME, AUTORUN, print_que, "toptray")
                 return "Not Supported S:  " + ORDER_NAME
 
     # This calls the function that creates the banner sheet for the given order number
@@ -151,7 +194,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                    ORDER_NAME, AUTORUN, print_que, "toptray")
+                                       ORDER_NAME, AUTORUN, print_que, "toptray")
             return "Not Supported AutoS: " + ORDER_NAME
 
     print("Number of (Total) Copies Listed Per File: " +
@@ -162,6 +205,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     if(JOB_INFO.get('Slip Sheets / Shrink Wrap', False)):
         print("SPECIAL INSTRUCTIONS: " +
               JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
+
     SIP = instructions.Special_Instructions(JOB_INFO)
     if(JOB_INFO.get('Special Instructions', False) == False and JOB_INFO.get('Slip Sheets / Shrink Wrap', False) == False):
         SETS = 1
@@ -201,7 +245,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                    ORDER_NAME, AUTORUN, print_que, "toptray")
+                                       ORDER_NAME, AUTORUN, print_que, "toptray")
 
             return "Not Supported SPI  : " + ORDER_NAME
 
@@ -211,34 +255,13 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     # Sets the correct PJL commands
     MERGED = instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
     # Create Directory for Print Ready Files
-    try:
-        os.makedirs(OUTPUT_DIRECTORY +
-                    "/"+ORDER_NAME + "/PSP")
-        print("Successfully created the directory " +
-              "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP")
-    except OSError:
-        print("Creation of the directory failed " +
-              "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP")
 
-    if MERGED == True:
-        # Add the PJL Commands to the merged file in preperation to print.
-        file_names = ['PJL_Commands/input.ps', OUTPUT_DIRECTORY+"/" +
-                      ORDER_NAME + "/"+ORDER_NAME+".ps", 'PJL_Commands/End.ps']
-        with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP/"+ORDER_NAME+".ps", 'wb') as outfile:
-            for fname in file_names:
-                with open(fname, 'rb') as infile:
-                    for line in infile:
-                        outfile.write(line)
-    elif MERGED == False:
-        # Add the PJL Commands to the files in preperation to print.
-        for i in range(len(FILES)):
-            file_names = ['PJL_Commands/input.ps', OUTPUT_DIRECTORY+"/"+ORDER_NAME +
-                          "/PostScript/"+FILES[i]+".ps", 'PJL_Commands/End.ps']
-            with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
-                for fname in file_names:
-                    with open(fname, 'rb') as infile:
-                        for line in infile:
-                            outfile.write(line)
+   # Merge PostScript Header File to All Postscript Job Files
+    pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
+    try:
+        os.remove("PJL_Commands/input.ps")  # remove temp file
+    except:
+        print("Temp File Remove Failed")
 
     # Gets list of Files in the Postscript Print Ready Folder
     Print_Files = files.postscript_list(OUTPUT_DIRECTORY, ORDER_NAME, "PSP")
@@ -249,13 +272,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
-    try:
-        os.remove("PJL_Commands/input.ps")  # remove temp file
-    except:
-        print("Temp File Remove Failed")
-
     if(AUTORUN and EMAILPRINT):
-        EmailPrint.Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, "stacker")
+        EmailPrint.Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
+                               AUTORUN, print_que, "stacker")
 
     print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
     for i in range(SETS):

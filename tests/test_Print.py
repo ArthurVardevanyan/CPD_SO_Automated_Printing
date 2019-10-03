@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
@@ -6,6 +7,43 @@ import Print
 
 
 class Testing(unittest.TestCase):
+
+    def test_order_selection(self):
+        import files
+        Folders = files.folder_list("tests/SO")
+        Folders.pop()
+        Folders.pop()
+        for i in Folders:
+            self.assertEqual(Print.order_selection(i[:5], Folders, True), i)
+            with mock.patch('builtins.input', return_value=1):
+                self.assertEqual(Print.order_selection(
+                    i[:5], Folders, False), i)
+            with mock.patch('builtins.input', return_value=0):
+                self.assertEqual(Print.order_selection(
+                    i[:5], Folders, False), "Aborted @ CO#: " + i)
+            self.assertEqual(Print.order_selection(
+                i[:5], "", True), "Order DNE: No Order Selected")
+            self.assertEqual(Print.order_selection(
+                i[:5], "", False), "ON Not Valid : " + i[:5])
+        for i in Folders:
+            self.assertEqual(Print.order_selection(i[:10], Folders, True), i)
+            with mock.patch('builtins.input', return_value=1):
+                self.assertEqual(Print.order_selection(
+                    i[:10], Folders, False), i)
+            with mock.patch('builtins.input', return_value=0):
+                self.assertEqual(Print.order_selection(
+                    i[:10], Folders, False), "Aborted @ CO#: " + i)
+            self.assertEqual(Print.order_selection(
+                i[:10], "", True), "Order DNE: No Order Selected")
+            self.assertEqual(Print.order_selection(
+                i[:10], "", False), "ON Not Valid : " + i[:10])
+        for i in Folders:
+            test = "invalid input"
+            self.assertEqual(Print.order_selection(
+                test, Folders, True), "Aborted @ INT: " + test)
+            self.assertEqual(Print.order_selection(
+                test, Folders, False), "Aborted @ INT: " + test)
+        # Still need to test duplicate order numbers
 
     def test_impression_counter(self):
         self.assertFalse(Print.impression_counter(0, 0, 0))

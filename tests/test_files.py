@@ -8,9 +8,10 @@ import files
 class Testing(unittest.TestCase):
 
     def test_folder_list(self):
-        self.assertEqual(files.folder_list("tests/SO"),[
+        self.assertEqual(files.folder_list("tests/SO"), [
             "11344-2704 First Last - Test 1",
-            "11345-3704 First Last - Test 2"])
+            "11345-3704 First Last - Test 2",
+            "Archive",  "Error"])
 
     def test_file_list(self):
         self.assertEqual(files.file_list("tests/SO", "11344-2704 First Last - Test 1"),

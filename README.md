@@ -11,8 +11,6 @@ A Specialized Script for Running one Customers High Volume Orders
 * More Features
 
 
-## Three Main Files:
-
 #### Email.py 
 Fetches The Emails and calls other functions to setup and preprocess jobs.
 #### Print.py 
@@ -21,9 +19,8 @@ This is the Printing Utility. It prints mostly autonomously for the inputted ord
 * For Colors to work in windows python must be executed from within command prompt.
 #### EmailPrint.py  
 Prints the Emails with Page Counts and a Duplicate sheet on a different color.
-
-## Other Files Include:
-
+#### printer.py
+It processes the final commands that the sent for the printer, and also checks the status of the printer.
 #### files.py 
 Grabs list of files and folders
 #### PostScript.py 
@@ -34,8 +31,8 @@ Converts the Email text into a JSON file
 Downloads the files for the order from Google Drive
 #### BannerSheet.py  
 Generates a custom banner sheet for running these jobs. Outputted in front of each job before all the files get outputted.  
-#### spi.py
-Reads the Special Instructions, and determines information based on that.
+#### instructions.py
+Determines the Job Specs, and Reads the Special Instructions, and determines information based on that.
 
 ## PJL_Commands 
 This folder contains the resources for the Printer Job Language (PJL) Commands needed to output the postscript files on the printer.  
