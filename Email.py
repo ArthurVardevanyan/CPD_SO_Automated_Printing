@@ -1,5 +1,5 @@
-# Print.py
-__version__ = "v20191003"
+# Email.py
+__version__ = "v20191005"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -112,11 +112,11 @@ def order_number_extract(email_body, RANDOM):
 
 def duplex_state(JOB_INFO):
     if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
-        return 2
         print('Double Sided')
+        return 2
     else:
-        return 1
         print('Single Sided')
+        return 1
 
 
 def merging(JOB_INFO, PAGE_COUNTS):

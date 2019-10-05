@@ -1,3 +1,6 @@
+# test_instructions.py
+__version__ = "v20191005"
+
 import unittest
 import os
 import sys
@@ -91,6 +94,18 @@ class Testing(unittest.TestCase):
             "Slip Sheets / Shrink Wrap": "2 group of 80",
             "Special Instructions": "2 groups of 80",
         }), (2, 80))
+        self.assertEqual(instructions.Special_Instructions({
+            "Copies": "60",
+            "Special Instructions": "2sided   Please divide the 60 copies in to 2 complete sets of 30 and slip sheet between each page within the file. UNCOLLATED 2 SIDED",
+        }), (2, 30))
+        self.assertEqual(instructions.Special_Instructions({
+            "Copies": "120",
+            "Special Instructions": "2sided   Please divide the 120 copies in to 4 complete sets of 30 and slip sheet between each page within the file. UNCOLLATED 2 SIDED",
+        }), (4, 30))
+        self.assertEqual(instructions.Special_Instructions({
+            "Copies": "360  ",
+            "Special Instructions": "Please place colored slip sheets between  every 90 copies. (4 groups total)",
+        }), (4, 90))
 
     def test_manual_input(self):
         self.assertEqual(instructions.Special_Instructions({
@@ -164,23 +179,17 @@ class Testing(unittest.TestCase):
         self.assertEqual(instructions.stapling({}, str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')),
                          (str.encode(''), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
 
-    def test_stapling(self):
         self.assertEqual(instructions.stapling({}, str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')),
                          (str.encode(''), str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')))
 
-    def test_stapling(self):
         self.assertEqual(instructions.stapling({"Stapling": "Upper Left - portrait"}, str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')),
                          (str.encode('@PJL XCPT <value syntax="enum">20</value>\n'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
 
-    def test_stapling(self):
         self.assertEqual(instructions.stapling({"Stapling": "Upper Left - portrait"}, str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')),
                          (str.encode('@PJL XCPT <value syntax="enum">20</value>\n'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
 
-    def test_stapling(self):
         self.assertEqual(instructions.stapling({"Stapling": "Upper Left - landscape"}, str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')),
                          (str.encode('@PJL XCPT <value syntax="enum">21</value>\n'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
-
-    def test_stapling(self):
         self.assertEqual(instructions.stapling({"Stapling": "Upper Left - landscape"}, str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')),
                          (str.encode('@PJL XCPT <value syntax="enum">21</value>\n'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
 
@@ -194,7 +203,6 @@ class Testing(unittest.TestCase):
         self.assertEqual(instructions.weight_extract({"Paper": "8.5 x 11 Paper White"}),
                          str.encode('@PJL XCPT <media-type syntax="keyword">use-ready</media-type>\n'))
 
-    def test_weight_extract(self):
         self.assertEqual(instructions.weight_extract({"Paper": "8.5 x 11 Card Stock White"}),
                          str.encode('@PJL XCPT <media-type syntax="keyword">stationery-heavyweight</media-type>\n'))
 

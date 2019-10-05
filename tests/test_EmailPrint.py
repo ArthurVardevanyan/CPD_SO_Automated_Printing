@@ -1,3 +1,6 @@
+# test_EmailPrint.py
+__version__ = "v20191005"
+
 import unittest
 import os
 import sys
