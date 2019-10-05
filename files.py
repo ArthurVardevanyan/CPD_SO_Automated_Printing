@@ -1,5 +1,5 @@
 # files.py
-__version__ = "v20190928"
+__version__ = "v20191005"
 
 # Built-In Libraries
 import os
@@ -7,6 +7,12 @@ import glob
 
 # Downloaded Libraries
 import PyPDF2
+from termcolor import colored
+import colorama
+
+# use Colorama to make Termcolor work on Windows too
+colorama.init()
+
 
 def folder_list(folder):
     # Grabs the list of folders
@@ -36,8 +42,11 @@ def page_counts(OUTPUT_DIRECTORY, ORDER_NAME):
     # Returns the total page counts for an Order
     files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
     page_count = 0
+    print("\n")
     for i in range(len(files)):
         pdf = PyPDF2.PdfFileReader(
             open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+files[i], "rb"))
+        print("Page Count: " + colored(str(pdf.getNumPages()), "magenta") +
+              " FileName: " + files[i])
         page_count = page_count + pdf.getNumPages()
     return page_count

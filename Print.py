@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191003"
+__version__ = "v20191005"
 
 # Local Files
 import files
@@ -105,7 +105,7 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
                             break
                         else:
                             return order_name
-                            break
+
                     except:
                         pass
                 if(ORDER_NAME != "No Order Selected"):
@@ -197,7 +197,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                                        ORDER_NAME, AUTORUN, print_que, "toptray")
             return "Not Supported AutoS: " + ORDER_NAME
 
-    print("Number of (Total) Copies Listed Per File: " +
+    page_counts = files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME)
+
+    print("\nNumber of (Total) Copies Listed Per File: " +
           colored(JOB_INFO.get('Copies', False), "magenta"))
     if(JOB_INFO.get('Special Instructions', False)):
         print("SPECIAL INSTRUCTIONS: " +
@@ -218,7 +220,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         print("Sets: ", colored(SETS, "magenta"))
         print("CPS : ", colored(COPIES_PER_SET, "magenta"))
         print(
-            "\n!--I WILL TAKE IT FROM HERE & DONE WITH SPECIAL INSTRUCTION PROCESSING --!\n")
+            "\n!--I WILL TAKE IT FROM HERE & DONE WITH SPECIAL INSTRUCTION PROCESSING --!")
         print_result = "SUCCESS SPI! : "
     else:
         if(not AUTORUN):
@@ -250,7 +252,6 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             return "Not Supported SPI  : " + ORDER_NAME
 
     # This gets the number of pages for every pdf file for the job.
-    page_counts = files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME)
     MERGED = False
     # Sets the correct PJL commands
     MERGED = instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
@@ -277,7 +278,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                                AUTORUN, print_que, "stacker")
 
     print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
-    for i in range(SETS):
+    i = 0
+    while i < SETS:
+        i += 1
         for j in range(len(Print_Files)):
             print("File Name: " + Print_Files[j])
     lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'

@@ -1,3 +1,6 @@
+# test_files.py
+__version__ = "v20191005"
+
 import unittest
 import os
 import sys
@@ -25,6 +28,10 @@ class Testing(unittest.TestCase):
     def test_page_counts(self):
         self.assertEqual(files.page_counts(
             "tests/SO", "11344-2704 First Last - Test 1"), 9)
+        self.assertEqual(files.page_counts(
+            "tests/SO", "11345-3704 First Last - Test 2"), 9)            
+        self.assertEqual(files.page_counts(
+            "tests/SO", "11349-0311 First Last - Test 3"), 9)      
 
 
 if __name__ == '__main__':

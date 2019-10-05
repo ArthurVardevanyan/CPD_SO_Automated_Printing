@@ -1,4 +1,4 @@
-__version__ = "v20190928"
+__version__ = "v20191005"
 
 import json
 
@@ -7,8 +7,8 @@ def Special_Instructions_Processing(QTY, str):
     if(str == False):
         return 0, 0
     # Remove Unwanted Characters
-    str = str.replace('"', " ").replace('-', " ").replace('.',
-                                                          " ").replace('th ', " ").replace(', ', " ").lower()
+    str = str.lower().replace('"', " ").replace('-', " ").replace('.',
+                                                                  " ").replace('th ', " ").replace(', ', " ").replace('2 sided', " ").replace('1 sided', " ")
     # https://stackoverflow.com/a/4289557
     # Separate Integers From Strings
     Numbers = [int(s) for s in str.split() if s.isdigit()]
@@ -27,6 +27,11 @@ def Special_Instructions_Processing(QTY, str):
                     return 0, 1
             if("complete" in str or "set" in str):
                 return 0, min(Numbers)
+        if(QTY == max(Numbers)):
+            Numbers.remove(max(Numbers))
+            if(QTY == min(Numbers) * max(Numbers)):
+                return min(Numbers), max(Numbers)
+            return 0, 1
         if("set" in str or "slip" in str or "page" in str or "sort" in str or "group" in str):
             return 0, 1
         return 0, 0
@@ -149,7 +154,7 @@ def color_extract(JOB_INFO):
 
 def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
     print('\nChosen Options:')
-   
+
     COLLATION = collation(JOB_INFO)
     DUPLEX, duplex_state = duplex(JOB_INFO)
     STAPLING, COLLATION = stapling(JOB_INFO, COLLATION)
@@ -157,7 +162,7 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
     DEFAULT = default(JOB_INFO)
     media_color = color_extract(JOB_INFO)
     media_type = weight_extract(JOB_INFO)
-    
+
     COPIES_COMMAND = str.encode(
         '@PJL XCPT <copies syntax="integer">'+str(COPIES_PER_SET)+'</copies>\n')
     with open('PJL_Commands/PJL.ps', 'rb') as f:
@@ -201,9 +206,9 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
     # If it makes sense to use merged files, it uses them.
     if str('<sheet-collate syntax="keyword">uncollated') in str(COLLATION) and len(JOB_INFO.get('Files', False)) != 1:
         if page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10:
-            return False
             print("DUE TO PAGE COUNT, MERGED TURNED OFF")
+            return False
         else:
-            return True
             print("THESE FILES WERE MERGED!")
+            return True
     return False
