@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191005"
+__version__ = "v20191007"
 
 # Local Files
 import files
@@ -205,7 +205,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         print("SPECIAL INSTRUCTIONS: " +
               JOB_INFO.get('Special Instructions', False))
     if(JOB_INFO.get('Slip Sheets / Shrink Wrap', False)):
-        print("SPECIAL INSTRUCTIONS: " +
+        print("Slip or Shrink Wrap: " +
               JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
 
     SIP = instructions.Special_Instructions(JOB_INFO)
@@ -273,6 +273,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
+    print("\n")
     if(AUTORUN and EMAILPRINT):
         EmailPrint.Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
                                AUTORUN, print_que, "stacker")
@@ -284,6 +285,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         for j in range(len(Print_Files)):
             print("File Name: " + Print_Files[j])
     lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
+    print("\n")
     print(lpr_path)
     # Change Path so only File Name Shows up on Printer per File Banner Sheet
     print_que.append(lpr_path)
