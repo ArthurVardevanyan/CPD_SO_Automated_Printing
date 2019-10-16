@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191001"
+__version__ = "v20191016"
 
 # Built-In Libraries
 import os
@@ -36,7 +36,7 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
         html = html + temp
     if len(Files) != 0:
         for j in range(0, len(Files)):
-            temp2 = str(Files[j]).split(".pdf")
+            temp2 = str(Files[j]).rsplit(',',1)
             Files[j] = temp2[1]
             Files[j] = str(Files[j]).replace("'", "").replace(",", "")
             temp3 = Files[j].split(": ")
