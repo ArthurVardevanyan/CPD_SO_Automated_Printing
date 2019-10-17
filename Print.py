@@ -307,7 +307,6 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR):
     # Contains the list of final commands for all the orders that were proccessed to be run.
     print_que = []
     # Check if user wants to processes jobs with colored paper, if disabled this adds protection against accidentally running jobs on colored paper.
-    print("Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
     loop = True
     # Lets the user choose with printer they would like to use, or if they want to autoload balance between both printers.
     while(loop):
@@ -388,6 +387,9 @@ if __name__ == "__main__":
         try:
             COLOR = 1 if int(
                 input("Enable Colored Paper?  Yes : " + colored("1", "cyan") + " | No : " + colored("0", "cyan") + " (default) ")) == 1 else 0
+            if(COLOR):
+                print(
+                    "Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
             break
         except:
             pass
