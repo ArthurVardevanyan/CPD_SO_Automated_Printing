@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191007"
+__version__ = "v20191017"
 
 # Local Files
 import files
@@ -303,21 +303,11 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     return print_result + LPR[D110_IP][41:44] + " : " + ORDER_NAME
 
 
-def main(AUTORUN):
-    SEQUENTIAL = False
-    EMAILPRINT = False
+def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR):
     # Contains the list of final commands for all the orders that were proccessed to be run.
     print_que = []
     # Check if user wants to processes jobs with colored paper, if disabled this adds protection against accidentally running jobs on colored paper.
-    while True:
-        try:
-            COLOR = 1 if int(
-                input("Enable Colored Paper?  Yes : " + colored("1", "cyan") + " | No : " + colored("0", "cyan") + " (default) ")) == 1 else 0
-            break
-        except:
-            pass
-    else:
-        print("Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
+    print("Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
     loop = True
     # Lets the user choose with printer they would like to use, or if they want to autoload balance between both printers.
     while(loop):
@@ -380,4 +370,25 @@ if __name__ == "__main__":
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
     print(colored("Purple Paper", "magenta") +
           " (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
-    main(False)
+    while True:
+        try:
+            SEQUENTIAL = True if int(
+                input("Enable Sequential Printing  Paper?  Yes : " + colored("1", "cyan") + " | No : " + colored("0", "cyan") + " (default) ")) == 1 else False
+            break
+        except:
+            pass
+    while True:
+        try:
+            EMAILPRINT = True if int(
+                input("Print Emails with Jobs?  Yes : " + colored("1", "cyan") + " | No : " + colored("0", "cyan") + " (default) ")) == 1 else False
+            break
+        except:
+            pass
+    while True:
+        try:
+            COLOR = 1 if int(
+                input("Enable Colored Paper?  Yes : " + colored("1", "cyan") + " | No : " + colored("0", "cyan") + " (default) ")) == 1 else 0
+            break
+        except:
+            pass
+    main(False, SEQUENTIAL, EMAILPRINT, COLOR)
