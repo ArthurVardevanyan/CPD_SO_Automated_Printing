@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20191005"
+__version__ = "v20191017"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -15,8 +15,8 @@ import datetime
 
 # Downloaded Libraries
 import termcolor
+from termcolor import colored
 import colorama
-
 
 # Local Files
 import GDrive
@@ -132,7 +132,7 @@ def merging(JOB_INFO, PAGE_COUNTS):
         return 0
 
 
-def process_mailbox(M):
+def process_mailbox(M, AUTORUN):
     OUTPUT_DIRECTORY = 'SO/'
 
     # Gets all the UNSEEN emails from the INBOX
@@ -202,7 +202,7 @@ def process_mailbox(M):
         except:
             print("Email Conversion Failed")
         emails_proccessed += 1
-        AUTORUN = False
+
         if(AUTORUN):
             D110_IP = 1
             COLOR = 0
@@ -215,7 +215,7 @@ def process_mailbox(M):
     return emails_proccessed
 
 
-def main():
+def main(AUTORUN):
     IMAP_SERVER = 'imap.gmail.com'
     EMAIL_FOLDER = "Inbox"
     PASSWORD = getpass.getpass()
@@ -243,12 +243,13 @@ def main():
                 rv, data = M.select(
                     EMAIL_FOLDER)  # pylint: disable=unused-variable
                 # Starts Executing the Bulk of the program
-                EMAILS_PROCCESSED = process_mailbox(M)
+                EMAILS_PROCCESSED = process_mailbox(M, AUTORUN)
                 print("\n\n\n\n\n\n\n\n")
                 print("Emails Proccessed: ", EMAILS_PROCCESSED)
                 print("Im Resting, Check Back Later:")
-                print(termcolor.colored("!--DO NOT CLOSE--!", "red"))
-                print("School Order Downloader Revision: ", __version__)
+                print(colored("!--DO NOT CLOSE--!", "red"))
+                print("School Order Downloader Revision: " +
+                      colored(__version__, "magenta"))
                 print("Running Again") if rv == 'OK' else print(
                     "ERROR: Unable to open mailbox ", rv)
                 time.sleep(250)
@@ -264,5 +265,13 @@ def main():
 
 
 if __name__ == "__main__":
-    print("School Order Downloader Revision: ", __version__)
-    main()
+    print("\nSchool Order Downloader Revision: " +
+          colored(__version__, "magenta"))
+    while True:
+        try:
+            AUTORUN = True if int(
+                input("Enable Print While Download?  Yes : " + colored("1", "cyan") + " | No : " + colored("0", "cyan") + " (default) ")) == 1 else False
+            break
+        except:
+            pass
+    main(AUTORUN)
