@@ -23,29 +23,6 @@ import colorama
 colorama.init()
 
 
-# Global Variables
-
-# Load Balancing
-D110_162 = 0  # Impressions ran on this machine
-D110_156 = 1  # Impressions ran on this machine
-
-
-def impression_counter(PAGE_COUNTS, COPIES, PRINTER):
-    if PRINTER == 0:
-        return 0
-    if PRINTER == 1:
-        return 1
-    # Counts the number of impressions that are sent to each printer for load balancing
-    global D110_156
-    global D110_162
-    if D110_156 < D110_162:
-        D110_156 += PAGE_COUNTS * COPIES
-        return 0
-    if D110_162 < D110_156:
-        D110_162 += PAGE_COUNTS * COPIES
-        return 1
-
-
 def can_run(JOB_INFO, COLOR):
     # Determines if jobs is able to be ran or not using this script
     if(JOB_INFO.get('Ran', False) == "True"):
@@ -267,8 +244,13 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     # Gets list of Files in the Postscript Print Ready Folder
     Print_Files = files.postscript_list(OUTPUT_DIRECTORY, ORDER_NAME, "PSP")
 
-    D110_IP = impression_counter(page_counts, int(
-        JOB_INFO.get('Copies', False)), PRINTER)  # Keeps track of how much each printer has printed for load balancing
+    if PRINTER == 0:
+        D110_IP = 0
+    elif PRINTER == 1:
+        D110_IP = 1
+    else:
+        D110_IP = 0 if printer.print_status(
+            "10.56.54.162") >= printer.print_status("10.56.54.156") else 1
 
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
