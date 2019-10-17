@@ -48,12 +48,7 @@ class Testing(unittest.TestCase):
                 test, Folders, False), "Aborted @ INT: " + test)
         # Still need to test duplicate order numbers
 
-    def test_impression_counter(self):
-        self.assertFalse(Print.impression_counter(0, 0, 0))
-        self.assertTrue(Print.impression_counter(0, 0, 1))
-        self.assertTrue(Print.impression_counter(9, 10, 2))
-        self.assertFalse(Print.impression_counter(9, 10, 2))
-
+  
     def test_can_run(self):
         self.assertTrue(Print.can_run({"Paper": "8.5 x 11 Paper White"}, 0))
         self.assertFalse(Print.can_run({"Paper": "11 x 17 Paper White"}, 0))
