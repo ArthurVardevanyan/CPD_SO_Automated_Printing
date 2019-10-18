@@ -1,26 +1,33 @@
 # CPD_SO_Automated_Printing
 
-A Specialized Script for Running one Customers High Volume Orders
+A Specialized Script for Running a Customers High Volume Orders
 
-### Known Bugs:
-* If the Order has Invalid* or Unrealistic inputs, if a human does not catch it, the order will be wrong. (Some Invalid inputs will be caught by the script)
-* Can't Print Password Locked or Corrupt Files.
+The Program as whole will unlikely be of any use to anyone, 
+however their may be small portions that can be used, adapted, or spark ideas to fit your needs.
+
 
 ### TODO
-
+* Documentation
+* Tiding Up Code
 * More Features
-
+### Known Bugs:
+* If the Order has Invalid* or Unrealistic inputs, if a human does not catch it, the order will be wrong. (Some/Most Invalid inputs will be caught by the script)
+* Can't Print Password Locked or Corrupt Files.
+### Explicit Feature Removals:
+* No Booklets (Need to be able to consistently determine orientation of text and images on an scan/image/page)
+* No Jobs with Front or Back Covers (Job files Inconsistent, need to be able to detect blank pages, and determine when and where to insert them.)
+* No Coil Books, Color Jobs or Posters (Low Volume)
 
 #### Email.py 
 Fetches The Emails and calls other functions to setup and preprocess jobs.
 #### Print.py 
 This is the Printing Utility. It prints mostly autonomously for the inputted orders, main aspects it still asks for are which printer to use and if the "Special Instructions" field is filled out, it has someone verify and input information.
 ##### Print.bat
-* For Colors to work in windows python must be executed from within command prompt.
+* For Colored Text to work in windows python must be executed from within command prompt.
 #### EmailPrint.py  
 Prints the Emails with Page Counts and a Duplicate sheet on a different color.
 #### printer.py
-It processes the final commands that the sent for the printer, and also checks the status of the printer.
+It processes the final commands that are sent to the printer, and also checks the status of the printer.
 #### files.py 
 Grabs list of files and folders
 #### PostScript.py 
@@ -37,7 +44,7 @@ Determines the Job Specs, and Reads the Special Instructions, and determines inf
 ## PJL_Commands 
 This folder contains the resources for the Printer Job Language (PJL) Commands needed to output the postscript files on the printer.  
 In our environment these PJL commands are for a Xerox D-Series (D110) Printer with a 
-* High Capacity Stacker (Not Relevant)
+* High Capacity Stacker
 * 3 Hole Punch Unit
 * Booklet Maker Finisher	
 
@@ -52,3 +59,9 @@ Contains the Escape Code that encapsulates the postscript information.
 This file is a PJL template file for how the job files print. The file gets modified by on the job parameters and then inserting onto each postscript file.  
 #### PJL Options.txt
 Contains a list of the PJL Options and what they do for our machine.
+
+## Tests
+This folder contains all the test code and test files for running tests.
+
+
+Last Updated: 20191018
