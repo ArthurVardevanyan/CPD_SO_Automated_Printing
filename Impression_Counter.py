@@ -1,5 +1,5 @@
 # Impression Counter
-__version__ = "v20190928"
+__version__ = "v20191018"
 import json
 import files
 import pprint
@@ -7,7 +7,7 @@ import pprint
 
 OUTPUT_DIRECTORY = 'SO/'
 
-print("\nTerminal AutoPrinting REV: " + __version__)
+print("\nTerminal AutoPrinting REV: " , __version__)
 Start = str(input("Start #: "))
 End = str(input("End   #: "))
 Job_Specs = {}
@@ -27,7 +27,7 @@ for ORDER_NUMBER in range(int(Start), int(End)+1):
     FILES = files.file_list(OUTPUT_DIRECTORY, ORDER_NAME)
 
     try:
-        with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
+        with open("".join([OUTPUT_DIRECTORY,'/',ORDER_NAME,'/',ORDER_NAME,'.json'])) as json_file:
             JOB_INFO = json.load(json_file)
     except:
         print("JSON File Failed")
@@ -55,6 +55,6 @@ for ORDER_NUMBER in range(int(Start), int(End)+1):
     Total_Staples += stapling
 
 
-print("Impressions: " + str(Total_Copies))
-print("Staples: " + str(Total_Staples))
+print("Impressions: " , str(Total_Copies))
+print("Staples: " , str(Total_Staples))
 pprint.pprint(Job_Specs)

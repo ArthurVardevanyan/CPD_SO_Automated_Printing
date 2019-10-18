@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191017"
+__version__ = "v20191018+"
 
 # Local Files
 import files
@@ -56,18 +56,18 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
                 if str(ORDER_NUMBER) in i:
                     ORDER_NAMES.append(i)
         except:
-            return "Aborted @ INT: " + ORDER_NUMBER
+            return "".join(["Aborted @ INT: ", ORDER_NUMBER])
     if(not AUTORUN):
         if(len(ORDER_NAMES) == 0):
-            print(ORDER_NUMBER + " Order Number is not Valid")
-            return "ON Not Valid : " + ORDER_NUMBER
+            print(ORDER_NUMBER, " Order Number is not Valid")
+            return "".join(["ON Not Valid : " , ORDER_NUMBER])
         if(len(ORDER_NAMES) == 1):
             ORDER_NAME = ORDER_NAMES[0]
             print(ORDER_NAME)
             while True:
                 try:
-                    if(int(input("Confirm Order Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + ") ")) == 0):
-                        return "Aborted @ CO#: " + ORDER_NAME
+                    if(int(input("".join(["Confirm Order Yes : (" , colored("1", "cyan") , ") | No : (" , colored("0", "cyan") , ") "]))) == 0):
+                        return "".join(["Aborted @ CO#: " , ORDER_NAME])
                     return ORDER_NAME
                 except:
                     pass
@@ -78,7 +78,7 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
                 while True:
                     try:
                         print(order_name)
-                        if(int(input("Confirm Order Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + ") ")) == 0):
+                        if(int(input("".join(["Confirm Order Yes : (" , colored("1", "cyan") , ") | No : (" , colored("0", "cyan") , ") "]))) == 0):
                             break
                         else:
                             return order_name
@@ -88,12 +88,12 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
                 if(ORDER_NAME != "No Order Selected"):
                     break
             if(ORDER_NAME == "No Order Selected"):
-                return "Aborted @ CO#: " + ORDER_NUMBER + " " + ORDER_NAME
+                return "".join(["Aborted @ CO#: " , ORDER_NUMBER , " " , ORDER_NAME])
     else:
         try:
             return str(ORDER_NAMES[0])
         except:
-            return "Order DNE: " + ORDER_NAME
+            return "".join(["Order DNE: " , ORDER_NAME])
 
 
 def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES):
@@ -101,11 +101,11 @@ def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES):
     try:
         os.makedirs(OUTPUT_DIRECTORY +
                     "/"+ORDER_NAME + "/PSP")
-        print("Successfully created the directory " +
-              "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP")
+        print("Successfully created the directory ",
+              "/", OUTPUT_DIRECTORY, "/", ORDER_NAME, "/PSP")
     except OSError:
-        print("Creation of the directory failed " +
-              "/" + OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/PSP")
+        print("Creation of the directory failed ",
+              "/", OUTPUT_DIRECTORY, "/", ORDER_NAME, "/PSP")
 
     if MERGED == True:
         # Add the PJL Commands to the merged file in preperation to print.
@@ -152,37 +152,37 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             JOB_INFO = json.load(json_file)
     except:
         if(not AUTORUN):
-            return "Aborted @ JS#: " + ORDER_NUMBER + " " + ORDER_NAME
+            return "".join(["Aborted @ JS#: " , ORDER_NUMBER , " " , ORDER_NAME])
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
                                        ORDER_NAME, AUTORUN, print_que, "toptray")
-                return "Not Supported S:  " + ORDER_NAME
+                return "".join(["Not Supported S:  " , ORDER_NAME])
 
     # This calls the function that creates the banner sheet for the given order number
     BANNER_SHEET_FILE = BannerSheet.banner_sheet(
-        JOB_INFO, OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/')
+        JOB_INFO, "".join([OUTPUT_DIRECTORY,'/',ORDER_NAME,'/']))
 
     # Checks if the job specs can be ran
     if (not can_run(JOB_INFO, COLOR)):
         print(colored("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.", "red"))
         if(not AUTORUN):
-            return "Not Supported:  " + ORDER_NAME
+            return "".join(["Not Supported:  " ,ORDER_NAME])
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
                                        ORDER_NAME, AUTORUN, print_que, "toptray")
-            return "Not Supported AutoS: " + ORDER_NAME
+            return "".join(["Not Supported AutoS: " , ORDER_NAME])
 
     page_counts = files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME)
 
-    print("\nNumber of (Total) Copies Listed Per File: " +
+    print("\nNumber of (Total) Copies Listed Per File: ",
           colored(JOB_INFO.get('Copies', False), "magenta"))
     if(JOB_INFO.get('Special Instructions', False)):
-        print("SPECIAL INSTRUCTIONS: " +
+        print("SPECIAL INSTRUCTIONS: ",
               JOB_INFO.get('Special Instructions', False))
     if(JOB_INFO.get('Slip Sheets / Shrink Wrap', False)):
-        print("Slip or Shrink Wrap: " +
+        print("Slip or Shrink Wrap: ",
               JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
 
     SIP = instructions.Special_Instructions(JOB_INFO)
@@ -208,7 +208,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 try:
                     SETS = int(input("\nHow Many Sets?: "))
                     if(SETS == 0):
-                        return "Aborted @ Set: " + ORDER_NAME
+                        return "".join(["Aborted @ Set: " , ORDER_NAME])
                     break
                 except:
                     pass
@@ -216,7 +216,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 try:
                     COPIES_PER_SET = int(input("How Many Copies Per Set?: "))
                     if(COPIES_PER_SET == 0):
-                        return "Aborted @ CPS: " + ORDER_NAME
+                        return "".join(["Aborted @ CPS: " , ORDER_NAME])
                     break
                 except:
                     pass
@@ -226,7 +226,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
                                        ORDER_NAME, AUTORUN, print_que, "toptray")
 
-            return "Not Supported SPI  : " + ORDER_NAME
+            return "".join(["Not Supported SPI  : " , ORDER_NAME])
 
     # This gets the number of pages for every pdf file for the job.
     MERGED = False
@@ -265,7 +265,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     while i < SETS:
         i += 1
         for j in range(len(Print_Files)):
-            print("File Name: " + Print_Files[j])
+            print("File Name: ", Print_Files[j])
     lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
     print("\n")
     print(lpr_path)
@@ -282,7 +282,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             print_que.append(lpr_path)
 
     print("\n")
-    return print_result + LPR[D110_IP][41:44] + " : " + ORDER_NAME
+    return "".join([print_result , LPR[D110_IP][41:44] , " : ", ORDER_NAME])
 
 
 def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR):
@@ -295,7 +295,7 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR):
         while True:
             try:
                 D110_IP = int(
-                    input("Choose a Printer: 156 (" + colored("0", "cyan") + "), 162 (" + colored("1", "cyan") + "), Auto (" + colored("2", "cyan") + "): "))
+                    input(''.join(["Choose a Printer: 156 (", colored("0", "cyan"), "), 162 (", colored("1", "cyan"), "), Auto (", colored("2", "cyan"), "): "])))
                 if D110_IP == 1 or D110_IP == 2 or D110_IP == 0:
                     break
                 else:
@@ -332,7 +332,7 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR):
                 while True:
                     try:
                         loop = True if int(
-                            input("\nSubmit Another Set of Orders?  Yes : (" + colored("1", "cyan") + ") | No : (" + colored("0", "cyan") + "): ")) == 1 else False
+                            input(''.join(["\nSubmit Another Set of Orders?  Yes : (", colored("1", "cyan"), ") | No : (", colored("0", "cyan"), "): "]))) == 1 else False
                         break
                     except:
                         pass
@@ -344,31 +344,31 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR):
 
 
 if __name__ == "__main__":
-    print("\nTerminal AutoPrinting REV: " + colored(__version__, "magenta"))
-    print('Type Your Order Number and Hit Enter,\nType "' +
-          colored('run', 'green') + '" then hit enter when your all set. \n')
+    print("\nTerminal AutoPrinting REV: ", colored(__version__, "magenta"))
+    print('Type Your Order Number and Hit Enter,\nType "', colored(
+        'run', 'green'), '" then hit enter when your all set. \n')
     print("Compatible Jobs will AutoRun, jobs will pause for requested input if needed.")
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
-    print(colored("Purple Paper", "magenta") +
+    print(colored("Purple Paper", "magenta"),
           " (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
     while True:
         try:
             SEQUENTIAL = True if int(
-                input("Enable Sequential Printing  Paper?  Yes : " + colored("1", "cyan") + " | No : " + colored("0", "cyan") + " (default) ")) == 1 else False
+                input(''.join(["Enable Sequential Printing  Paper?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
             break
         except:
             pass
     while True:
         try:
             EMAILPRINT = True if int(
-                input("Print Emails with Jobs?  Yes : " + colored("1", "cyan") + " | No : " + colored("0", "cyan") + " (default) ")) == 1 else False
+                input(''.join(["Print Emails with Jobs?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
             break
         except:
             pass
     while True:
         try:
             COLOR = 1 if int(
-                input("Enable Colored Paper?  Yes : " + colored("1", "cyan") + " | No : " + colored("0", "cyan") + " (default) ")) == 1 else 0
+                input(''.join(["Enable Colored Paper?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
             if(COLOR):
                 print(
                     "Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
