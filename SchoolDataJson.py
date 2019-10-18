@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20190928"
+__version__ = "v20191018"
 
 # Built-In Libraries
 import json
@@ -16,7 +16,7 @@ import files
 def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
     school_data = {'Account ID': 'CHANGE ME'}
 
-    ORDER_NAME = ORDER_NUMBER + " " + subject
+    ORDER_NAME = " ".join([ORDER_NUMBER, subject])
 
     # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
     FILES = files.file_list(OUTPUT_DIRECTORY, ORDER_NAME)
@@ -28,13 +28,13 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(FILES)):
         pdf = PyPDF2.PdfFileReader(
-            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+FILES[i], "rb"))
-        school_data["Files"]["File " +
-                             str(i+1)] = {"File Name": FILES[i],  "Page Count": str(pdf.getNumPages())}
+            open('/'.join([OUTPUT_DIRECTORY, ORDER_NAME, FILES[i]]), "rb"))
+        school_data["Files"]["".join(["File ", str(
+            i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf.getNumPages())}
 
     # Imports the Email contents line by line.
     email = [line.rstrip('\n') for line in open(
-        OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+".txt", "r")]
+        "".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, ".txt"]), "r")]
 
     # Removes the duplicate portion of the email that contains html (form) code.
     for i in range(len(email)):
@@ -106,18 +106,19 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
             extra = ""
             j = 1
             while(not ("Special Instructions " in email[i+j] or "Deliver to: " in email[i+j])):
-                extra = " " + extra + " " + email[i+j]
+                extra = "".join([" ", extra, " ", email[i+j]])
                 j += 1
-            school_data["Slip Sheets / Shrink Wrap"] = line[1] + extra
+            school_data["Slip Sheets / Shrink Wrap"] = "".join(
+                [line[1], extra])
         test_string = "Special Instructions "
         if test_string in email[i]:
             line = email[i].split(test_string)
             extra = ""
             j = 1
             while(not("Deliver to: " in email[i+j])):
-                extra = " " + extra + " " + email[i+j]
+                extra = "".join([" ", extra, " ", email[i+j]])
                 j += 1
-            school_data["Special Instructions"] = line[1] + extra
+            school_data["Special Instructions"] = "".join([line[1], extra])
         test_string = "Booklet Fold and Staple "
         if test_string in email[i]:
             line = email[i].split(test_string)
@@ -143,6 +144,6 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
         school_data["Ran"] = "False"
 
         # Creates the JSON file
-    with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json', 'w') as outfile:
+    with open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, '.json']), 'w') as outfile:
         json.dump(school_data, outfile, indent=4, separators=(',', ': '))
     return school_data

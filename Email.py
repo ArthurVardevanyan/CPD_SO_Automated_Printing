@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20191017"
+__version__ = "v20191018"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -91,7 +91,7 @@ def subject_line(subject):
 
 def order_number_random():
     time = datetime.datetime.today().strftime('%M%S')
-    return "-" + time
+    return "".join(["-", time])
 
 
 def order_number_extract(email_body, RANDOM):
@@ -103,7 +103,7 @@ def order_number_extract(email_body, RANDOM):
         ORDER_NUMBER = ORDER_NUMBER.replace('\\r', "").replace(" ", "")
         ORDER_NUMBER = re.sub(r'[\\*]', "", ORDER_NUMBER)
         # Adds some randomness to the order number's using time
-        return ORDER_NUMBER + RANDOM, ""
+        return "".join([ORDER_NUMBER, RANDOM]), ""
     except:
         print("This Email is Not Standard, Will Still Attempt to Download Files.")
         error_state = "Error/"
@@ -153,19 +153,19 @@ def process_mailbox(M, AUTORUN):
         ORDER_NUMBER, error_state, = order_number_extract(
             str(email_body), order_number_random())
         print("Order: ", ORDER_NUMBER, " ", subject)
-        ORDER_NAME = ORDER_NUMBER+" " + subject
+        ORDER_NAME = "".join([ORDER_NUMBER, " ", subject])
         if rv != 'OK':
             print("ERROR getting message", num)
             return
 
         try:
-            os.makedirs(OUTPUT_DIRECTORY +
-                        error_state+ORDER_NAME)
+            os.makedirs("".join([OUTPUT_DIRECTORY,
+                                 error_state, ORDER_NAME]))
         except OSError:
             print("Creation of the directory %s failed" %
-                  OUTPUT_DIRECTORY+error_state+"/"+subject)
+                  OUTPUT_DIRECTORY, error_state, "/", subject)
         print("Successfully created the directory %s " %
-              OUTPUT_DIRECTORY+error_state+"/"+subject)
+              OUTPUT_DIRECTORY, error_state, "/", subject)
         if("Re:" in subject):  # Ignore Replies
             print("This is a reply, skipping")
         else:
@@ -173,8 +173,8 @@ def process_mailbox(M, AUTORUN):
             Drive_Downloader(str(email_body), ORDER_NUMBER,
                              OUTPUT_DIRECTORY, subject, error_state)
             # Makes a file and Writes Email Contents to it.
-            f = open(OUTPUT_DIRECTORY+error_state +
-                     ORDER_NAME + "/" + ORDER_NAME+'.txt', 'wb')
+            f = open("".join([OUTPUT_DIRECTORY, error_state,
+                              ORDER_NAME, "/", ORDER_NAME, '.txt']), 'wb')
             f.write(email_body)
             f.close()
         try:
@@ -224,7 +224,7 @@ def main(AUTORUN):
         with open("Credentials/creds.txt") as f:
             cred = f.readlines()
         cred = [x.strip() for x in cred]
-        EMAIL_ACCOUNT = str(cred[0]) + EMAIL_ACCOUNT
+        EMAIL_ACCOUNT = "".join([str(cred[0]), EMAIL_ACCOUNT])
     except:
         print("Credential Failure")
     M = imaplib.IMAP4_SSL(IMAP_SERVER)
@@ -248,7 +248,7 @@ def main(AUTORUN):
                 print("Emails Proccessed: ", EMAILS_PROCCESSED)
                 print("Im Resting, Check Back Later:")
                 print(colored("!--DO NOT CLOSE--!", "red"))
-                print("School Order Downloader Revision: " +
+                print("School Order Downloader Revision: ",
                       colored(__version__, "magenta"))
                 print("Running Again") if rv == 'OK' else print(
                     "ERROR: Unable to open mailbox ", rv)
@@ -265,12 +265,12 @@ def main(AUTORUN):
 
 
 if __name__ == "__main__":
-    print("\nSchool Order Downloader Revision: " +
+    print("\nSchool Order Downloader Revision: ",
           colored(__version__, "magenta"))
     while True:
         try:
             AUTORUN = True if int(
-                input("Enable Print While Download?  Yes : " + colored("1", "cyan") + " | No : " + colored("0", "cyan") + " (default) ")) == 1 else False
+                input("".join(["Enable Print While Download?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
             break
         except:
             pass

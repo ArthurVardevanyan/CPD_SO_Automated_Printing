@@ -1,5 +1,5 @@
 # files.py
-__version__ = "v20191005"
+__version__ = "v20191018"
 
 # Built-In Libraries
 import os
@@ -16,7 +16,8 @@ colorama.init()
 
 def folder_list(folder):
     # Grabs the list of folders
-    fileList = sorted(glob.glob(folder+"/*"))  # Gathers all the Folders
+    # Gathers all the Folders
+    fileList = sorted(glob.glob("".join([folder, "/*"])))
     # Strips the file path data to leave just the foldername
     Stripped_List = [os.path.basename(x) for x in fileList]
     return Stripped_List  # Returns the Stripped List to Main Function
@@ -24,7 +25,7 @@ def folder_list(folder):
 
 def file_list(folder, OName):
     # Grabs the PDF's in the requested order
-    fileList = sorted(glob.glob(folder+"/"+OName+"/*.pdf")
+    fileList = sorted(glob.glob("".join([folder, "/", OName, "/*.pdf"]))
                       )  # Gathers all the Files
     # Strips the file path data to leave just the filename
     Stripped_List = [os.path.basename(x) for x in fileList]
@@ -33,7 +34,8 @@ def file_list(folder, OName):
 
 def postscript_list(folder, OName, sub):
     # Add's Sub Folder to look for Postscript Files
-    fileList = sorted(glob.glob(folder+"/"+OName+"/"+sub+"/" + "*.ps"))
+    fileList = sorted(
+        glob.glob("".join([folder, "/", OName, "/", sub, "/", "*.ps"])))
     Stripped_List = [os.path.basename(x) for x in fileList]
     return Stripped_List  # Returns the Stripped List to Main Function
 
@@ -45,8 +47,8 @@ def page_counts(OUTPUT_DIRECTORY, ORDER_NAME):
     print("\n")
     for i in range(len(files)):
         pdf = PyPDF2.PdfFileReader(
-            open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+files[i], "rb"))
-        print("Page Count: " + colored(str(pdf.getNumPages()), "magenta") +
-              " FileName: " + files[i])
+            open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', files[i]]), "rb"))
+        print("Page Count: ", colored(str(pdf.getNumPages()),
+                                      "magenta"), " FileName: ", files[i])
         page_count = page_count + pdf.getNumPages()
     return page_count

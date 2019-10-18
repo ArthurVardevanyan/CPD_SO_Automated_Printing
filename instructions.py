@@ -1,4 +1,4 @@
-__version__ = "v20191005"
+__version__ = "v20191018"
 
 import json
 
@@ -139,8 +139,8 @@ def weight_extract(JOB_INFO):
     paper = (str(JOB_INFO.get('Paper', False))).lower()
     out = "stationery-heavyweight" if "card stock" in paper else "use-ready"
     print(out)
-    return str.encode(
-        '@PJL XCPT <media-type syntax="keyword">' + out + '</media-type>\n')
+    return str.encode("".join([
+        '@PJL XCPT <media-type syntax="keyword">', out, '</media-type>\n']))
 
 
 def color_extract(JOB_INFO):
@@ -148,8 +148,7 @@ def color_extract(JOB_INFO):
     color = (str(JOB_INFO.get('Paper', False))).split()[-1].lower()
     out = 'yellow' if color == 'canary' else color
     print(out)
-    return str.encode(
-        '@PJL XCPT <media-color syntax="keyword">' + out + '</media-color>\n')
+    return str.encode("".join(['@PJL XCPT <media-color syntax="keyword">', out, '</media-color>\n']))
 
 
 def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
@@ -163,8 +162,7 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
     media_color = color_extract(JOB_INFO)
     media_type = weight_extract(JOB_INFO)
 
-    COPIES_COMMAND = str.encode(
-        '@PJL XCPT <copies syntax="integer">'+str(COPIES_PER_SET)+'</copies>\n')
+    COPIES_COMMAND = str.encode("".join(['@PJL XCPT <copies syntax="integer">',str(COPIES_PER_SET),'</copies>\n']))
     with open('PJL_Commands/PJL.ps', 'rb') as f:
         lines = f.readlines()
     # Modifies the PJL file before adding it to the postscript files
