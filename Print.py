@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191018+"
+__version__ = "v20191021"
 
 # Local Files
 import files
@@ -21,6 +21,28 @@ import colorama
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
+
+# Global Variables
+
+# Load Balancing
+D110_162 = 0  # Impressions ran on this machine
+D110_156 = 1  # Impressions ran on this machine
+
+
+def impression_counter(PAGE_COUNTS, COPIES, PRINTER):
+    if PRINTER == 0:
+        return 0
+    if PRINTER == 1:
+        return 1
+    # Counts the number of impressions that are sent to each printer for load balancing
+    global D110_156
+    global D110_162
+    if D110_156 < D110_162:
+        D110_156 += PAGE_COUNTS * COPIES
+        return 0
+    if D110_162 < D110_156:
+        D110_162 += PAGE_COUNTS * COPIES
+        return 1
 
 
 def can_run(JOB_INFO, COLOR):
@@ -60,14 +82,14 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
     if(not AUTORUN):
         if(len(ORDER_NAMES) == 0):
             print(ORDER_NUMBER, " Order Number is not Valid")
-            return "".join(["ON Not Valid : " , ORDER_NUMBER])
+            return "".join(["ON Not Valid : ", ORDER_NUMBER])
         if(len(ORDER_NAMES) == 1):
             ORDER_NAME = ORDER_NAMES[0]
             print(ORDER_NAME)
             while True:
                 try:
-                    if(int(input("".join(["Confirm Order Yes : (" , colored("1", "cyan") , ") | No : (" , colored("0", "cyan") , ") "]))) == 0):
-                        return "".join(["Aborted @ CO#: " , ORDER_NAME])
+                    if(int(input("".join(["Confirm Order Yes : (", colored("1", "cyan"), ") | No : (", colored("0", "cyan"), ") "]))) == 0):
+                        return "".join(["Aborted @ CO#: ", ORDER_NAME])
                     return ORDER_NAME
                 except:
                     pass
@@ -78,7 +100,7 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
                 while True:
                     try:
                         print(order_name)
-                        if(int(input("".join(["Confirm Order Yes : (" , colored("1", "cyan") , ") | No : (" , colored("0", "cyan") , ") "]))) == 0):
+                        if(int(input("".join(["Confirm Order Yes : (", colored("1", "cyan"), ") | No : (", colored("0", "cyan"), ") "]))) == 0):
                             break
                         else:
                             return order_name
@@ -88,12 +110,12 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
                 if(ORDER_NAME != "No Order Selected"):
                     break
             if(ORDER_NAME == "No Order Selected"):
-                return "".join(["Aborted @ CO#: " , ORDER_NUMBER , " " , ORDER_NAME])
+                return "".join(["Aborted @ CO#: ", ORDER_NUMBER, " ", ORDER_NAME])
     else:
         try:
             return str(ORDER_NAMES[0])
         except:
-            return "".join(["Order DNE: " , ORDER_NAME])
+            return "".join(["Order DNE: ", ORDER_NAME])
 
 
 def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES):
@@ -152,27 +174,27 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             JOB_INFO = json.load(json_file)
     except:
         if(not AUTORUN):
-            return "".join(["Aborted @ JS#: " , ORDER_NUMBER , " " , ORDER_NAME])
+            return "".join(["Aborted @ JS#: ", ORDER_NUMBER, " ", ORDER_NAME])
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
                                        ORDER_NAME, AUTORUN, print_que, "toptray")
-                return "".join(["Not Supported S:  " , ORDER_NAME])
+                return "".join(["Not Supported S:  ", ORDER_NAME])
 
     # This calls the function that creates the banner sheet for the given order number
     BANNER_SHEET_FILE = BannerSheet.banner_sheet(
-        JOB_INFO, "".join([OUTPUT_DIRECTORY,'/',ORDER_NAME,'/']))
+        JOB_INFO, "".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/']))
 
     # Checks if the job specs can be ran
     if (not can_run(JOB_INFO, COLOR)):
         print(colored("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.", "red"))
         if(not AUTORUN):
-            return "".join(["Not Supported:  " ,ORDER_NAME])
+            return "".join(["Not Supported:  ", ORDER_NAME])
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
                                        ORDER_NAME, AUTORUN, print_que, "toptray")
-            return "".join(["Not Supported AutoS: " , ORDER_NAME])
+            return "".join(["Not Supported AutoS: ", ORDER_NAME])
 
     page_counts = files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME)
 
@@ -208,7 +230,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 try:
                     SETS = int(input("\nHow Many Sets?: "))
                     if(SETS == 0):
-                        return "".join(["Aborted @ Set: " , ORDER_NAME])
+                        return "".join(["Aborted @ Set: ", ORDER_NAME])
                     break
                 except:
                     pass
@@ -216,7 +238,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 try:
                     COPIES_PER_SET = int(input("How Many Copies Per Set?: "))
                     if(COPIES_PER_SET == 0):
-                        return "".join(["Aborted @ CPS: " , ORDER_NAME])
+                        return "".join(["Aborted @ CPS: ", ORDER_NAME])
                     break
                 except:
                     pass
@@ -226,7 +248,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
                                        ORDER_NAME, AUTORUN, print_que, "toptray")
 
-            return "".join(["Not Supported SPI  : " , ORDER_NAME])
+            return "".join(["Not Supported SPI  : ", ORDER_NAME])
 
     # This gets the number of pages for every pdf file for the job.
     MERGED = False
@@ -244,13 +266,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     # Gets list of Files in the Postscript Print Ready Folder
     Print_Files = files.postscript_list(OUTPUT_DIRECTORY, ORDER_NAME, "PSP")
 
-    if PRINTER == 0:
-        D110_IP = 0
-    elif PRINTER == 1:
-        D110_IP = 1
-    else:
-        D110_IP = 0 if printer.print_status(
-            "10.56.54.162") >= printer.print_status("10.56.54.156") else 1
+    # Keeps track of how much each printer has printed for load balancing
+    D110_IP = impression_counter(page_counts, int(
+        JOB_INFO.get('Copies', False)), PRINTER)
 
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
@@ -282,7 +300,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             print_que.append(lpr_path)
 
     print("\n")
-    return "".join([print_result , LPR[D110_IP][41:44] , " : ", ORDER_NAME])
+    return "".join([print_result, LPR[D110_IP][41:44], " : ", ORDER_NAME])
 
 
 def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR):
