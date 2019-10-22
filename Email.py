@@ -127,6 +127,8 @@ def merging(JOB_INFO, PAGE_COUNTS):
             return 0
         else:
             return 1
+    elif len(JOB_INFO.get('Files', False)) != 1 and PAGE_COUNTS == len(JOB_INFO.get('Files', False)):
+        return 1
     else:
         print("Not Merging")
         return 0
@@ -266,6 +268,7 @@ def main(AUTORUN, D110_IP):
 if __name__ == "__main__":
     print("\nSchool Order Downloader Revision: ",
           colored(__version__, "magenta"))
+    D110_IP = 1
     while True:
         try:
             AUTORUN = True if int(
