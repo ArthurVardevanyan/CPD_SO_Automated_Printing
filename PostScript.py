@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20191018"
+__version__ = "v20191021"
 
 # Built-In Libraries
 import json
@@ -21,9 +21,17 @@ else:
 
 
 def ticket_conversion(PATH):
+    #https://stackoverflow.com/questions/39574096/how-to-delete-pages-from-pdf-file-using-python
+    pdf = PyPDF2.PdfFileReader(PATH, "rb")
+    output = PyPDF2.PdfFileWriter()
+
+    if (int(pdf.getNumPages())) > 1: 
+        output.addPage(pdf.getPage(0))
+        with open(PATH, 'wb') as f:
+            output.write(f)
     # Processes the Conversion
     os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="',
-                       PATH, '.ps" "', PATH, '" -c quit']))
+                       PATH, '.ps" "', PATH, '" "' ,PATH, '" -c quit']))
 
 
 def postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY):
@@ -56,7 +64,7 @@ def file_merge(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE):
     if DUPLEX_STATE == 2:  # Adds blanks for doublesided uncollated printing
         for i in range(len(FILES)):
             pdf = PyPDF2.PdfFileReader(
-                open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', FILES[i], "rb"])))
+                open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', FILES[i]]), "rb"))
             if (int(pdf.getNumPages()) % 2) != 0:  # If odd number pages, add blank page
                 print("Adding Blank Page!")
                 output = "".join(

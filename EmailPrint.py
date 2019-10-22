@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191018"
+__version__ = "v20191021"
 
 # Built-In Libraries
 import os
@@ -7,11 +7,18 @@ import json
 
 # Downloaded Libraries
 import pdfkit
+import termcolor
+from termcolor import colored
+import colorama
 
 # Local Files
 import files
 import PostScript
 import printer
+
+# use Colorama to make Termcolor work on Windows too
+colorama.init()
+
 # https://micropyramid.com/blog/how-to-create-pdf-files-in-python-using-pdfkit/
 
 
@@ -98,8 +105,9 @@ print_count = 0
 print_count_2 = 0
 
 
-def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, STACKER):
-    LPR = "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "
+def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, STACKER, D110_IP):
+    LPR = "".join(
+        ["C:/Windows/SysNative/lpr.exe -S 10.56.54.", str(D110_IP), " -P PS "])
     PATH = "".join([OUTPUT_DIRECTORY, "/", ORDER_NAME,
                     "/Tickets/", ORDER_NAME, ".pdf.ps"])
     if os.path.exists(PATH) == False:
@@ -107,37 +115,15 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, STACKER):
     if os.path.exists(PATH) == False:
         return 0
     else:
-        MEDIA_COLOR = ("white", "blue", "yellow", "green", "pink",
-                       "ivory", "gray", "buff", "goldenrod,", "red", "orange")
-        # Allows differnet color banner sheets. Common Pastel/Astrobrights Colors
-        banner_sheet_color = MEDIA_COLOR[0]
+
         # Read in Template BannerSheet PostScript File with PJL Commands for Xerox D110 Printer
         with open('PJL_Commands/BannerSheet.ps', 'rb') as f:
             pjl_lines = f.readlines()
 
-        # Swap template color for color of choice
-        for i in range(len(pjl_lines)):
-            if str('<media-color syntax="keyword">') in str(pjl_lines[i]):
-                pjl_lines[i] = str.encode("".join([
-                    '@PJL XCPT <media-color syntax="keyword">', banner_sheet_color, '</media-color>\n']))
-        banner_sheet_color = MEDIA_COLOR[1]
-        # Read in Template BannerSheet PostScript File with PJL Commands for Xerox D110 Printer
-        with open('PJL_Commands/BannerSheet.ps', 'rb') as f:
-            pjl_lines_2 = f.readlines()
-
-        # Swap template color for color of choice
-        for i in range(len(pjl_lines_2)):
-            if str('<media-color syntax="keyword">') in str(pjl_lines_2[i]):
-                pjl_lines_2[i] = str.encode("".join([
-                    '@PJL XCPT <media-color syntax="keyword">', banner_sheet_color, '</media-color>\n']))
         if(AUTORUN and STACKER == "toptray"):
             for i in range(len(pjl_lines)):
-                if str('<output-bin syntax="keyword">') in str(pjl_lines_2[i]):
+                if str('<output-bin syntax="keyword">') in str(pjl_lines[i]):
                     pjl_lines[i] = str.encode(
-                        '@PJL XCPT 		<output-bin syntax="keyword">top</output-bin>\n')
-            for i in range(len(pjl_lines_2)):
-                if str('<output-bin syntax="keyword">') in str(pjl_lines_2[i]):
-                    pjl_lines_2[i] = str.encode(
                         '@PJL XCPT 		<output-bin syntax="keyword">top</output-bin>\n')
 
         with open('PJL_Commands/input.ps', 'wb') as f:
@@ -146,27 +132,15 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, STACKER):
 
         file_names = ['PJL_Commands/input.ps',
                       PATH, 'PJL_Commands/End.ps']
-        with open("".join([PATH, "1.ps"]), 'wb') as outfile:
-            for fname in file_names:
-                with open(fname, 'rb') as infile:
-                    for line in infile:
-                        outfile.write(line)
-        with open('PJL_Commands/input.ps', 'wb') as f:
-            for item in pjl_lines_2:
-                f.write(item)
-
-        file_names = ['PJL_Commands/input.ps',
-                      PATH, 'PJL_Commands/End.ps']
-        with open("".join([PATH, "2.ps"]), 'wb') as outfile:
+        with open("".join([PATH[:-6], "pjl.ps"]), 'wb') as outfile:
             for fname in file_names:
                 with open(fname, 'rb') as infile:
                     for line in infile:
                         outfile.write(line)
 
         print_que.append(
-            "".join([LPR, '"', PATH, "1.ps", '" -J "', ORDER_NAME, '"']))
-        print_que.append(
-            "".join([LPR, '"', PATH, "2.ps", '" -J "', ORDER_NAME, '"']))
+            "".join([LPR, '"', PATH[:-6], "pjl.ps", '" -J "', ORDER_NAME, '"']))
+
         try:
             os.remove("PJL_Commands/input.ps")  # remove temp file
         except:
@@ -179,6 +153,17 @@ def main():
     print_que = []
     AUTORUN = False
     count = 0
+    while(True):
+        try:
+            D110_IP = int(
+                input(''.join(["Choose a Printer: 156 (", colored("0", "cyan"), "), 162 (", colored("1", "cyan"), "): "])))
+            if D110_IP == 1 or D110_IP == 0:
+                D110_IP = "156" if D110_IP == 0 else "162"
+                break
+            else:
+                pass
+        except:
+            pass
     Start = str(input("Start #: "))
     End = str(input("End   #: "))
     folders = files.folder_list(OUTPUT_DIRECTORY)
@@ -191,7 +176,7 @@ def main():
                 ORDER_NAMES.append(i)
     for ORDER_NAME in ORDER_NAMES:
         count += Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
-                             AUTORUN, print_que, "stacker")
+                             AUTORUN, print_que, "stacker", D110_IP)
 
     printer.print_processor(print_que)
 
@@ -201,5 +186,6 @@ def main():
 
 
 if __name__ == "__main__":
-    print("\nTerminal Email Printing REV: ", __version__)
+    print("\nTerminal Email Printing REV: ",
+          colored(__version__, "magenta"))
     main()

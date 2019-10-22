@@ -1,5 +1,5 @@
 # test_instructions.py
-__version__ = "v20191005"
+__version__ = "v20191021"
 
 import unittest
 import os
@@ -106,6 +106,12 @@ class Testing(unittest.TestCase):
             "Copies": "360  ",
             "Special Instructions": "Please place colored slip sheets between  every 90 copies. (4 groups total)",
         }), (4, 90))
+        self.assertEqual(instructions.Special_Instructions({
+            "Copies": "150",
+            "Slip Sheets / Shrink Wrap": "two stacks of 75",
+            "Special Instructions": "two stacks of 75",
+        }), (2, 75))
+        
 
     def test_manual_input(self):
         self.assertEqual(instructions.Special_Instructions({

@@ -58,7 +58,7 @@ def can_run(JOB_INFO, COLOR):
         return False
     if(JOB_INFO.get('Back Cover', False)):
         return False
-    if(JOB_INFO.get('Booklets', False)):
+    if(JOB_INFO.get('Booklets', False)  == "Yes"):
         return False
     if("11 x 17" in str(JOB_INFO.get('Paper', False))):
         return False
@@ -177,9 +177,14 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             return "".join(["Aborted @ JS#: ", ORDER_NUMBER, " ", ORDER_NAME])
         else:
             if(EMAILPRINT):
+                D110_IP = "156" if PRINTER == 0 else "162"
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray")
+                                       ORDER_NAME, AUTORUN, print_que, "toptray", D110_IP)
                 return "".join(["Not Supported S:  ", ORDER_NAME])
+    # Keeps track of how much each printer has printed for load balancing
+    page_counts = files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME)
+    D110_IP = impression_counter(page_counts, int(
+        JOB_INFO.get('Copies', False)), PRINTER)
 
     # This calls the function that creates the banner sheet for the given order number
     BANNER_SHEET_FILE = BannerSheet.banner_sheet(
@@ -193,10 +198,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray")
+                                       ORDER_NAME, AUTORUN, print_que, "toptray",D110_IP)
             return "".join(["Not Supported AutoS: ", ORDER_NAME])
 
-    page_counts = files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME)
 
     print("\nNumber of (Total) Copies Listed Per File: ",
           colored(JOB_INFO.get('Copies', False), "magenta"))
@@ -246,7 +250,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray")
+                                       ORDER_NAME, AUTORUN, print_que, "toptray",D110_IP)
 
             return "".join(["Not Supported SPI  : ", ORDER_NAME])
 
@@ -266,17 +270,15 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     # Gets list of Files in the Postscript Print Ready Folder
     Print_Files = files.postscript_list(OUTPUT_DIRECTORY, ORDER_NAME, "PSP")
 
-    # Keeps track of how much each printer has printed for load balancing
-    D110_IP = impression_counter(page_counts, int(
-        JOB_INFO.get('Copies', False)), PRINTER)
+    
 
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
     print("\n")
-    if(AUTORUN and EMAILPRINT):
+    if(EMAILPRINT):
         EmailPrint.Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
-                               AUTORUN, print_que, "stacker")
+                               AUTORUN, print_que, "stacker",D110_IP)
 
     print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
     i = 0

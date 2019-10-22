@@ -1,4 +1,4 @@
-__version__ = "v20191018"
+__version__ = "v20191021"
 
 import json
 
@@ -20,7 +20,7 @@ def Special_Instructions_Processing(QTY, str):
         if(QTY == min(Numbers) == max(Numbers)):
             return 1, max(Numbers)
         if(min(Numbers) == max(Numbers)):
-            if("every" in str or "each" in str or "into" in str or "between" in str):
+            if("every" in str or "each" in str or "into" in str or "between" in str or "stacks of" in str):
                 if(QTY % min(Numbers) == 0):
                     return int(QTY / min(Numbers)), min(Numbers)
                 else:

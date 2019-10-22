@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20191018"
+__version__ = "v20191021"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -132,7 +132,7 @@ def merging(JOB_INFO, PAGE_COUNTS):
         return 0
 
 
-def process_mailbox(M, AUTORUN):
+def process_mailbox(M, AUTORUN, D110_IP):
     OUTPUT_DIRECTORY = 'SO/'
 
     # Gets all the UNSEEN emails from the INBOX
@@ -204,7 +204,6 @@ def process_mailbox(M, AUTORUN):
         emails_proccessed += 1
 
         if(AUTORUN):
-            D110_IP = 1
             COLOR = 0
             EMAILPRINT = True
             print_que = []
@@ -215,7 +214,7 @@ def process_mailbox(M, AUTORUN):
     return emails_proccessed
 
 
-def main(AUTORUN):
+def main(AUTORUN, D110_IP):
     IMAP_SERVER = 'imap.gmail.com'
     EMAIL_FOLDER = "Inbox"
     PASSWORD = getpass.getpass()
@@ -243,7 +242,7 @@ def main(AUTORUN):
                 rv, data = M.select(
                     EMAIL_FOLDER)  # pylint: disable=unused-variable
                 # Starts Executing the Bulk of the program
-                EMAILS_PROCCESSED = process_mailbox(M, AUTORUN)
+                EMAILS_PROCCESSED = process_mailbox(M, AUTORUN, D110_IP)
                 print("\n\n\n\n\n\n\n\n")
                 print("Emails Proccessed: ", EMAILS_PROCCESSED)
                 print("Im Resting, Check Back Later:")
@@ -271,7 +270,18 @@ if __name__ == "__main__":
         try:
             AUTORUN = True if int(
                 input("".join(["Enable Print While Download?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
+            if(AUTORUN):
+                while True:
+                    try:
+                        D110_IP = int(
+                            input(''.join(["Choose a Printer: 156 (", colored("0", "cyan"), "), 162 (", colored("1", "cyan"), "), Auto (", colored("2", "cyan"), "): "])))
+                        if D110_IP == 1 or D110_IP == 2 or D110_IP == 0:
+                            break
+                        else:
+                            pass
+                    except:
+                        pass
             break
         except:
             pass
-    main(AUTORUN)
+    main(AUTORUN, D110_IP)

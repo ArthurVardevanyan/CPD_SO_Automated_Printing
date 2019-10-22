@@ -44,3 +44,23 @@ Stacker
 <output-bin syntax="keyword">top</output-bin>
 
 
+Second Page Blue
+@PJL XCPT  <page-overrides syntax="1setOf">
+@PJL XCPT 			<value syntax="collection">
+@PJL XCPT 				<input-documents syntax="1setOf">
+@PJL XCPT 					<value syntax="rangeOfInteger">
+@PJL XCPT 						<lower-bound syntax="integer">1</lower-bound>
+@PJL XCPT 						<upper-bound syntax="integer">1</upper-bound>
+@PJL XCPT 					</value>
+@PJL XCPT 				</input-documents>
+@PJL XCPT 				<media-col syntax="collection">
+@PJL XCPT 					<media-color syntax="keyword">blue</media-color>
+@PJL XCPT 				</media-col>
+@PJL XCPT 				<pages syntax="1setOf">
+@PJL XCPT 					<value syntax="rangeOfInteger">
+@PJL XCPT 						<lower-bound syntax="integer">2</lower-bound>
+@PJL XCPT 						<upper-bound syntax="integer">2</upper-bound>
+@PJL XCPT 					</value>
+@PJL XCPT 				</pages>
+@PJL XCPT 			</value>
+@PJL XCPT 		</page-overrides>
