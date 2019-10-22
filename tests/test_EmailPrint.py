@@ -1,5 +1,5 @@
 # test_EmailPrint.py
-__version__ = "v20191005"
+__version__ = "v20191021"
 
 import unittest
 import os
@@ -19,11 +19,11 @@ class Testing(unittest.TestCase):
 
     def test_Email_Print(self):
         self.assertTrue(EmailPrint.Email_Print("tests/SO",
-                                               "11344-2704 First Last - Test 1", "False", [], "stacker"))
+                                               "11344-2704 First Last - Test 1", "False", [], "stacker", "162"))
         self.assertTrue(EmailPrint.Email_Print("tests/SO",
-                                               "11345-3704 First Last - Test 2", "False", [], "stacker"))
+                                               "11345-3704 First Last - Test 2", "False", [], "stacker", "162"))
         self.assertTrue(EmailPrint.Email_Print("tests/SO",
-                                               "11349-0311 First Last - Test 3", "False", [], "stacker"))
+                                               "11349-0311 First Last - Test 3", "False", [], "stacker", "162"))
 
     def test_Email_Html(self):
         self.assertTrue(EmailPrint.Email_Html(

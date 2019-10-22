@@ -27,7 +27,7 @@
 @PJL XCPT 		<client-default-attributes-col syntax="collection">
 @PJL XCPT 			<media-col syntax="collection">
 @PJL XCPT 				<input-tray syntax="keyword">automatic</input-tray>
-@PJL XCPT 				<media-color syntax="keyword">red</media-color>
+@PJL XCPT 				<media-color syntax="keyword">white</media-color>
 @PJL XCPT 				<media-type syntax="keyword">use-ready</media-type>
 @PJL XCPT 			</media-col>
 @PJL XCPT 			<print-quality-level syntax="keyword">high-speed</print-quality-level>
@@ -35,6 +35,25 @@
 @PJL XCPT 		</client-default-attributes-col>
 @PJL XCPT 		<output-bin syntax="keyword">stacker</output-bin>
 @PJL XCPT 		<page-delivery syntax="keyword">same-order-face-down</page-delivery>
+@PJL XCPT   <page-overrides syntax="1setOf">
+@PJL XCPT 			<value syntax="collection">
+@PJL XCPT 				<input-documents syntax="1setOf">
+@PJL XCPT 					<value syntax="rangeOfInteger">
+@PJL XCPT 						<lower-bound syntax="integer">1</lower-bound>
+@PJL XCPT 						<upper-bound syntax="integer">1</upper-bound>
+@PJL XCPT 					</value>
+@PJL XCPT 				</input-documents>
+@PJL XCPT 				<media-col syntax="collection">
+@PJL XCPT 					<media-color syntax="keyword">blue</media-color>
+@PJL XCPT 				</media-col>
+@PJL XCPT 				<pages syntax="1setOf">
+@PJL XCPT 					<value syntax="rangeOfInteger">
+@PJL XCPT 						<lower-bound syntax="integer">2</lower-bound>
+@PJL XCPT 						<upper-bound syntax="integer">2</upper-bound>
+@PJL XCPT 					</value>
+@PJL XCPT 				</pages>
+@PJL XCPT 			</value>
+@PJL XCPT 		</page-overrides>
 @PJL XCPT 		<pages-per-subset syntax="1setOf">
 @PJL XCPT 			<value syntax="integer">0</value>
 @PJL XCPT 		</pages-per-subset>
