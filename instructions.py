@@ -32,7 +32,7 @@ def Special_Instructions_Processing(QTY, str):
             if(QTY == min(Numbers) * max(Numbers)):
                 return min(Numbers), max(Numbers)
             return 0, 1
-        if("set" in str or "slip" in str or "page" in str or "sort" in str or "group" in str):
+        if("set" in str or "slip" in str or "page" in str or "sort" in str or "group" in str or "into" in str):
             return 0, 1
         return 0, 0
     else:
