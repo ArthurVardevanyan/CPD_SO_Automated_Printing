@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191021"
+__version__ = "v20191027"
 
 # Built-In Libraries
 import os
@@ -106,6 +106,8 @@ print_count_2 = 0
 
 
 def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, STACKER, D110_IP):
+    if D110_IP == 1 or D110_IP == 0:
+        D110_IP = "156" if D110_IP == 0 else "162"
     LPR = "".join(
         ["C:/Windows/SysNative/lpr.exe -S 10.56.54.", str(D110_IP), " -P PS "])
     PATH = "".join([OUTPUT_DIRECTORY, "/", ORDER_NAME,

@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191021"
+__version__ = "v20191028"
 
 # Local Files
 import files
@@ -58,7 +58,7 @@ def can_run(JOB_INFO, COLOR):
         return False
     if(JOB_INFO.get('Back Cover', False)):
         return False
-    if(JOB_INFO.get('Booklets', False)  == "Yes"):
+    if(JOB_INFO.get('Booklets', False) == "Yes"):
         return False
     if("11 x 17" in str(JOB_INFO.get('Paper', False))):
         return False
@@ -155,9 +155,6 @@ def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES):
 
 def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT):
     # Runs the bulk of code
-    if(AUTORUN):
-        PRINTER = 1
-
     print_result = ''  # Used for Status Output
 
     # Calls a function in files.py, which gets a list of all the orders downladed
@@ -194,13 +191,15 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     if (not can_run(JOB_INFO, COLOR)):
         print(colored("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.", "red"))
         if(not AUTORUN):
+            if(EMAILPRINT):
+                EmailPrint.Email_Print(OUTPUT_DIRECTORY,
+                                       ORDER_NAME, AUTORUN, print_que, "toptray", D110_IP)
             return "".join(["Not Supported:  ", ORDER_NAME])
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray",D110_IP)
+                                       ORDER_NAME, AUTORUN, print_que, "toptray", D110_IP)
             return "".join(["Not Supported AutoS: ", ORDER_NAME])
-
 
     print("\nNumber of (Total) Copies Listed Per File: ",
           colored(JOB_INFO.get('Copies', False), "magenta"))
@@ -250,7 +249,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray",D110_IP)
+                                       ORDER_NAME, AUTORUN, print_que, "toptray", D110_IP)
 
             return "".join(["Not Supported SPI  : ", ORDER_NAME])
 
@@ -270,15 +269,13 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     # Gets list of Files in the Postscript Print Ready Folder
     Print_Files = files.postscript_list(OUTPUT_DIRECTORY, ORDER_NAME, "PSP")
 
-    
-
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
     print("\n")
     if(EMAILPRINT):
         EmailPrint.Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
-                               AUTORUN, print_que, "stacker",D110_IP)
+                               AUTORUN, print_que, "stacker", D110_IP)
 
     print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
     i = 0

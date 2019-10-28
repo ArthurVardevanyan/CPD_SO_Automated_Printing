@@ -1,5 +1,5 @@
 # test_Print.py
-__version__ = "v20191021"
+__version__ = "v20191027"
 
 import unittest
 from unittest import mock
@@ -79,11 +79,11 @@ class Testing(unittest.TestCase):
         self.assertFalse(Print.can_run({"Booklets": "Yes"}, 1))
 
     def test_printing(self):
-        self.assertEqual(Print.printing("11344", "tests/SO", "162", 0, [], True, False),
+        self.assertEqual(Print.printing("11344", "tests/SO", 1, 0, [], True, False),
                          "SUCCESS SPI! : 162 : 11344-2704 First Last - Test 1")
-        self.assertEqual(Print.printing("11345", "tests/SO", "162", 0, [], True, False),
+        self.assertEqual(Print.printing("11345", "tests/SO", 1, 0, [], True, False),
                          "SUCCESS SPI! : 162 : 11345-3704 First Last - Test 2")
-        self.assertEqual(Print.printing("11349", "tests/SO", "162", 0, [], True, False),
+        self.assertEqual(Print.printing("11349", "tests/SO", 1, 0, [], True, False),
                          "SUCCESS SPI! : 162 : 11349-0311 First Last - Test 3")
 
     def test_main(self):

@@ -8,7 +8,7 @@ from oauth2client import file, client, tools
 
 # Built-In Libraries
 import re
-__version__ = "v20191018"
+__version__ = "v20191026"
 
 # Source https://developers.google.com/drive/api/v3/quickstart/python
 # Source https://stackoverflow.com/questions/52211886/downloading-file-from-google-drive-using-api-nameerror-name-service-is-not-d
@@ -45,12 +45,16 @@ def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, c
         # Remove Unwanted Characters from file path
         file_name = re.sub(r'[\\/:;?\"<>*|]', "", file_name)
         file_name = file_name.replace("Multifunction Printer", "")
+        if("pdf" in file_name):
+            ext = ""
+        else:
+            ext = ".pdf"
         # will write file using the file_name
         if count < 10:
             count = "".join([str("0"), str(count)])
         elif count > 10:
             return 2
-        with open("".join([OUTPUT_DIRECTORY, "/", ERROR_STATE, "/", ORDER_NUMBER, " ", SUBJECT, "/", ORDER_NUMBER, ".", str(count), " ", file_name]), mode="wb") as f:
+        with open("".join([OUTPUT_DIRECTORY, "/", ERROR_STATE, "/", ORDER_NUMBER, " ", SUBJECT, "/", ORDER_NUMBER, ".", str(count), " ", file_name, ext]), mode="wb") as f:
             f.write(result)
         print("Finished writing ", file_name)
         return 1
