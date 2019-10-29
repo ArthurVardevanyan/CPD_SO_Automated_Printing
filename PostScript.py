@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20191021"
+__version__ = "v20191029"
 
 # Built-In Libraries
 import json
@@ -19,19 +19,22 @@ if(os.name == "posix"):
 else:
     GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
 
+# Grayscale Ghostscript Parameter
+# https://gist.github.com/firstdoit/6390547
+
 
 def ticket_conversion(PATH):
-    #https://stackoverflow.com/questions/39574096/how-to-delete-pages-from-pdf-file-using-python
+    # https://stackoverflow.com/questions/39574096/how-to-delete-pages-from-pdf-file-using-python
     pdf = PyPDF2.PdfFileReader(PATH, "rb")
     output = PyPDF2.PdfFileWriter()
 
-    if (int(pdf.getNumPages())) > 1: 
+    if (int(pdf.getNumPages())) > 1:
         output.addPage(pdf.getPage(0))
         with open(PATH, 'wb') as f:
             output.write(f)
     # Processes the Conversion
-    os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="',
-                       PATH, '.ps" "', PATH, '" "' ,PATH, '" -c quit']))
+    os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -dColorConversionStrategy=/Gray -dProcessColorModel=/DeviceGray -sOutputFile="',
+                       PATH, '.ps" "', PATH, '" "', PATH, '" -c quit']))
 
 
 def postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY):
@@ -54,7 +57,7 @@ def postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY):
 
     for i in range(len(FILES)):
         # Processes the Conversion
-        os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', OUTPUT_DIRECTORY, '"/"' +
+        os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -dColorConversionStrategy=/Gray -dProcessColorModel=/DeviceGray -sOutputFile="', OUTPUT_DIRECTORY, '"/"' +
                            ORDER_NAME, '"/PostScript/"', FILES[i], '.ps" "', OUTPUT_DIRECTORY, '"/"', ORDER_NAME, '"/"', FILES[i], '" -c quit']))
 
 
@@ -72,7 +75,7 @@ def file_merge(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE):
                 src = "".join(['"', OUTPUT_DIRECTORY, '/',
                                ORDER_NAME, '/', FILES[i], '"'])
                 ghostscript_command = "".join(
-                    [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
+                    [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write  -dColorConversionStrategy=/Gray -dProcessColorModel=/DeviceGray -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
                 os.system(ghostscript_command)
 
     # Merges Files for Uncollated Printing with SlipSheets
@@ -83,7 +86,7 @@ def file_merge(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE):
     output = "".join(
         [OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, '.ps'])
     ghostscript_command = "".join(
-        [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile="', output, '" ', files_path, '  -c quit'])
+        [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write   -dColorConversionStrategy=/Gray -dProcessColorModel=/DeviceGray -sOutputFile="', output, '" ', files_path, '  -c quit'])
     # Processes the Conversion
     os.system(ghostscript_command)
     return True
