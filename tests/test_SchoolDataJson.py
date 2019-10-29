@@ -1,5 +1,5 @@
 # test_SchoolDataJason.py
-__version__ = "v20191005"
+__version__ = "v20191029"
 
 import unittest
 import os
@@ -16,6 +16,7 @@ class Testing(unittest.TestCase):
             "Account ID": "CHANGE ME",
             "Order Number": "11344-2704",
             "Order Subject": "First Last - Test 1",
+            "Email ID": "0000000000000000000000000001",
             "Files": {
                 "File 1": {
                     "File Name": "11344-2704.01 Test File.pdf",
@@ -42,6 +43,7 @@ class Testing(unittest.TestCase):
             "Account ID": "CHANGE ME",
             "Order Number": "11345-3704",
             "Order Subject": "First Last - Test 2",
+            "Email ID": "0000000000000000000000000002",
             "Files": {
                 "File 1": {
                     "File Name": "11345-3704.01 First Last - Test 2.pdf",
@@ -67,6 +69,7 @@ class Testing(unittest.TestCase):
             "Account ID": "CHANGE ME",
             "Order Number": "11349-0311",
             "Order Subject": "First Last - Test 3",
+            "Email ID": "0000000000000000000000000003",
             "Files": {
                 "File 1": {
                     "File Name": "11349-0311.01 First Last - Test File.pdf",
