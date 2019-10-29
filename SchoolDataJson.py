@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20191018"
+__version__ = "v20191029"
 
 # Built-In Libraries
 import json
@@ -23,6 +23,12 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
 
     school_data["Order Number"] = ORDER_NUMBER
     school_data["Order Subject"] = subject
+
+    # Imports the Email contents line by line.
+    email = [line.rstrip('\n') for line in open(
+        "".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, ".txt"]), "r")]
+
+    school_data["Email ID"] = email[0][2:]
     school_data["Files"] = {}
 
     # This gets the number of pages for every pdf file for the job.
@@ -31,10 +37,6 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
             open('/'.join([OUTPUT_DIRECTORY, ORDER_NAME, FILES[i]]), "rb"))
         school_data["Files"]["".join(["File ", str(
             i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf.getNumPages())}
-
-    # Imports the Email contents line by line.
-    email = [line.rstrip('\n') for line in open(
-        "".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, ".txt"]), "r")]
 
     # Removes the duplicate portion of the email that contains html (form) code.
     for i in range(len(email)):
