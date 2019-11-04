@@ -1,2 +1,2 @@
 cd C:\S\
-python "Print.py"
+"Print.exe"

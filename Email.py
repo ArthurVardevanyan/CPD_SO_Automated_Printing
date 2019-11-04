@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20191021"
+__version__ = "v20191031"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -272,7 +272,7 @@ if __name__ == "__main__":
     while True:
         try:
             AUTORUN = True if int(
-                input("".join(["Enable Print While Download?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
+                input("".join(["Enable Print While Download?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default/recommended) "]))) == 1 else False
             if(AUTORUN):
                 while True:
                     try:
