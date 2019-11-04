@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191028"
+__version__ = "v20191031"
 
 # Local Files
 import files
@@ -371,7 +371,7 @@ if __name__ == "__main__":
     while True:
         try:
             SEQUENTIAL = True if int(
-                input(''.join(["Enable Sequential Printing  Paper?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
+                input(''.join(["Enable Sequential Printing  Paper?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default/recommended) "]))) == 1 else False
             break
         except:
             pass
@@ -379,6 +379,8 @@ if __name__ == "__main__":
         try:
             EMAILPRINT = True if int(
                 input(''.join(["Print Emails with Jobs?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
+            if(EMAILPRINT):
+                print("Make Sure White and Blue Paper is loaded!")
             break
         except:
             pass

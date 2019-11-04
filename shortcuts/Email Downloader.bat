@@ -1,2 +1,2 @@
 cd C:\S\
-python "Email.py"
+"Email.exe"

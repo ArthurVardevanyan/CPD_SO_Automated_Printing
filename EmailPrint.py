@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191027"
+__version__ = "v20191031"
 
 # Built-In Libraries
 import os
@@ -190,4 +190,5 @@ def main():
 if __name__ == "__main__":
     print("\nTerminal Email Printing REV: ",
           colored(__version__, "magenta"))
+    print("Make Sure White and Blue Paper is loaded!")
     main()
