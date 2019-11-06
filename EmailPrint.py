@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191031"
+__version__ = "v20191106"
 
 # Built-In Libraries
 import os
@@ -139,7 +139,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, STACKER, D110_
                 with open(fname, 'rb') as infile:
                     for line in infile:
                         outfile.write(line)
-
+        print(ORDER_NAME)
         print_que.append(
             "".join([LPR, '"', PATH[:-6], "pjl.ps", '" -J "', ORDER_NAME, '"']))
 
@@ -176,12 +176,15 @@ def main():
         for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
             if ORDER_NUMBER in i:
                 ORDER_NAMES.append(i)
-    for ORDER_NAME in ORDER_NAMES:
-        count += Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
-                             AUTORUN, print_que, "stacker", D110_IP)
-
-    printer.print_processor(print_que)
-
+    try:
+        for ORDER_NAME in ORDER_NAMES:
+            count += Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
+                                 AUTORUN, print_que, "stacker", D110_IP)
+        printer.print_processor(print_que)
+    except:
+        "I have Failed due to some Error"
+    
+        
     print(str(count), " Order(s) Ran")
     quit = str(input("Press Any Key To Exit"))
     print(quit)
