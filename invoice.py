@@ -91,7 +91,7 @@ for ORDER_NAME in ORDER_NAMES:
             job = []
             job.append(JOB_INFO.get('Order Number', "0"))
             job.append(JOB_INFO.get('First Name', "0") +
-                    " " + JOB_INFO.get('Last Name', "0"))
+                       " " + JOB_INFO.get('Last Name', "0"))
             job.append(JOB_INFO.get('Email', "0"))
             job.append(str(JOB_INFO.get('Order Subject', "0")).split(" - ")[1])
             job.append((str(FILE_INFO.get('File Name')).split(
@@ -103,7 +103,13 @@ for ORDER_NAME in ORDER_NAMES:
             job.append(str(IMP))
             job.append(JOB_INFO.get('Duplex', "0").split(" (back to back)")[0])
             if "color" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "color" in (JOB_INFO.get('Special Instructions', "0").lower()):
-                if "different" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "different" in (JOB_INFO.get('Special Instructions', "0").lower()):
+                if( "different" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "different" in (JOB_INFO.get('Special Instructions', "0").lower()) 
+                or "color paper" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "color paper" in (JOB_INFO.get('Special Instructions', "0").lower())
+                or "colored" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "colored" in (JOB_INFO.get('Special Instructions', "0").lower()) 
+                or "first page in color" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "first page in color" in (JOB_INFO.get('Special Instructions', "0").lower()) 
+                or "colorful" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "colorful" in (JOB_INFO.get('Special Instructions', "0").lower()) 
+
+                or "color slip" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "color slip" in (JOB_INFO.get('Special Instructions', "0").lower()) ):
                     job.append("BW")
                     COLOR = False
                 else:
@@ -235,7 +241,8 @@ for ORDER_NAME in ORDER_NAMES:
                 BACKCOVER = 0
                 job.append("0")
                 job.append("0")
-            SPECIAL_INSTRUCTIONS = JOB_INFO.get('Slip Sheets / Shrink Wrap', "No")
+            SPECIAL_INSTRUCTIONS = JOB_INFO.get(
+                'Slip Sheets / Shrink Wrap', "No")
             job.append("0")
             job.append("0")
             job.append("0")
@@ -255,7 +262,7 @@ for ORDER_NAME in ORDER_NAMES:
                 job.append("0")
             job.append(JOB_INFO.get('Deliver To Name', "0"))
             job.append(round(IMPS+PAPER+STAPLING+DRILLING +
-                            FOLDING+CUTTING+BOOKLETS+LAMINATION, 2))
+                             FOLDING+CUTTING+BOOKLETS+LAMINATION, 2))
             invoice.append(job)
 
         pos = len(invoice) - 1
@@ -274,7 +281,6 @@ for ORDER_NAME in ORDER_NAMES:
         job.append(ORDER_NAME.split(" ", 1)[1])
         job.append("Error")
         invoice.append(job)
-
 
 
 dataframe_array = pandas.DataFrame(invoice)
