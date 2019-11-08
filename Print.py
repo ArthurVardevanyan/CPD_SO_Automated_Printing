@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191031"
+__version__ = "v20191108"
 
 # Local Files
 import files
@@ -58,7 +58,7 @@ def can_run(JOB_INFO, COLOR):
         return False
     if(JOB_INFO.get('Back Cover', False)):
         return False
-    if(JOB_INFO.get('Booklets', False) == "Yes"):
+    if(JOB_INFO.get('Booklets', False) == "Yes" and COLOR == 0):
         return False
     if("11 x 17" in str(JOB_INFO.get('Paper', False))):
         return False
@@ -211,7 +211,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
               JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
 
     SIP = instructions.Special_Instructions(JOB_INFO)
-    if(JOB_INFO.get('Special Instructions', False) == False and JOB_INFO.get('Slip Sheets / Shrink Wrap', False) == False):
+    if(JOB_INFO.get('Special Instructions', False) == False and JOB_INFO.get('Slip Sheets / Shrink Wrap', False) == False or JOB_INFO.get('Booklets', False) == "Yes"):
         SETS = 1
         COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
         print("\n!--I WILL TAKE IT FROM HERE--!")
@@ -387,7 +387,7 @@ if __name__ == "__main__":
     while True:
         try:
             COLOR = 1 if int(
-                input(''.join(["Enable Colored Paper?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
+                input(''.join(["Enable Colored Paper / Booklets?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
             if(COLOR):
                 print(
                     "Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
