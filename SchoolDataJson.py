@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20191029"
+__version__ = "v20191108"
 
 # Built-In Libraries
 import json
@@ -11,6 +11,7 @@ import PyPDF2
 
 # Local Files
 import files
+import PostScript
 
 
 def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
@@ -33,10 +34,16 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
 
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(FILES)):
-        pdf = PyPDF2.PdfFileReader(
-            open('/'.join([OUTPUT_DIRECTORY, ORDER_NAME, FILES[i]]), "rb"))
-        school_data["Files"]["".join(["File ", str(
-            i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf.getNumPages())}
+        try:
+            pdf = PyPDF2.PdfFileReader(
+                open('/'.join([OUTPUT_DIRECTORY, ORDER_NAME, FILES[i]]), "rb"))
+            school_data["Files"]["".join(["File ", str(
+                i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf.getNumPages())}
+        except:
+            pdf = files.page_count(
+                '/'.join([OUTPUT_DIRECTORY, ORDER_NAME, FILES[i]]))
+            school_data["Files"]["".join(["File ", str(
+                i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf)}
 
     # Removes the duplicate portion of the email that contains html (form) code.
     for i in range(len(email)):
@@ -149,3 +156,23 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
     with open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, '.json']), 'w') as outfile:
         json.dump(school_data, outfile, indent=4, separators=(',', ': '))
     return school_data
+
+
+def main(OUTPUT_DIRECTORY):
+    Start = str(input("Start #: "))
+    End = str(input("End   #: "))
+    folders = files.folder_list(OUTPUT_DIRECTORY)
+    ORDER_NAMES = []
+    for ORDER_NUMBER in range(int(Start), int(End)+1):
+
+        ORDER_NUMBER = str(ORDER_NUMBER)
+        for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
+            if ORDER_NUMBER in i:
+                ORDER_NAMES.append(i)
+    for ORDER_NAME in ORDER_NAMES:
+        print(ORDER_NAME)
+        school_data_json(ORDER_NAME[:10], ORDER_NAME[11:], OUTPUT_DIRECTORY)
+
+
+if __name__ == "__main__":
+    main("SO/")

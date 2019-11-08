@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20191029"
+__version__ = "v20191108"
 
 # Built-In Libraries
 import json
@@ -7,6 +7,7 @@ import os
 import glob
 import sys
 import locale
+import subprocess
 
 # Downloaded Libraries
 import PyPDF2
@@ -66,9 +67,15 @@ def file_merge(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE):
     files_path = ''
     if DUPLEX_STATE == 2:  # Adds blanks for doublesided uncollated printing
         for i in range(len(FILES)):
-            pdf = PyPDF2.PdfFileReader(
-                open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', FILES[i]]), "rb"))
-            if (int(pdf.getNumPages()) % 2) != 0:  # If odd number pages, add blank page
+            try:
+                pdf = PyPDF2.PdfFileReader(
+                    open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', FILES[i]]), "rb"))
+                pdf = pdf.getNumPages()
+            except:
+                pdf = files.page_count(
+                    '/'.join([OUTPUT_DIRECTORY, ORDER_NAME, FILES[i]]))
+
+            if (int(pdf) % 2) != 0:  # If odd number pages, add blank page
                 print("Adding Blank Page!")
                 output = "".join(
                     ['"', OUTPUT_DIRECTORY, '/', ORDER_NAME, '/PostScript/', FILES[i], '.ps"'])
