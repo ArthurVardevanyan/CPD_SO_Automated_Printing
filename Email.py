@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20191031"
+__version__ = "v20191108"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -207,10 +207,11 @@ def process_mailbox(M, AUTORUN, D110_IP):
 
         if(AUTORUN):
             COLOR = 0
+            BOOKLETS = 0
             EMAILPRINT = True
             print_que = []
             Print.printing(ORDER_NUMBER, "SO", D110_IP, COLOR,
-                           print_que, AUTORUN, EMAILPRINT)
+                           print_que, AUTORUN, EMAILPRINT, BOOKLETS)
             printer.print_processor(print_que)
 
     return emails_proccessed
