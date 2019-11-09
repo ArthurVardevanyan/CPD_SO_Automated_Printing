@@ -18,6 +18,8 @@ Stapling Portrait Double Left
 3 Hole Punch
 <value syntax="enum">91</value>
 <value syntax="enum">93</value>
+Booklet
+<value syntax="enum">110</value>
 
 
 SlipSheet
@@ -40,6 +42,7 @@ Media Color
 <media-color syntax="keyword">white</media-color>
 
 Stacker
+<output-bin syntax="keyword">automatic</output-bin>
 <output-bin syntax="keyword">stacker</output-bin>
 <output-bin syntax="keyword">top</output-bin>
 

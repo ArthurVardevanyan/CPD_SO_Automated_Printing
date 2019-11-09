@@ -1,4 +1,4 @@
-__version__ = "v20191021"
+__version__ = "v20191108"
 
 import json
 
@@ -72,7 +72,8 @@ def Special_Instructions(JOB_INFO):
 
 
 def default(JOB_INFO):
-    if((JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and JOB_INFO.get('Stapling', False) != "Upper Left - landscape") and JOB_INFO.get('Drilling', False) != "Yes"):
+    if((JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and JOB_INFO.get('Stapling', False) != "Upper Left - landscape")
+       and JOB_INFO.get('Drilling', False) != "Yes" and JOB_INFO.get('Booklets', False) != "Yes"):
         print('No Finishing')
         return str.encode(
             '@PJL XCPT <value syntax="enum">3</value>\n')
@@ -151,6 +152,13 @@ def color_extract(JOB_INFO):
     return str.encode("".join(['@PJL XCPT <media-color syntax="keyword">', out, '</media-color>\n']))
 
 
+def booklet_extract(JOB_INFO):
+    # Converts Input from given form to the value the printer needs
+    if JOB_INFO.get('Booklets', False) == "Yes":
+        return str.encode("".join(['@PJL XCPT <value syntax="enum">110</value>\n']))
+    return ""
+
+
 def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
     print('\nChosen Options:')
 
@@ -161,8 +169,10 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
     DEFAULT = default(JOB_INFO)
     media_color = color_extract(JOB_INFO)
     media_type = weight_extract(JOB_INFO)
+    booklet = booklet_extract(JOB_INFO)
 
-    COPIES_COMMAND = str.encode("".join(['@PJL XCPT <copies syntax="integer">',str(COPIES_PER_SET),'</copies>\n']))
+    COPIES_COMMAND = str.encode("".join(
+        ['@PJL XCPT <copies syntax="integer">', str(COPIES_PER_SET), '</copies>\n']))
     with open('PJL_Commands/PJL.ps', 'rb') as f:
         lines = f.readlines()
     # Modifies the PJL file before adding it to the postscript files
@@ -175,9 +185,11 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
             lines[i] = COPIES_COMMAND
         if str('<value syntax="enum">3</value>') in str(lines[i]):
             lines[i] = DEFAULT
-            if str('<value syntax="enum">3</value>') not in str(DEFAULT):
+            if str('<value syntax="enum">3</value>') not in str(DEFAULT) and booklet == "":
                 lines.insert(i, STAPLING)
                 lines.insert(i+1, hole_punch)
+            elif(booklet != ""):
+                lines.insert(i, booklet)
         if str('<sheet-collate syntax="keyword">') in str(lines[i]):
             lines[i] = COLLATION
         if str('<sides syntax="keyword">one-sided</sides>') in str(lines[i]):
@@ -196,6 +208,9 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
             lines.insert(i, str.encode(
                 '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n'))
             print("\nSplit-Sheeting!")
+        if str('<output-bin syntax="keyword">') in str(lines[i]) and booklet != "":
+            lines[i] = str.encode(
+                '@PJL XCPT 		<output-bin syntax="keyword">automatic</output-bin>\n')
 
     # The Postscript/PJL commands file that gets inserted before the file.
     with open('PJL_Commands/input.ps', 'wb') as f:
