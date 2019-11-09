@@ -1,4 +1,4 @@
-__version__ = "v20191108"
+__version__ = "v20191109"
 
 import json
 
@@ -82,7 +82,7 @@ def default(JOB_INFO):
 
 
 def collation(JOB_INFO, page_counts):
-    if(JOB_INFO.get('Collation', False) != "Collated" or (len(JOB_INFO.get('Files', False)) != 1 and page_counts == len(JOB_INFO.get('Files', False)))):
+    if(JOB_INFO.get('Collation', False) != "Collated" or (len(JOB_INFO.get('Files', {})) != 1 and page_counts == len(JOB_INFO.get('Files', {})))):
         print('UnCollated')
         return str.encode(
             '@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')
