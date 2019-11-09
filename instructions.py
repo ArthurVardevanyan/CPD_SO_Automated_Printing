@@ -81,15 +81,15 @@ def default(JOB_INFO):
         return str.encode('')
 
 
-def collation(JOB_INFO):
-    if(JOB_INFO.get('Collation', False) == "Collated"):
-        print('Collated')
-        return str.encode(
-            '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
-    else:
+def collation(JOB_INFO, page_counts):
+    if(JOB_INFO.get('Collation', False) != "Collated" or (len(JOB_INFO.get('Files', False)) != 1 and page_counts == len(JOB_INFO.get('Files', False)))):
         print('UnCollated')
         return str.encode(
             '@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')
+    else:
+        print('Collated')
+        return str.encode(
+            '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
 
 
 def duplex(JOB_INFO):
@@ -162,7 +162,7 @@ def booklet_extract(JOB_INFO):
 def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
     print('\nChosen Options:')
 
-    COLLATION = collation(JOB_INFO)
+    COLLATION = collation(JOB_INFO,page_counts)
     DUPLEX, duplex_state = duplex(JOB_INFO)
     STAPLING, COLLATION = stapling(JOB_INFO, COLLATION)
     hole_punch = drilling(JOB_INFO)
