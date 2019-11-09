@@ -305,6 +305,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
             instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
             pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
+        else:
+            return "Booklet Not Approved"
     else:
         lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
         print_que.append(lpr_path)

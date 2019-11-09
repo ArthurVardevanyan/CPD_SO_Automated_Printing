@@ -16,7 +16,7 @@ import subprocess
 if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
 else:
-    GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
+    GHOSTSCRIPT_PATH = 'C:/Program Files (x86)/gs/gs9.27/bin/gswin32c.exe'
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -70,7 +70,7 @@ def page_counts(OUTPUT_DIRECTORY, ORDER_NAME):
 def page_count(path):
     args = [GHOSTSCRIPT_PATH, "-q", "-dNODISPLAY", '-c',
             '"('+path + ') (r) file runpdfbegin pdfpagecount = quit"']
-    status = subprocess.Popen(args, stdout=subprocess.PIPE)
+    status = subprocess.Popen(args, stdout=subprocess.PIPE, shell = True)
     (out, err) = status.communicate()  # pylint: disable=unused-variable
     out = out.strip()
     out = [int(s) for s in out.split() if s.isdigit()]
