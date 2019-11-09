@@ -1,0 +1,6 @@
+create database school_orders;
+use school_orders;
+
+sudo mysql -u root -p school_orders < database/school_orders.sql
+sudo mysqldump -u root -p school_orders > database/school_orders.sql
+
