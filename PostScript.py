@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20191108"
+__version__ = "v20191112"
 
 # Built-In Libraries
 import json
@@ -34,7 +34,7 @@ def ticket_conversion(PATH):
         with open(PATH, 'wb') as f:
             output.write(f)
     # Processes the Conversion
-    os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -dColorConversionStrategy=/Gray -dProcessColorModel=/DeviceGray -sOutputFile="',
+    os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -sOutputFile="',
                        PATH, '.ps" "', PATH, '" "', PATH, '" -c quit']))
 
 
@@ -58,7 +58,7 @@ def postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY):
 
     for i in range(len(FILES)):
         # Processes the Conversion
-        os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -dColorConversionStrategy=/Gray -dProcessColorModel=/DeviceGray -sOutputFile="', OUTPUT_DIRECTORY, '"/"' +
+        os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', OUTPUT_DIRECTORY, '"/"' +
                            ORDER_NAME, '"/PostScript/"', FILES[i], '.ps" "', OUTPUT_DIRECTORY, '"/"', ORDER_NAME, '"/"', FILES[i], '" -c quit']))
 
 
@@ -82,7 +82,7 @@ def file_merge(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE):
                 src = "".join(['"', OUTPUT_DIRECTORY, '/',
                                ORDER_NAME, '/', FILES[i], '"'])
                 ghostscript_command = "".join(
-                    [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write  -dColorConversionStrategy=/Gray -dProcessColorModel=/DeviceGray -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
+                    [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write  -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
                 os.system(ghostscript_command)
 
     # Merges Files for Uncollated Printing with SlipSheets
@@ -93,7 +93,7 @@ def file_merge(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE):
     output = "".join(
         [OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, '.ps'])
     ghostscript_command = "".join(
-        [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write   -dColorConversionStrategy=/Gray -dProcessColorModel=/DeviceGray -sOutputFile="', output, '" ', files_path, '  -c quit'])
+        [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write   -sOutputFile="', output, '" ', files_path, '  -c quit'])
     # Processes the Conversion
     os.system(ghostscript_command)
     return True
