@@ -4,3 +4,6 @@ use school_orders;
 sudo mysql -u root -p school_orders < database/school_orders.sql
 sudo mysqldump -u root -p school_orders > database/school_orders.sql
 
+CREATE USER 'user'@'localhost' IDENTIFIED BY 'some_pass';
+GRANT ALL PRIVILEGES ON *.* TO 'user'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
