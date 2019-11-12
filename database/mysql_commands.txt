@@ -7,3 +7,8 @@ sudo mysqldump -u root -p school_orders > database/school_orders.sql
 CREATE USER 'user'@'localhost' IDENTIFIED BY 'some_pass';
 GRANT ALL PRIVILEGES ON *.* TO 'user'@'localhost' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
+
+DELETE FROM `deliver` WHERE 1;
+DELETE FROM `files` WHERE 1;
+DELETE FROM `order_data` WHERE 1;
+DELETE FROM `teachers` WHERE 1;
