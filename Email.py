@@ -26,6 +26,7 @@ import files
 import EmailPrint
 import Print
 import printer
+import database
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -185,6 +186,11 @@ def process_mailbox(M, AUTORUN, D110_IP):
                 ORDER_NUMBER, subject, OUTPUT_DIRECTORY)
         except:
             print("JSON File Failed")
+        try:
+            # Database Input
+            database.database_input(OUTPUT_DIRECTORY, JOB_INFO)
+        except:
+            print("Database Input Failed")
         try:
             # Create PostScript File
             PostScript.postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
