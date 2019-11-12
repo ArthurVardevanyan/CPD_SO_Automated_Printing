@@ -140,16 +140,14 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
         if test_string in email[i]:
             line = email[i].split(test_string)
             school_data["Back Cover"] = line[1].replace("=E2=80=93 ", "")
-        test_string = "Deliver To: "
+        test_string = "Deliver to: (Staff Member's Name) "
         if test_string in email[i]:
-            test_string = "Deliver to: (Staff Member's Name) "
-            if test_string in email[i]:
-                line = email[i].split(test_string)
-                school_data["Deliver To Address"] = line[1]
-            else:
-                test_string = "Deliver To: "
                 line = email[i].split(test_string)
                 school_data["Deliver To Name"] = line[1]
+        test_string = "Deliver To:"
+        if test_string in email[i]:
+            line = email[i].split(test_string)
+            school_data["Deliver To Address"] = line[1]
         school_data["Ran"] = "False"
 
         # Creates the JSON file
