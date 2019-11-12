@@ -1,5 +1,5 @@
 # test_SchoolDataJason.py
-__version__ = "v20191029"
+__version__ = "v20191112"
 
 import unittest
 import os
@@ -36,7 +36,10 @@ class Testing(unittest.TestCase):
             "Paper": "8.5 x 11 Paper White",
             "Stapling": "Upper Left - portrait",
             "Slip Sheets / Shrink Wrap": "Shrink wrap every 30 sets",
-            "Deliver To Name": "Address="
+            "Deliver To Name": "First Last",
+            "Deliver To Address": " Address="
+
+
         })
         self.assertEqual(SchoolDataJson.school_data_json("11345-3704", "First Last - Test 2", "tests/SO"),
                          {
@@ -62,7 +65,8 @@ class Testing(unittest.TestCase):
             "Collation": "Uncollated",
             "Paper": "8.5 x 11 Paper White",
             "Special Instructions": "Please make 25 copies of each page, UNCOLLATED. Please    separate the copied pages with a colored slip sheet. Please make 5 sets of the copied pages. Please separate the 5  sets with a different colored sheet of paper.",
-            "Deliver To Name": "Address="
+            "Deliver To Name": "First Last",
+            "Deliver To Address": " Address="
         })
         self.assertEqual(SchoolDataJson.school_data_json("11349-0311", "First Last - Test 3", "tests/SO"),
                          {
@@ -121,7 +125,8 @@ class Testing(unittest.TestCase):
             "Paper": "8.5 x 11 Paper White",
             "Slip Sheets / Shrink Wrap": "between every 25",
             "Special Instructions": "Please make 4 complete class sets.",
-            "Deliver To Name": "Address="
+            "Deliver To Name": "First Last",
+            "Deliver To Address": " Address="
 
         })
 
