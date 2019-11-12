@@ -1,50 +1,120 @@
--- MySQL dump 10.13  Distrib 8.0.17, for Linux (x86_64)
+-- phpMyAdmin SQL Dump
+-- version 4.6.6deb5
+-- https://www.phpmyadmin.net/
 --
--- Host: localhost    Database: school_orders
--- ------------------------------------------------------
--- Server version	8.0.17-0ubuntu2
+-- Host: localhost:3306
+-- Generation Time: Nov 12, 2019 at 04:11 PM
+-- Server version: 8.0.17-0ubuntu2
+-- PHP Version: 7.3.11-0ubuntu0.19.10.1
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
--- Table structure for table `order_list`
+-- Database: `school_orders`
 --
 
-DROP TABLE IF EXISTS `order_list`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `order_list` (
-  `email_id` bigint(20) NOT NULL,
-  `order_number` varchar(11) DEFAULT NULL,
-  PRIMARY KEY (`email_id`)
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `deliver`
+--
+
+CREATE TABLE `deliver` (
+  `order_number` varchar(11) NOT NULL,
+  `name` varchar(25) NOT NULL,
+  `address` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+
+-- --------------------------------------------------------
 
 --
--- Dumping data for table `order_list`
+-- Table structure for table `files`
 --
 
-LOCK TABLES `order_list` WRITE;
-/*!40000 ALTER TABLE `order_list` DISABLE KEYS */;
-/*!40000 ALTER TABLE `order_list` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+CREATE TABLE `files` (
+  `file_number` varchar(14) NOT NULL,
+  `order_number` varchar(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `pages` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_data`
+--
+
+CREATE TABLE `order_data` (
+  `email_id` varchar(28) NOT NULL,
+  `order_number` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `ran` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `duplex` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `date_ordered` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `order_subject` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `copies` varchar(50) DEFAULT NULL,
+  `paper` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `drilling` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `collation` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `email` varchar(25) NOT NULL,
+  `stapling` varchar(25) NOT NULL,
+  `front_cover` varchar(25) NOT NULL,
+  `folding` varchar(25) NOT NULL,
+  `cutting` varchar(25) NOT NULL,
+  `booklets` varchar(25) NOT NULL,
+  `slip_shrink` varchar(500) NOT NULL,
+  `special_instructions` varchar(500) NOT NULL,
+  `back_cover` varchar(25) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `teachers`
+--
+
+CREATE TABLE `teachers` (
+  `email` varchar(25) NOT NULL,
+  `first_name` varchar(25) NOT NULL,
+  `last_name` varchar(25) NOT NULL,
+  `phone` varchar(25) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `deliver`
+--
+ALTER TABLE `deliver`
+  ADD PRIMARY KEY (`order_number`);
+
+--
+-- Indexes for table `files`
+--
+ALTER TABLE `files`
+  ADD PRIMARY KEY (`file_number`);
+
+--
+-- Indexes for table `order_data`
+--
+ALTER TABLE `order_data`
+  ADD PRIMARY KEY (`email_id`),
+  ADD UNIQUE KEY `Order Number` (`order_number`);
+
+--
+-- Indexes for table `teachers`
+--
+ALTER TABLE `teachers`
+  ADD PRIMARY KEY (`email`);
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2019-10-29 17:24:01
