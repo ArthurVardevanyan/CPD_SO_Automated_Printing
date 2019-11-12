@@ -188,7 +188,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         JOB_INFO, "".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/']))
 
     # Checks if the job specs can be ran
-    if (not can_run(JOB_INFO, COLOR,BOOKLETS)):
+    if (not can_run(JOB_INFO, COLOR, BOOKLETS)):
         print(colored("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.", "red"))
         if(not AUTORUN):
             if(EMAILPRINT):
@@ -296,8 +296,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         print("PLEASE CHECK PROOF, if any files look incorrect, please cancel order")
         while True:
             try:
-                approved = 1 if int(
-                    input(''.join(["Approved?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " "]))) == 1 else 0
+                approved = int(input(''.join(["Approved?  Yes : ", colored("1", "cyan"), " | Flip & Proof?: ", colored(
+                    "2", "cyan"), " | No : ", colored("0", "cyan"), " "])))
                 break
             except:
                 pass
@@ -305,6 +305,33 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
             instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
             pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
+        elif(approved == 2):
+            JOB_INFO["Duplex"] = "two-sided-short-edge"
+            instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
+            pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
+            for i in range(SETS):
+                    for j in range(len(Print_Files)):
+                        lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
+                        lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
+                        Print_Files[j] + '" -J "' + Print_Files[j] + '"'
+                        print(lpr_path.replace(
+                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                    '-P PS "C:/S/SO/', "").split("-J")[0])
+                    print_que.append(lpr_path)
+            printer.print_processor(print_que)  # Does the printing
+            while True:
+                try:
+                    approved = 1 if int(
+                        input(''.join(["Approved?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " "]))) == 1 else 0
+                    break
+                except:
+                    pass
+            if(approved == 1):
+                COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
+                instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
+                pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
+            else:
+                return "Booklet Not Approved"
         else:
             return "Booklet Not Approved"
     else:

@@ -1,5 +1,5 @@
 # test_instructions.py
-__version__ = "v20191021"
+__version__ = "v20191109"
 
 import unittest
 import os
@@ -170,9 +170,9 @@ class Testing(unittest.TestCase):
         }), str.encode(''))
 
     def test_collation(self):
-        self.assertEqual(instructions.collation({"Collation": "Collated"}),
+        self.assertEqual(instructions.collation({"Collation": "Collated"}, 1),
                          str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n'))
-        self.assertEqual(instructions.collation({"Collation": "Uncollated"}),
+        self.assertEqual(instructions.collation({"Collation": "Uncollated"}, 1),
                          str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n'))
 
     def test_duplex(self):
