@@ -1,4 +1,4 @@
-__version__ = "v20191112"
+__version__ = "v20191113"
 
 import mysql.connector
 import files
@@ -105,7 +105,7 @@ def main(OUTPUT_DIRECTORY):
     ORDER_NAMES = []
     for ORDER_NUMBER in range(int(Start), int(End)+1):
 
-        ORDER_NUMBER = str(ORDER_NUMBER)
+        ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
         for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
             if ORDER_NUMBER in i:
                 ORDER_NAMES.append(i)
