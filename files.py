@@ -1,5 +1,5 @@
 # files.py
-__version__ = "v20191108"
+__version__ = "v20191112"
 
 # Built-In Libraries
 import os
@@ -70,7 +70,10 @@ def page_counts(OUTPUT_DIRECTORY, ORDER_NAME):
 def page_count(path):
     args = [GHOSTSCRIPT_PATH, "-q", "-dNODISPLAY", '-c',
             '"('+path + ') (r) file runpdfbegin pdfpagecount = quit"']
-    status = subprocess.Popen(args, stdout=subprocess.PIPE, shell = True)
+    if(os.name == "posix"):
+        status = subprocess.Popen(args, stdout=subprocess.PIPE)
+    else:
+        status = subprocess.Popen(args, stdout=subprocess.PIPE, shell = True)
     (out, err) = status.communicate()  # pylint: disable=unused-variable
     out = out.strip()
     out = [int(s) for s in out.split() if s.isdigit()]

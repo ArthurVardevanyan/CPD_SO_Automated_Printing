@@ -1,6 +1,9 @@
+__version__ = "v20191112"
+
 import mysql.connector
 import files
 import json
+from datetime import datetime
 
 try:
     with open("Credentials/db.txt") as f:
@@ -40,7 +43,8 @@ def database_input(OUTPUT_DIRECTORY, JOB_INFO):
         JOB_INFO.get('Email ID', "0"),
         JOB_INFO.get('Order Number', "0"),
         JOB_INFO.get('Order Subject', "0"),
-        JOB_INFO.get('Date Ordered', "0"),
+        datetime.strptime(JOB_INFO.get('Date Ordered', "0"),
+                          '%b %d, %Y').strftime('%Y-%m-%d'),
         JOB_INFO.get('Email', "0"),
         JOB_INFO.get('Copies', "0"),
         JOB_INFO.get('Duplex', "0"),
@@ -89,7 +93,6 @@ def database_input(OUTPUT_DIRECTORY, JOB_INFO):
         cursor.execute(add_files, data_files)
 
     db.commit()
-
 
     db.close
     return 1
