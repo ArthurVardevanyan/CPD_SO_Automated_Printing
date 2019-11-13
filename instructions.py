@@ -1,4 +1,4 @@
-__version__ = "v20191108"
+__version__ = "v20191109"
 
 import json
 
@@ -82,7 +82,7 @@ def default(JOB_INFO):
 
 
 def collation(JOB_INFO, page_counts):
-    if(JOB_INFO.get('Collation', False) != "Collated" or (len(JOB_INFO.get('Files', False)) != 1 and page_counts == len(JOB_INFO.get('Files', False)))):
+    if(JOB_INFO.get('Collation', False) != "Collated" or (len(JOB_INFO.get('Files', {})) != 1 and page_counts == len(JOB_INFO.get('Files', {})))):
         print('UnCollated')
         return str.encode(
             '@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')
@@ -97,6 +97,10 @@ def duplex(JOB_INFO):
         print('Double Sided')
         return str.encode(
             '@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>\n'), 2
+    elif(JOB_INFO.get('Duplex', False) == "two-sided-short-edge"):
+        print('Double Sided')
+        return str.encode(
+            '@PJL XCPT <sides syntax="keyword">two-sided-short-edge</sides>\n'), 2
     else:
         print('Single Sided')
         return str.encode(
@@ -162,7 +166,7 @@ def booklet_extract(JOB_INFO):
 def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
     print('\nChosen Options:')
 
-    COLLATION = collation(JOB_INFO,page_counts)
+    COLLATION = collation(JOB_INFO, page_counts)
     DUPLEX, duplex_state = duplex(JOB_INFO)
     STAPLING, COLLATION = stapling(JOB_INFO, COLLATION)
     hole_punch = drilling(JOB_INFO)
