@@ -53,6 +53,10 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
 
             # Searchs for required elements from the form for the JSON file.
     for i in range(len(email)):
+        test_string = "Timestamp"
+        if test_string in email[i]:
+            line = email[i].split(test_string)
+            school_data["Date Ordered"] = line[1]
         test_string = "*Timestamp: *"
         if test_string in email[i]:
             line = email[i].split(test_string)
