@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20191108"
+__version__ = "v20191112"
 
 # Built-In Libraries
 import json
@@ -48,7 +48,7 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
     # Removes the duplicate portion of the email that contains html (form) code.
     for i in range(len(email)):
         if "IF YOU HAVE ANY QUESTIONS" in email[i]:
-            email = email[10:-(len(email)-i)]
+            email = email[8:-(len(email)-i)]
             break
 
             # Searchs for required elements from the form for the JSON file.
