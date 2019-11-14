@@ -1,29 +1,29 @@
-__version__ = "v20191113"
+__version__ = "v20191114"
 
 import mysql.connector
 import files
 import json
 from datetime import datetime
 
-try:
-    with open("Credentials/db.txt") as f:
-        cred = f.readlines()
-    cred = [x.strip() for x in cred]
-except:
-    print("Credential Failure")
-
-db = mysql.connector.connect(
-    host="localhost",
-    user=cred[0],
-    passwd=cred[1],
-    database='school_orders',
-    auth_plugin='mysql_native_password'
-)
-
-cursor = db.cursor()
-
 
 def database_input(OUTPUT_DIRECTORY, JOB_INFO):
+
+    try:
+        with open("Credentials/db.txt") as f:
+            cred = f.readlines()
+        cred = [x.strip() for x in cred]
+    except:
+        print("Credential Failure")
+
+    db = mysql.connector.connect(
+        host="localhost",
+        user=cred[0],
+        passwd=cred[1],
+        database='school_orders',
+        auth_plugin='mysql_native_password'
+    )
+
+    cursor = db.cursor()
 
     add_teacher = ("INSERT IGNORE INTO teachers "
                    "(email,first_name,last_name,phone) "
