@@ -1,6 +1,9 @@
+__version__ = "v20191113"
+
 import mysql.connector
 import files
 import json
+from datetime import datetime
 
 try:
     with open("Credentials/db.txt") as f:
@@ -40,7 +43,8 @@ def database_input(OUTPUT_DIRECTORY, JOB_INFO):
         JOB_INFO.get('Email ID', "0"),
         JOB_INFO.get('Order Number', "0"),
         JOB_INFO.get('Order Subject', "0"),
-        JOB_INFO.get('Date Ordered', "0"),
+        datetime.strptime(JOB_INFO.get('Date Ordered', "0"),
+                          '%b %d, %Y').strftime('%Y-%m-%d'),
         JOB_INFO.get('Email', "0"),
         JOB_INFO.get('Copies', "0"),
         JOB_INFO.get('Duplex', "0"),
@@ -90,7 +94,6 @@ def database_input(OUTPUT_DIRECTORY, JOB_INFO):
 
     db.commit()
 
-
     db.close
     return 1
 
@@ -102,7 +105,7 @@ def main(OUTPUT_DIRECTORY):
     ORDER_NAMES = []
     for ORDER_NUMBER in range(int(Start), int(End)+1):
 
-        ORDER_NUMBER = str(ORDER_NUMBER)
+        ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
         for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
             if ORDER_NUMBER in i:
                 ORDER_NAMES.append(i)

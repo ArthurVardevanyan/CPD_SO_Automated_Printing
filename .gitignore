@@ -10,3 +10,5 @@ Credentials/
 __pycache__/
 .vscode/
 *.csv
+/web/node_modules
+/dist/
