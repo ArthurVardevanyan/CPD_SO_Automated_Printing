@@ -1,5 +1,5 @@
 # test_instructions.py
-__version__ = "v20191109"
+__version__ = "v20191118"
 
 import unittest
 import os
@@ -111,7 +111,10 @@ class Testing(unittest.TestCase):
             "Slip Sheets / Shrink Wrap": "two stacks of 75",
             "Special Instructions": "two stacks of 75",
         }), (2, 75))
-        
+        self.assertEqual(instructions.Special_Instructions({
+            "Copies": "150",
+            "Slip Sheets / Shrink Wrap": "two sets of 75",
+        }), (2, 75))
 
     def test_manual_input(self):
         self.assertEqual(instructions.Special_Instructions({
@@ -146,6 +149,10 @@ class Testing(unittest.TestCase):
             "Copies": "160",
             "Slip Sheets / Shrink Wrap": "Can each file be sorted into 2 groups of 60.",
             "Special Instructions": "Each file in 2 groups of 60",
+        }), (0, 0))
+        self.assertEqual(instructions.Special_Instructions({
+            "Copies": "60",
+            "Slip Sheets / Shrink Wrap": "After cutting, please shrinkwrap in packs of 30. There should be 4 shrinkwrapped packs of 30 per file.",
         }), (0, 0))
 
     def test_default(self):
