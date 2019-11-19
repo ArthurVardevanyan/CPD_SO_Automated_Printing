@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191106"
+__version__ = "v20191113"
 
 # Built-In Libraries
 import os
@@ -172,7 +172,7 @@ def main():
     ORDER_NAMES = []
     for ORDER_NUMBER in range(int(Start), int(End)+1):
 
-        ORDER_NUMBER = str(ORDER_NUMBER)
+        ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
         for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
             if ORDER_NUMBER in i:
                 ORDER_NAMES.append(i)
@@ -183,8 +183,7 @@ def main():
         printer.print_processor(print_que)
     except:
         "I have Failed due to some Error"
-    
-        
+
     print(str(count), " Order(s) Ran")
     quit = str(input("Press Any Key To Exit"))
     print(quit)
