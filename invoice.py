@@ -1,5 +1,5 @@
 # Invoicing
-__version__ = "v20191113"
+__version__ = "v20191119"
 
 import files
 import json
@@ -20,6 +20,7 @@ invoice_headers = [
     "image",
     "Copy Unit Cost",
     "Copy Cost",
+    "Sheets",
     "Collation",
     "Paper",
     "Paper Unit Cost",
@@ -145,6 +146,7 @@ for ORDER_NAME in ORDER_NAMES:
             else:
                 IMPD = (int(FILE_INFO.get('Page Count', 0)) - 1) * \
                     COPIES/2 + 1*COPIES
+            job.append(IMPD)
             job.append(JOB_INFO.get('Collation', "0"))
             PAPER = JOB_INFO.get('Paper', "0")
             job.append(PAPER)
