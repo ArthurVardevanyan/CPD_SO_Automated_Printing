@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191118"
+__version__ = "v20191210"
 
 # Local Files
 import files
@@ -177,7 +177,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             if(EMAILPRINT):
                 D110_IP = "156" if PRINTER == 0 else "162"
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray", D110_IP)
+                                       ORDER_NAME, print_que, "toptray", D110_IP)
                 return "".join(["Not Supported S:  ", ORDER_NAME])
     # Keeps track of how much each printer has printed for load balancing
     page_counts = files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME)
@@ -194,12 +194,12 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         if(not AUTORUN):
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray", D110_IP)
+                                       ORDER_NAME, print_que, "toptray", D110_IP)
             return "".join(["Not Supported:  ", ORDER_NAME])
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray", D110_IP)
+                                       ORDER_NAME, print_que, "toptray", D110_IP)
             return "".join(["Not Supported AutoS: ", ORDER_NAME])
 
     print("\nNumber of (Total) Copies Listed Per File: ",
@@ -253,7 +253,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray", D110_IP)
+                                       ORDER_NAME, print_que, "toptray", D110_IP)
 
             return "".join(["Not Supported SPI  : ", ORDER_NAME])
 
@@ -288,7 +288,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     print("\n")
     if(EMAILPRINT):
         EmailPrint.Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
-                               AUTORUN, print_que, "stacker", D110_IP)
+                               print_que, "stacker", D110_IP)
     lpr_path = ""
 
     if(JOB_INFO.get('Booklets', False) == "Yes"):
