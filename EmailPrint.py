@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191210"
+__version__ = "v20191211"
 
 # Built-In Libraries
 import os
@@ -127,6 +127,10 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
                 if str('<output-bin syntax="keyword">') in str(pjl_lines[i]):
                     pjl_lines[i] = str.encode(
                         '@PJL XCPT 		<output-bin syntax="keyword">top</output-bin>\n')
+            for i in range(len(pjl_lines)):
+                if str('<value syntax="keyword">') in str(pjl_lines[i]):
+                    pjl_lines[i] = str.encode(
+                            '@PJL XCPT 	<value syntax="keyword">none</value>\n')
 
         with open('PJL_Commands/input.ps', 'wb') as f:
             for item in pjl_lines:
