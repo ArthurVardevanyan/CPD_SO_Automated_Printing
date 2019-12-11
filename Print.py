@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191210"
+__version__ = "v20191211"
 
 # Local Files
 import files
@@ -452,7 +452,7 @@ if __name__ == "__main__":
             EMAILPRINT = True if int(
                 input(''.join(["Print Emails with Jobs?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
             if(EMAILPRINT):
-                print("Make Sure White and Blue Paper is loaded!")
+                print("Make Sure White and Bright Colored Paper is loaded!")
             break
         except:
             pass
