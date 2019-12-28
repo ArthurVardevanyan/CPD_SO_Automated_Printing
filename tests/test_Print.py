@@ -1,5 +1,5 @@
 # test_Print.py
-__version__ = "v20191108"
+__version__ = "v20191228"
 
 import unittest
 from unittest import mock
@@ -76,13 +76,17 @@ class Testing(unittest.TestCase):
             {"Paper": "8.5 x 11 Paper White", "Stapling": "Double Left - portrait"}, 0, 0))
         self.assertFalse(Print.can_run({"Booklets": "Yes"}, 0, 0))
         self.assertTrue(Print.can_run({"Booklets": "Yes"}, 1, 1))
+        self.assertFalse(Print.can_run(
+            {"Special Instructions": "please print each file on a different color- the  specific color "}, 0, 0))
+        self.assertFalse(Print.can_run(
+            {"Special Instructions":  "Please print in color."}, 0, 0))
 
     def test_printing(self):
-        self.assertEqual(Print.printing("11344", "tests/SO", 1, 0, [], True, False, 0),
+        self.assertEqual(Print.printing("11344", "tests/SO", 1, 0, [], True, False, 0, 0),
                          "SUCCESS SPI! : 162 : 11344-2704 First Last - Test 1")
-        self.assertEqual(Print.printing("11345", "tests/SO", 1, 0, [], True, False, 0),
+        self.assertEqual(Print.printing("11345", "tests/SO", 1, 0, [], True, False, 0, 0),
                          "SUCCESS SPI! : 162 : 11345-3704 First Last - Test 2")
-        self.assertEqual(Print.printing("11349", "tests/SO", 1, 0, [], True, False, 0),
+        self.assertEqual(Print.printing("11349", "tests/SO", 1, 0, [], True, False, 0, 0),
                          "SUCCESS SPI! : 162 : 11349-0311 First Last - Test 3")
 
     def test_main(self):

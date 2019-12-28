@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191211"
+__version__ = "v20191228"
 
 # Local Files
 import files
@@ -46,7 +46,7 @@ def impression_counter(PAGE_COUNTS, COPIES, PRINTER):
         return 1
 
 
-def can_run(JOB_INFO, COLOR, BOOKLETS):
+def can_run(JOB_INFO, COLOR, BOOKLETS, COVERS):
     # Determines if jobs is able to be ran or not using this script
     if(JOB_INFO.get('Ran', False) == "True"):
         return False
@@ -64,6 +64,12 @@ def can_run(JOB_INFO, COLOR, BOOKLETS):
     if("11 x 17" in str(JOB_INFO.get('Paper', False))):
         return False
     if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White" and COLOR == 0):
+        return False
+    if("color" in str.lower(JOB_INFO.get('Slip Sheets / Shrink Wrap', "")) and "print" in str.lower(JOB_INFO.get('Slip Sheets / Shrink Wrap', ""))):
+        return False
+    if("color" in str.lower(JOB_INFO.get('Special Instructions', "")) and "print" in str.lower(JOB_INFO.get('Special Instructions', ""))):
+        return False
+    if(not COVERS and "cover" in str.lower(JOB_INFO.get('Special Instructions', ""))):
         return False
     return True
 
@@ -154,7 +160,7 @@ def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES):
     return 0
 
 
-def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS):
+def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS):
     # Runs the bulk of code
     print_result = ''  # Used for Status Output
 
@@ -189,7 +195,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         JOB_INFO, "".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/']))
 
     # Checks if the job specs can be ran
-    if (not can_run(JOB_INFO, COLOR, BOOKLETS)):
+    if (not can_run(JOB_INFO, COLOR, BOOKLETS, COVERS)):
         print(colored("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.", "red"))
         if(not AUTORUN):
             if(EMAILPRINT):
@@ -270,6 +276,9 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     MERGED = False
     # Sets the correct PJL commands
     MERGED = instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
+    if(COVERS and "cover" in str.lower(JOB_INFO.get('Special Instructions', ""))):
+        MERGED = instructions.cover_manual(
+            OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO)
     # Create Directory for Print Ready Files
 
    # Merge PostScript Header File to All Postscript Job Files
@@ -371,7 +380,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     return "".join([print_result, LPR[D110_IP][41:44], " : ", ORDER_NAME])
 
 
-def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS):
+def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS):
     # Contains the list of final commands for all the orders that were proccessed to be run.
     print_que = []
     # Check if user wants to processes jobs with colored paper, if disabled this adds protection against accidentally running jobs on colored paper.
@@ -412,7 +421,7 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS):
                 print('\n'.join(map(str, ORDER_NUMBER)))
                 for orders in ORDER_NUMBER:
                     printed.append(
-                        printing(str(orders), "SO", D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS))  # Does all the processing for the orders
+                        printing(str(orders), "SO", D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS))  # Does all the processing for the orders
                 print("\n")
                 print('\n'.join(map(str, printed)))
                 printer.print_processor(print_que)  # Does the printing
@@ -476,4 +485,11 @@ if __name__ == "__main__":
             break
         except:
             pass
-    main(False, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS)
+    while True:
+        try:
+            COVERS = 1 if int(
+                input(''.join(["Enable Basic Cover Support (File Merge with Same Paper Type)?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
+            break
+        except:
+            pass
+    main(False, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS)
