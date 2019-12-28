@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191211"
+__version__ = "v20191228"
 
 # Local Files
 import files
@@ -64,6 +64,10 @@ def can_run(JOB_INFO, COLOR, BOOKLETS):
     if("11 x 17" in str(JOB_INFO.get('Paper', False))):
         return False
     if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White" and COLOR == 0):
+        return False
+    if("color" in str.lower(JOB_INFO.get('Slip Sheets / Shrink Wrap', "")) and "print" in str.lower(JOB_INFO.get('Slip Sheets / Shrink Wrap', ""))):
+        return False
+    if("color" in str.lower(JOB_INFO.get('Special Instructions', "")) and "print" in str.lower(JOB_INFO.get('Special Instructions', ""))):
         return False
     return True
 

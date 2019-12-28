@@ -12,3 +12,4 @@ __pycache__/
 *.csv
 /web/node_modules
 /dist/
+/doc/Time.ods
