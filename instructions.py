@@ -1,6 +1,7 @@
 __version__ = "v20191118"
 
 import json
+import PostScript
 
 
 def Special_Instructions_Processing(QTY, str):
@@ -222,6 +223,7 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
     with open('PJL_Commands/input.ps', 'wb') as f:
         for item in lines:
             f.write(item)
+
     # If it makes sense to use merged files, it uses them.
     if str('<sheet-collate syntax="keyword">uncollated') in str(COLLATION) and len(JOB_INFO.get('Files', False)) != 1:
         if page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10:
@@ -233,3 +235,28 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
     elif len(JOB_INFO.get('Files', False)) != 1 and page_counts == len(JOB_INFO.get('Files', False)):
         return True
     return False
+
+
+def cover_manual(OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO):
+    while True:
+        try:
+            file_order = input(
+                "Select Order of Files (Separate File Numbers by Space. EX: 1 2): ")
+            file_order = [int(s) for s in file_order.split() if s.isdigit()]
+            break
+        except:
+            pass
+    FILES = []
+    while True:
+        try:
+            DUPLEX_STATE = int(
+                input("Duplex Merge? 2 Yes - 1 No (Default: 2): "))
+            break
+        except:
+            pass
+    JOB_INFO_FILES = JOB_INFO.get('Files', False)
+    for files in file_order:
+        JOB_INFO_FILES = JOB_INFO.get('Files', False)
+        FILE_INFO = JOB_INFO_FILES.get(" ".join(["File", str(files)]), False)
+        FILES.append(FILE_INFO.get("File Name", False))
+    return PostScript.file_merge_manual(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE, FILES)
