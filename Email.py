@@ -217,7 +217,7 @@ def process_mailbox(M, AUTORUN, D110_IP):
             EMAILPRINT = True
             print_que = []
             Print.printing(ORDER_NUMBER, "SO", D110_IP, COLOR,
-                           print_que, AUTORUN, EMAILPRINT, BOOKLETS)
+                           print_que, AUTORUN, EMAILPRINT, BOOKLETS, 0)
             printer.print_processor(print_que)
 
     return emails_proccessed
