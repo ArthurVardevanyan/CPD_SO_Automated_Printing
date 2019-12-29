@@ -1,4 +1,4 @@
-__version__ = "v20191118"
+__version__ = "v20191228"
 
 import json
 import PostScript
@@ -158,6 +158,21 @@ def color_extract(JOB_INFO):
     print(out)
     return str.encode("".join(['@PJL XCPT <media-color syntax="keyword">', out, '</media-color>\n']))
 
+def cover_weight_extract(PAPER):
+    # Converts Input from given form to the value the printer needs
+    paper = (str(PAPER)).lower()
+    out = "stationery-heavyweight" if "card stock" in paper else "use-ready"
+    print(out)
+    return  out
+
+
+def cover_color_extract(PAPER):
+    # Converts Input from given form to the value the printer needs
+    color = (str(PAPER)).split()[-1].lower()
+    out = 'yellow' if color == 'canary' else color
+    print(out)
+    return out
+
 
 def booklet_extract(JOB_INFO):
     # Converts Input from given form to the value the printer needs
@@ -166,7 +181,46 @@ def booklet_extract(JOB_INFO):
     return ""
 
 
-def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
+def covers(JOB_INFO, COVERS):
+    if(COVERS):
+        Back = ""
+        if(JOB_INFO.get('Back Cover', False)):
+            print("Back Cover")
+            Back_Cover_Color = cover_color_extract(JOB_INFO.get('Back Cover', False))
+            Back_Cover_Weight = cover_weight_extract(
+                JOB_INFO.get('Back Cover', False))
+            Back = "".join(['\
+                    @PJL XCPT 		<cover-back syntax="collection">\n\
+                    @PJL XCPT 			<cover-type syntax="keyword">print-none</cover-type>\n\
+                    @PJL XCPT 			<media-col syntax="collection">\n\
+                    @PJL XCPT 				<media-color syntax="keyword">', Back_Cover_Color, '</media-color>\n\
+                    @PJL XCPT 				<media-size syntax="collection">\n \
+                    @PJL XCPT 				</media-size>\n\
+                    @PJL XCPT 				<media-type syntax="keyword">', Back_Cover_Weight, '</media-type>\n\
+                    @PJL XCPT 			</media-col>\n\
+                    @PJL XCPT 		</cover-back>\n'])
+        Front = ""
+        if(JOB_INFO.get('Front Cover', False)):
+            print("Front Cover")
+            Front_Cover_Color = cover_color_extract(
+                JOB_INFO.get('Front Cover', False))
+            Front_Cover_Weight = cover_weight_extract(
+                JOB_INFO.get('Front Cover', False))
+            Front = "".join(['\
+                    @PJL XCPT 		<cover-front syntax="collection">\n\
+                    @PJL XCPT 			<cover-type syntax="keyword">', "print-front", '</cover-type>\n', '\
+                    @PJL XCPT 			<media-col syntax="collection">\n\
+                    @PJL XCPT 				<media-color syntax="keyword">', Front_Cover_Color, '</media-color>\n\
+                    @PJL XCPT 				<media-size syntax="collection">\n\
+                    @PJL XCPT 				</media-size>\n\
+                    @PJL XCPT 				<media-type syntax="keyword">', Front_Cover_Weight, '</media-type>\n\
+                    @PJL XCPT 			</media-col>\n\
+                    @PJL XCPT 		</cover-front>\n'])
+        return ("\n".join([Back, Front]))
+    return ""
+
+
+def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS):
     print('\nChosen Options:')
 
     COLLATION = collation(JOB_INFO, page_counts)
@@ -177,9 +231,10 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts):
     media_color = color_extract(JOB_INFO)
     media_type = weight_extract(JOB_INFO)
     booklet = booklet_extract(JOB_INFO)
+    COVER = covers(JOB_INFO, COVERS)
 
     COPIES_COMMAND = str.encode("".join(
-        ['@PJL XCPT <copies syntax="integer">', str(COPIES_PER_SET), '</copies>\n']))
+        ['@PJL XCPT <copies syntax="integer">', str(COPIES_PER_SET), '</copies>\n', COVER]))
     with open('PJL_Commands/PJL.ps', 'rb') as f:
         lines = f.readlines()
     # Modifies the PJL file before adding it to the postscript files
