@@ -273,8 +273,13 @@ def main(AUTORUN, D110_IP):
 
 
 if __name__ == "__main__":
-    print("\nSchool Order Downloader Revision: ",
+    print("\nSchool Order Downloader REV:",
           colored(__version__, "magenta"))
+    print("Terminal Auto Printing  REV:",
+          colored(Print.__version__, "magenta"))
+    print("Terminal Email Printing REV:",
+          colored(EmailPrint.__version__, "magenta"))
+    print("\n")
     D110_IP = 1
     while True:
         try:

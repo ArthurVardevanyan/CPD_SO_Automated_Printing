@@ -442,7 +442,9 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS):
 
 
 if __name__ == "__main__":
-    print("\nTerminal AutoPrinting REV: ", colored(__version__, "magenta"))
+    print("Terminal Auto Printing  REV:", colored(__version__, "magenta"))
+    print("Terminal Email Printing REV:",
+          colored(EmailPrint.__version__, "magenta"))
     print('Type Your Order Number and Hit Enter,\nType "', colored(
         'run', 'green'), '" then hit enter when your all set. \n')
     print("Compatible Jobs will AutoRun, jobs will pause for requested input if needed.")
