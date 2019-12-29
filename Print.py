@@ -55,9 +55,9 @@ def can_run(JOB_INFO, COLOR, BOOKLETS, COVERS):
             None
         else:
             return False
-    if(JOB_INFO.get('Front Cover', False)):
+    if(not COVERS and JOB_INFO.get('Front Cover', False)):
         return False
-    if(JOB_INFO.get('Back Cover', False)):
+    if(not COVERS and JOB_INFO.get('Back Cover', False)):
         return False
     if(JOB_INFO.get('Booklets', False) == "Yes" and BOOKLETS == 0):
         return False
@@ -275,11 +275,10 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     # This gets the number of pages for every pdf file for the job.
     MERGED = False
     # Sets the correct PJL commands
-    MERGED = instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
+    MERGED = instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
     if(COVERS and "cover" in str.lower(JOB_INFO.get('Special Instructions', ""))):
         MERGED = instructions.cover_manual(
             OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO)
-    # Create Directory for Print Ready Files
 
    # Merge PostScript Header File to All Postscript Job Files
     pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
@@ -454,7 +453,7 @@ if __name__ == "__main__":
     while True:
         try:
             SEQUENTIAL = True if int(
-                input(''.join(["Enable Sequential Printing  Paper?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default/recommended) "]))) == 1 else False
+                input(''.join(["Enable Sequential Printing  Paper?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
             break
         except:
             pass
@@ -490,7 +489,7 @@ if __name__ == "__main__":
     while True:
         try:
             COVERS = 1 if int(
-                input(''.join(["Enable Basic Cover Support (File Merge with Same Paper Type)?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
+                input(''.join(["Enable Covers?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
             break
         except:
             pass
