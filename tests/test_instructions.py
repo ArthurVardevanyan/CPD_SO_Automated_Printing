@@ -115,6 +115,10 @@ class Testing(unittest.TestCase):
             "Copies": "150",
             "Slip Sheets / Shrink Wrap": "two sets of 75",
         }), (2, 75))
+        self.assertEqual(instructions.Special_Instructions({
+            "Copies": "100",
+            "Slip Sheets / Shrink Wrap": "Please wrap into 4 sets of 25!",
+        }), (4, 25))
 
     def test_manual_input(self):
         self.assertEqual(instructions.Special_Instructions({

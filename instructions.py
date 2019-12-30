@@ -1,4 +1,4 @@
-__version__ = "v20191228"
+__version__ = "v20191229"
 
 import json
 import PostScript
@@ -9,7 +9,8 @@ def Special_Instructions_Processing(QTY, str):
         return 0, 0
     # Remove Unwanted Characters
     str = str.lower().replace('"', " ").replace('-', " ").replace('.',
-                                                                  " ").replace('th ', " ").replace(', ', " ").replace('2 sided', " ").replace('1 sided', " ")
+                                                                  " ").replace('th ', " ").replace(', ', " ").replace('2 sided', " ").replace('1 sided', 
+                                                                  " ").replace('!', " ")
     # https://stackoverflow.com/a/4289557
     # Separate Integers From Strings
     Numbers = [int(s) for s in str.split() if s.isdigit()]
