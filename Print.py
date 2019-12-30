@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191228"
+__version__ = "v20191229"
 
 # Local Files
 import files
@@ -160,7 +160,7 @@ def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES):
     return 0
 
 
-def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS):
+def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS):
     # Runs the bulk of code
     print_result = ''  # Used for Status Output
 
@@ -275,7 +275,8 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     # This gets the number of pages for every pdf file for the job.
     MERGED = False
     # Sets the correct PJL commands
-    MERGED = instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+    MERGED = instructions.pjl_insert(
+        JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
     if(COVERS and "cover" in str.lower(JOB_INFO.get('Special Instructions', ""))):
         MERGED = instructions.cover_manual(
             OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO)
@@ -376,12 +377,15 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             print_que.append(lpr_path)
 
     print("\n")
+    Orders.append(ORDER_NAME)
     return "".join([print_result, LPR[D110_IP][41:44], " : ", ORDER_NAME])
 
 
 def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS):
     # Contains the list of final commands for all the orders that were proccessed to be run.
+
     print_que = []
+    Orders = []
     # Check if user wants to processes jobs with colored paper, if disabled this adds protection against accidentally running jobs on colored paper.
     loop = True
     # Lets the user choose with printer they would like to use, or if they want to autoload balance between both printers.
@@ -416,14 +420,17 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS):
                     ORDER_NUMBER.append(ORDER_NUMBERS)
                 temp = "run"
             else:
+                OUTPUT_DIRECTORY = "SO/"
                 print("\nI am Going to Run:")
                 print('\n'.join(map(str, ORDER_NUMBER)))
                 for orders in ORDER_NUMBER:
+
                     printed.append(
-                        printing(str(orders), "SO", D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS))  # Does all the processing for the orders
+                        printing(Orders, str(orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS))  # Does all the processing for the orders
                 print("\n")
                 print('\n'.join(map(str, printed)))
                 printer.print_processor(print_que)  # Does the printing
+                files.file_cleanup(Orders, OUTPUT_DIRECTORY)
                 print("\n")
                 print('\n'.join(map(str, printed)))
                 while True:

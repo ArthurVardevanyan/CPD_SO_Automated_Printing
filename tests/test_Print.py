@@ -1,5 +1,5 @@
 # test_Print.py
-__version__ = "v20191228"
+__version__ = "v20191229"
 
 import unittest
 from unittest import mock
@@ -87,11 +87,12 @@ class Testing(unittest.TestCase):
             {"Special Instructions":  "Please print in color."}, 0, 0, 0))
 
     def test_printing(self):
-        self.assertEqual(Print.printing("11344", "tests/SO", 1, 0, [], True, False, 0, 0),
+        
+        self.assertEqual(Print.printing([], "11344", "tests/SO", 1, 0, [], True, False, 0, 0),
                          "SUCCESS SPI! : 162 : 11344-2704 First Last - Test 1")
-        self.assertEqual(Print.printing("11345", "tests/SO", 1, 0, [], True, False, 0, 0),
+        self.assertEqual(Print.printing([], "11345", "tests/SO", 1, 0, [], True, False, 0, 0),
                          "SUCCESS SPI! : 162 : 11345-3704 First Last - Test 2")
-        self.assertEqual(Print.printing("11349", "tests/SO", 1, 0, [], True, False, 0, 0),
+        self.assertEqual(Print.printing([], "11349", "tests/SO", 1, 0, [], True, False, 0, 0),
                          "SUCCESS SPI! : 162 : 11349-0311 First Last - Test 3")
 
     def test_main(self):
