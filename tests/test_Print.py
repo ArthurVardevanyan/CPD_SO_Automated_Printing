@@ -1,5 +1,5 @@
 # test_Print.py
-__version__ = "v20191229"
+__version__ = "v20191231"
 
 import unittest
 from unittest import mock
@@ -77,7 +77,7 @@ class Testing(unittest.TestCase):
             {"Paper": "8.5 x 11 Paper White", "Stapling": "Upper Left - portrait"}, 0, 0, 0))
         self.assertTrue(Print.can_run(
             {"Paper": "8.5 x 11 Paper White", "Stapling": "Upper Left - landscape"}, 0, 0, 0))
-        self.assertFalse(Print.can_run(
+        self.assertTrue(Print.can_run(
             {"Paper": "8.5 x 11 Paper White", "Stapling": "Double Left - portrait"}, 0, 0, 0))
         self.assertFalse(Print.can_run({"Booklets": "Yes"}, 0, 0, 0))
         self.assertTrue(Print.can_run({"Booklets": "Yes"}, 1, 1, 0))

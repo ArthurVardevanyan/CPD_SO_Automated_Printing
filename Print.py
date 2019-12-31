@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191229"
+__version__ = "v20191231"
 
 # Local Files
 import files
@@ -51,7 +51,7 @@ def can_run(JOB_INFO, COLOR, BOOKLETS, COVERS):
     if(JOB_INFO.get('Ran', False) == "True"):
         return False
     if(JOB_INFO.get('Stapling', False)):
-        if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait" or JOB_INFO.get('Stapling', False) == "Upper Left - landscape" or JOB_INFO.get('Stapling', False) == "None"):
+        if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait" or JOB_INFO.get('Stapling', False) == "Upper Left - landscape" or JOB_INFO.get('Stapling', False) == "Double Left - portrait" or JOB_INFO.get('Stapling', False) == "None"):
             None
         else:
             return False
