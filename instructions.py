@@ -1,4 +1,4 @@
-__version__ = "v20191229"
+__version__ = "v20191231"
 
 import json
 import PostScript
@@ -9,8 +9,8 @@ def Special_Instructions_Processing(QTY, str):
         return 0, 0
     # Remove Unwanted Characters
     str = str.lower().replace('"', " ").replace('-', " ").replace('.',
-                                                                  " ").replace('th ', " ").replace(', ', " ").replace('2 sided', " ").replace('1 sided', 
-                                                                  " ").replace('!', " ")
+                                                                  " ").replace('th ', " ").replace(', ', " ").replace('2 sided', " ").replace('1 sided',
+                                                                                                                                              " ").replace('!', " ")
     # https://stackoverflow.com/a/4289557
     # Separate Integers From Strings
     Numbers = [int(s) for s in str.split() if s.isdigit()]
@@ -76,7 +76,7 @@ def Special_Instructions(JOB_INFO):
 
 
 def default(JOB_INFO):
-    if((JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and JOB_INFO.get('Stapling', False) != "Upper Left - landscape")
+    if((JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and JOB_INFO.get('Stapling', False) != "Upper Left - landscape" and JOB_INFO.get('Stapling', False) != "Double Left - portrait")
        and JOB_INFO.get('Drilling', False) != "Yes" and JOB_INFO.get('Booklets', False) != "Yes"):
         print('No Finishing')
         return str.encode(
@@ -130,6 +130,15 @@ def stapling(JOB_INFO, collation):
             print("Collation Overide - Collated")
         print("Staple - Upper Left - landscape")
         return stapling, collation
+    elif(JOB_INFO.get('Stapling', False) == "Double Left - portrait"):
+        stapling = str.encode(
+            '@PJL XCPT <value syntax="enum">23</value>\n')
+        if str('<sheet-collate syntax="keyword">uncollated') in str(collation):
+            collation = str.encode(
+                '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
+            print("Collation Overide - Collated")
+        print("Staple - Double Left - portrait")
+        return stapling, collation
     else:
         return str.encode(''), collation
 
@@ -159,12 +168,13 @@ def color_extract(JOB_INFO):
     print(out)
     return str.encode("".join(['@PJL XCPT <media-color syntax="keyword">', out, '</media-color>\n']))
 
+
 def cover_weight_extract(PAPER):
     # Converts Input from given form to the value the printer needs
     paper = (str(PAPER)).lower()
     out = "stationery-heavyweight" if "card stock" in paper else "use-ready"
     print(out)
-    return  out
+    return out
 
 
 def cover_color_extract(PAPER):
@@ -187,7 +197,8 @@ def covers(JOB_INFO, COVERS):
         Back = ""
         if(JOB_INFO.get('Back Cover', False)):
             print("Back Cover")
-            Back_Cover_Color = cover_color_extract(JOB_INFO.get('Back Cover', False))
+            Back_Cover_Color = cover_color_extract(
+                JOB_INFO.get('Back Cover', False))
             Back_Cover_Weight = cover_weight_extract(
                 JOB_INFO.get('Back Cover', False))
             Back = "".join(['\
