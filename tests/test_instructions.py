@@ -1,5 +1,5 @@
 # test_instructions.py
-__version__ = "v20191118"
+__version__ = "v20191229"
 
 import unittest
 import os
@@ -115,6 +115,10 @@ class Testing(unittest.TestCase):
             "Copies": "150",
             "Slip Sheets / Shrink Wrap": "two sets of 75",
         }), (2, 75))
+        self.assertEqual(instructions.Special_Instructions({
+            "Copies": "100",
+            "Slip Sheets / Shrink Wrap": "Please wrap into 4 sets of 25!",
+        }), (4, 25))
 
     def test_manual_input(self):
         self.assertEqual(instructions.Special_Instructions({
@@ -249,7 +253,7 @@ class Testing(unittest.TestCase):
             "Collation": "Collated",
             "Paper": "8.5 x 11 Paper White",
             "Stapling": "Upper Left - portrait",
-        }, 30, 9))
+        }, 30, 9, 0))
         with open('PJL_Commands/input.ps', 'r') as f:
             data = f.readlines()
         count = 0
