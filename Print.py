@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191231"
+__version__ = "v20200102"
 
 # Local Files
 import files
@@ -322,11 +322,11 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 pass
         if(approved == 1):
             COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
-            instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
+            instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
             pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
         elif(approved == 2):
             JOB_INFO["Duplex"] = "two-sided-short-edge"
-            instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
+            instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
             pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
             for i in range(SETS):
                 for j in range(len(Print_Files)):
@@ -347,7 +347,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                     pass
             if(approved == 1):
                 COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
-                instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
+                instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
                 pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
             else:
                 return "Booklet Not Approved"

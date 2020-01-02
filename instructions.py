@@ -1,4 +1,4 @@
-__version__ = "v20191231"
+__version__ = "v20200102"
 
 import json
 import PostScript
@@ -132,7 +132,7 @@ def stapling(JOB_INFO, collation):
         return stapling, collation
     elif(JOB_INFO.get('Stapling', False) == "Double Left - portrait"):
         stapling = str.encode(
-            '@PJL XCPT <value syntax="enum">23</value>\n')
+            '@PJL XCPT <value syntax="enum">28</value>\n')
         if str('<sheet-collate syntax="keyword">uncollated') in str(collation):
             collation = str.encode(
                 '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
@@ -202,15 +202,13 @@ def covers(JOB_INFO, COVERS):
             Back_Cover_Weight = cover_weight_extract(
                 JOB_INFO.get('Back Cover', False))
             Back = "".join(['\
-                    @PJL XCPT 		<cover-back syntax="collection">\n\
-                    @PJL XCPT 			<cover-type syntax="keyword">print-none</cover-type>\n\
-                    @PJL XCPT 			<media-col syntax="collection">\n\
-                    @PJL XCPT 				<media-color syntax="keyword">', Back_Cover_Color, '</media-color>\n\
-                    @PJL XCPT 				<media-size syntax="collection">\n \
-                    @PJL XCPT 				</media-size>\n\
-                    @PJL XCPT 				<media-type syntax="keyword">', Back_Cover_Weight, '</media-type>\n\
-                    @PJL XCPT 			</media-col>\n\
-                    @PJL XCPT 		</cover-back>\n'])
+@PJL XCPT 		<cover-back syntax="collection">\n\
+@PJL XCPT 			<cover-type syntax="keyword">print-none</cover-type>\n\
+@PJL XCPT 			<media-col syntax="collection">\n\
+@PJL XCPT 				<media-color syntax="keyword">', Back_Cover_Color, '</media-color>\n\
+@PJL XCPT 				<media-type syntax="keyword">', Back_Cover_Weight, '</media-type>\n\
+@PJL XCPT 			</media-col>\n\
+@PJL XCPT 		</cover-back>\n'])
         Front = ""
         if(JOB_INFO.get('Front Cover', False)):
             print("Front Cover")
@@ -219,16 +217,28 @@ def covers(JOB_INFO, COVERS):
             Front_Cover_Weight = cover_weight_extract(
                 JOB_INFO.get('Front Cover', False))
             Front = "".join(['\
-                    @PJL XCPT 		<cover-front syntax="collection">\n\
-                    @PJL XCPT 			<cover-type syntax="keyword">', "print-front", '</cover-type>\n', '\
-                    @PJL XCPT 			<media-col syntax="collection">\n\
-                    @PJL XCPT 				<media-color syntax="keyword">', Front_Cover_Color, '</media-color>\n\
-                    @PJL XCPT 				<media-size syntax="collection">\n\
-                    @PJL XCPT 				</media-size>\n\
-                    @PJL XCPT 				<media-type syntax="keyword">', Front_Cover_Weight, '</media-type>\n\
-                    @PJL XCPT 			</media-col>\n\
-                    @PJL XCPT 		</cover-front>\n'])
-        return ("\n".join([Back, Front]))
+@PJL XCPT <page-overrides syntax="1setOf">\n\
+@PJL XCPT 			<value syntax="collection">\n\
+@PJL XCPT 				<input-documents syntax="1setOf">\n\
+@PJL XCPT 					<value syntax="rangeOfInteger">\n\
+@PJL XCPT 						<lower-bound syntax="integer">1</lower-bound>\n\
+@PJL XCPT 						<upper-bound syntax="integer">1</upper-bound>\n\
+@PJL XCPT 					</value>\n\
+@PJL XCPT 				</input-documents>\n\
+@PJL XCPT 				<media-col syntax="collection">\n\
+@PJL XCPT 					<media-color syntax="keyword">', Front_Cover_Color,'</media-color>\n\
+@PJL XCPT 					<media-type syntax="keyword">', Front_Cover_Weight,'</media-type>\n\
+@PJL XCPT 				</media-col>\n\
+@PJL XCPT 				<pages syntax="1setOf">\n\
+@PJL XCPT 					<value syntax="rangeOfInteger">\n\
+@PJL XCPT 						<lower-bound syntax="integer">1</lower-bound>\n\
+@PJL XCPT 						<upper-bound syntax="integer">1</upper-bound>\n\
+@PJL XCPT 					</value>\n\
+@PJL XCPT 				</pages>\n\
+@PJL XCPT 				<sides syntax="keyword">one-sided</sides>\n\
+@PJL XCPT 			</value>\n\
+@PJL XCPT 		</page-overrides>\n'])
+        return ("".join([Back, Front]))
     return ""
 
 
@@ -257,6 +267,7 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS):
             lines[i] = media_type
         if str('<copies syntax="integer">') in str(lines[i]):
             lines[i] = COPIES_COMMAND
+            continue
         if str('<value syntax="enum">3</value>') in str(lines[i]):
             lines[i] = DEFAULT
             if str('<value syntax="enum">3</value>') not in str(DEFAULT) and booklet == "":
@@ -276,7 +287,7 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS):
             print("\nSplit-Sheeting!")
         # Add SlipSheets to Large Collated Sets
         if (page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and
-                JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and (JOB_INFO.get('Stapling', False) != "Upper Left - landscape")):
+                JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and (JOB_INFO.get('Stapling', False) != "Upper Left - landscape") and  JOB_INFO.get('Stapling', False) != "Double Left - portrait"):
             lines[i] = str.encode(
                 '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             lines.insert(i, str.encode(
