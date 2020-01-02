@@ -14,7 +14,7 @@ Stapling Portrait Top Left
 Stapling LandScape Top Left
 <value syntax="enum">21</value>
 Stapling Portrait Double Left
-<value syntax="enum">23</value>
+<value syntax="enum">28</value>
 3 Hole Punch
 <value syntax="enum">91</value>
 <value syntax="enum">93</value>
