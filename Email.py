@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20191229"
+__version__ = "v20200104"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -27,6 +27,7 @@ import EmailPrint
 import Print
 import printer
 import database
+import instructions
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -111,29 +112,6 @@ def order_number_extract(email_body, RANDOM):
         return "", error_state
 
 
-def duplex_state(JOB_INFO):
-    if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
-        print('Double Sided')
-        return 2
-    else:
-        print('Single Sided')
-        return 1
-
-
-def merging(JOB_INFO, PAGE_COUNTS):
-
-    if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-        if PAGE_COUNTS / len(JOB_INFO.get('Files', False)) / duplex_state(JOB_INFO) >= 10:
-            print("DUE TO PAGE COUNT, MERGED TURNED OFF")
-            return 0
-        else:
-            return 1
-    elif len(JOB_INFO.get('Files', False)) != 1 and PAGE_COUNTS == len(JOB_INFO.get('Files', False)):
-        return 1
-    else:
-        print("Not Merging")
-        return 0
-
 
 def process_mailbox(M, AUTORUN, D110_IP):
     OUTPUT_DIRECTORY = 'SO/'
@@ -198,9 +176,9 @@ def process_mailbox(M, AUTORUN, D110_IP):
             print("PostScript Conversion Failed")
         try:
             # Merge Uncollated Files
-            if(merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
+            if(instructions.merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
                 PostScript.file_merge(
-                    OUTPUT_DIRECTORY, ORDER_NAME, duplex_state(JOB_INFO))
+                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(JOB_INFO))
 
         except:
             print("File Merge Failure")
