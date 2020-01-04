@@ -1,7 +1,31 @@
-__version__ = "v20200102"
+__version__ = "v2020104"
 
 import json
 import PostScript
+
+
+def duplex_state(JOB_INFO):
+    if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
+        print('Double Sided')
+        return 2
+    else:
+        print('Single Sided')
+        return 1
+
+
+def merging(JOB_INFO, PAGE_COUNTS):
+
+    if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
+        if PAGE_COUNTS / len(JOB_INFO.get('Files', False)) / duplex_state(JOB_INFO) >= 10:
+            print("DUE TO PAGE COUNT, MERGED TURNED OFF")
+            return 0
+        else:
+            return 1
+    elif len(JOB_INFO.get('Files', False)) != 1 and PAGE_COUNTS == len(JOB_INFO.get('Files', False)):
+        return 1
+    else:
+        print("Not Merging")
+        return 0
 
 
 def Special_Instructions_Processing(QTY, str):
@@ -226,8 +250,8 @@ def covers(JOB_INFO, COVERS):
 @PJL XCPT 					</value>\n\
 @PJL XCPT 				</input-documents>\n\
 @PJL XCPT 				<media-col syntax="collection">\n\
-@PJL XCPT 					<media-color syntax="keyword">', Front_Cover_Color,'</media-color>\n\
-@PJL XCPT 					<media-type syntax="keyword">', Front_Cover_Weight,'</media-type>\n\
+@PJL XCPT 					<media-color syntax="keyword">', Front_Cover_Color, '</media-color>\n\
+@PJL XCPT 					<media-type syntax="keyword">', Front_Cover_Weight, '</media-type>\n\
 @PJL XCPT 				</media-col>\n\
 @PJL XCPT 				<pages syntax="1setOf">\n\
 @PJL XCPT 					<value syntax="rangeOfInteger">\n\
@@ -287,7 +311,7 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS):
             print("\nSplit-Sheeting!")
         # Add SlipSheets to Large Collated Sets
         if (page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and
-                JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and (JOB_INFO.get('Stapling', False) != "Upper Left - landscape") and  JOB_INFO.get('Stapling', False) != "Double Left - portrait"):
+                JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and (JOB_INFO.get('Stapling', False) != "Upper Left - landscape") and JOB_INFO.get('Stapling', False) != "Double Left - portrait"):
             lines[i] = str.encode(
                 '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             lines.insert(i, str.encode(
