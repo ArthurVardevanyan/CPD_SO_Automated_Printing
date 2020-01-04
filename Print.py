@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200102"
+__version__ = "v20200104"
 
 # Local Files
 import files
@@ -269,6 +269,9 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
             print(colored(
                 "This was an Archived School Order, PostsScript files are being Regenerated.", 'green'))
             PostScript.postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
+            if(instructions.merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
+                PostScript.file_merge(
+                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(JOB_INFO))
         except:
             print("PostScript Conversion Failed")
 
