@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200104"
+__version__ = "v20200106"
 
 # Local Files
 import files
@@ -318,18 +318,22 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         print("PLEASE CHECK PROOF, if any files look incorrect, please cancel order")
         while True:
             try:
-                approved = int(input(''.join(["Approved?  Yes : ", colored("1", "cyan"), " | Flip & Proof?: ", colored(
-                    "2", "cyan"), " | No : ", colored("0", "cyan"), " "])))
+                approved = int(input(''.join(["Approved?  Yes: ", colored("1", "cyan"), " | Flip All & Proof?: ", colored(
+                    "2", "cyan"),  " | Flip Individually & Proof?: ", colored(
+                    "3", "cyan"), " | No: ", colored("0", "cyan"), " :"])))
                 break
             except:
                 pass
+        flip = []
         if(approved == 1):
             COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
-            instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+            instructions.pjl_insert(
+                JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
             pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
         elif(approved == 2):
             JOB_INFO["Duplex"] = "two-sided-short-edge"
-            instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+            instructions.pjl_insert(
+                JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
             pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
             for i in range(SETS):
                 for j in range(len(Print_Files)):
@@ -339,7 +343,31 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                     print(lpr_path.replace(
                         "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
                         '-P PS "C:/S/SO/', "").split("-J")[0])
-                print_que.append(lpr_path)
+                    print_que.append(lpr_path)
+        elif(approved == 3):
+            for i in range(SETS):
+                for j in range(len(Print_Files)):
+                    while True:
+                        try:
+                            flipT = int(input(''.join(["File: ", str(j), ": Flip?  Yes: ", colored(
+                                "1", "cyan"), " No: ", colored("0", "cyan"), " : "])))
+                            if(flipT == 1 or flipT == 0):
+                                flip.append(flipT)
+                                break
+                            else:
+                                pass
+                        except:
+                            pass
+                    JOB_INFO[
+                        "Duplex"] = "two-sided-short-edge" if flip[-1] else "Two-sided (back to back)"
+                    instructions.pjl_insert(
+                        JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+                    flip_file = [FILES[j]]
+                    pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, flip_file)
+                    lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
+                    lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
+                        Print_Files[j] + '" -J "' + Print_Files[j] + '"'
+                    print_que.append(lpr_path)
             printer.print_processor(print_que)  # Does the printing
             while True:
                 try:
@@ -349,9 +377,20 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 except:
                     pass
             if(approved == 1):
-                COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
-                instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
-                pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
+                if (len(flip) == 0):
+                    COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
+                    instructions.pjl_insert(
+                        JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+                    pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
+                else:
+                    for j in range(len(Print_Files)):
+                        JOB_INFO[
+                            "Duplex"] = "two-sided-short-edge" if flip[j] else "Two-sided (back to back)"
+                        instructions.pjl_insert(
+                            JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+                        flip_file = [FILES[j]]
+                        pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME,
+                                  MERGED, flip_file)
             else:
                 return "Booklet Not Approved"
         else:
@@ -380,7 +419,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
             print_que.append(lpr_path)
 
     print("\n")
-    Orders.append(ORDER_NAME)
+    # Orders.append(ORDER_NAME)
     return "".join([print_result, LPR[D110_IP][41:44], " : ", ORDER_NAME])
 
 
