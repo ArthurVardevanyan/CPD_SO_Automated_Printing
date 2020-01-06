@@ -14,7 +14,7 @@ Stapling Portrait Top Left
 Stapling LandScape Top Left
 <value syntax="enum">21</value>
 Stapling Portrait Double Left
-<value syntax="enum">23</value>
+<value syntax="enum">28</value>
 3 Hole Punch
 <value syntax="enum">91</value>
 <value syntax="enum">93</value>
@@ -67,3 +67,32 @@ Second Page Blue
 @PJL XCPT 				</pages>
 @PJL XCPT 			</value>
 @PJL XCPT 		</page-overrides>
+
+
+Back Covers
+
+@PJL XCPT 		<cover-back syntax="collection">
+@PJL XCPT 			<cover-type syntax="keyword">print-none</cover-type>
+@PJL XCPT 			<media-col syntax="collection">
+@PJL XCPT 				<media-color syntax="keyword">gray</media-color>
+@PJL XCPT 				<media-size syntax="collection">
+@PJL XCPT 				</media-size>
+@PJL XCPT 				<media-type syntax="keyword">stationery-heavyweight</media-type>
+@PJL XCPT 			</media-col>
+@PJL XCPT 		</cover-back>
+
+Front Print Front
+
+@PJL XCPT 		<cover-front syntax="collection">
+@PJL XCPT 			<cover-type syntax="keyword">print-front</cover-type>
+@PJL XCPT 			<media-col syntax="collection">
+@PJL XCPT 				<media-color syntax="keyword">gray</media-color>
+@PJL XCPT 				<media-type syntax="keyword">stationery-heavyweight</media-type>
+@PJL XCPT 			</media-col>
+@PJL XCPT 		</cover-front>
+
+
+Front Print Both
+
+@PJL XCPT 			<cover-type syntax="keyword">print-both</cover-type>
+

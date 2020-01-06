@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20191108"
+__version__ = "v20191113"
 
 # Built-In Libraries
 import json
@@ -48,11 +48,15 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
     # Removes the duplicate portion of the email that contains html (form) code.
     for i in range(len(email)):
         if "IF YOU HAVE ANY QUESTIONS" in email[i]:
-            email = email[10:-(len(email)-i)]
+            email = email[8:-(len(email)-i)]
             break
 
             # Searchs for required elements from the form for the JSON file.
     for i in range(len(email)):
+        test_string = "Timestamp"
+        if test_string in email[i]:
+            line = email[i].split(test_string)
+            school_data["Date Ordered"] = line[1]
         test_string = "*Timestamp: *"
         if test_string in email[i]:
             line = email[i].split(test_string)
@@ -140,16 +144,14 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
         if test_string in email[i]:
             line = email[i].split(test_string)
             school_data["Back Cover"] = line[1].replace("=E2=80=93 ", "")
-        test_string = "Deliver To: "
+        test_string = "Deliver to: (Staff Member's Name) "
         if test_string in email[i]:
-            test_string = "Deliver to: (Staff Member's Name) "
-            if test_string in email[i]:
-                line = email[i].split(test_string)
-                school_data["Deliver To Address"] = line[1]
-            else:
-                test_string = "Deliver To: "
-                line = email[i].split(test_string)
-                school_data["Deliver To Name"] = line[1]
+            line = email[i].split(test_string)
+            school_data["Deliver To Name"] = line[1]
+        test_string = "Deliver To:"
+        if test_string in email[i]:
+            line = email[i].split(test_string)
+            school_data["Deliver To Address"] = line[1]
         school_data["Ran"] = "False"
 
         # Creates the JSON file
@@ -165,7 +167,7 @@ def main(OUTPUT_DIRECTORY):
     ORDER_NAMES = []
     for ORDER_NUMBER in range(int(Start), int(End)+1):
 
-        ORDER_NUMBER = str(ORDER_NUMBER)
+        ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
         for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
             if ORDER_NUMBER in i:
                 ORDER_NAMES.append(i)

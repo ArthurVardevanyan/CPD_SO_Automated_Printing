@@ -10,3 +10,7 @@ Credentials/
 __pycache__/
 .vscode/
 *.csv
+/web/node_modules
+/dist/
+/doc/Time.ods
+doc/.~lock.Time.ods#
