@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200104"
+__version__ = "v20200106"
 
 # Local Files
 import files
@@ -339,7 +339,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                     print(lpr_path.replace(
                         "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
                         '-P PS "C:/S/SO/', "").split("-J")[0])
-                print_que.append(lpr_path)
+                    print_que.append(lpr_path)
             printer.print_processor(print_que)  # Does the printing
             while True:
                 try:
