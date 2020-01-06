@@ -1,5 +1,5 @@
 # files.py
-__version__ = "v20191108"
+__version__ = "v20191112"
 
 # Built-In Libraries
 import os
@@ -10,6 +10,7 @@ import PyPDF2
 from termcolor import colored
 import colorama
 import subprocess
+import shutil
 
 
 # Local Files
@@ -70,8 +71,34 @@ def page_counts(OUTPUT_DIRECTORY, ORDER_NAME):
 def page_count(path):
     args = [GHOSTSCRIPT_PATH, "-q", "-dNODISPLAY", '-c',
             '"('+path + ') (r) file runpdfbegin pdfpagecount = quit"']
-    status = subprocess.Popen(args, stdout=subprocess.PIPE, shell = True)
+    if(os.name == "posix"):
+        status = subprocess.Popen(args, stdout=subprocess.PIPE)
+    else:
+        status = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
     (out, err) = status.communicate()  # pylint: disable=unused-variable
     out = out.strip()
     out = [int(s) for s in out.split() if s.isdigit()]
     return out[0]
+
+
+def file_cleanup(Orders, OUTPUT_DIRECTORY):
+    try:
+        for order in Orders:
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PostScript/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PSP/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/Tickets/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join(
+                [OUTPUT_DIRECTORY, "/", order, "/", order, ".ps"])
+            if os.path.exists(filePath):
+                os.remove(filePath)
+        Orders = []
+        return True
+    except:
+        print("File Cleanup Failed")
+        return False

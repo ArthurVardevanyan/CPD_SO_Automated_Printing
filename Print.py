@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20191108"
+__version__ = "v20200104"
 
 # Local Files
 import files
@@ -7,6 +7,7 @@ import BannerSheet
 import instructions
 import EmailPrint
 import printer
+import PostScript
 
 # Built-In Libraries
 import os
@@ -45,24 +46,30 @@ def impression_counter(PAGE_COUNTS, COPIES, PRINTER):
         return 1
 
 
-def can_run(JOB_INFO, COLOR, BOOKLETS):
+def can_run(JOB_INFO, COLOR, BOOKLETS, COVERS):
     # Determines if jobs is able to be ran or not using this script
     if(JOB_INFO.get('Ran', False) == "True"):
         return False
     if(JOB_INFO.get('Stapling', False)):
-        if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait" or JOB_INFO.get('Stapling', False) == "Upper Left - landscape" or JOB_INFO.get('Stapling', False) == "None"):
+        if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait" or JOB_INFO.get('Stapling', False) == "Upper Left - landscape" or JOB_INFO.get('Stapling', False) == "Double Left - portrait" or JOB_INFO.get('Stapling', False) == "None"):
             None
         else:
             return False
-    if(JOB_INFO.get('Front Cover', False)):
+    if(not COVERS and JOB_INFO.get('Front Cover', False)):
         return False
-    if(JOB_INFO.get('Back Cover', False)):
+    if(not COVERS and JOB_INFO.get('Back Cover', False)):
         return False
     if(JOB_INFO.get('Booklets', False) == "Yes" and BOOKLETS == 0):
         return False
     if("11 x 17" in str(JOB_INFO.get('Paper', False))):
         return False
     if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White" and COLOR == 0):
+        return False
+    if("color" in str.lower(JOB_INFO.get('Slip Sheets / Shrink Wrap', "")) and "print" in str.lower(JOB_INFO.get('Slip Sheets / Shrink Wrap', ""))):
+        return False
+    if("color" in str.lower(JOB_INFO.get('Special Instructions', "")) and "print" in str.lower(JOB_INFO.get('Special Instructions', ""))):
+        return False
+    if(not COVERS and "cover" in str.lower(JOB_INFO.get('Special Instructions', ""))):
         return False
     return True
 
@@ -153,7 +160,7 @@ def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES):
     return 0
 
 
-def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS):
+def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS):
     # Runs the bulk of code
     print_result = ''  # Used for Status Output
 
@@ -176,7 +183,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             if(EMAILPRINT):
                 D110_IP = "156" if PRINTER == 0 else "162"
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray", D110_IP)
+                                       ORDER_NAME, print_que, "toptray", D110_IP)
                 return "".join(["Not Supported S:  ", ORDER_NAME])
     # Keeps track of how much each printer has printed for load balancing
     page_counts = files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME)
@@ -188,17 +195,17 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         JOB_INFO, "".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/']))
 
     # Checks if the job specs can be ran
-    if (not can_run(JOB_INFO, COLOR, BOOKLETS)):
+    if (not can_run(JOB_INFO, COLOR, BOOKLETS, COVERS)):
         print(colored("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.", "red"))
         if(not AUTORUN):
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray", D110_IP)
+                                       ORDER_NAME, print_que, "toptray", D110_IP)
             return "".join(["Not Supported:  ", ORDER_NAME])
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray", D110_IP)
+                                       ORDER_NAME, print_que, "toptray", D110_IP)
             return "".join(["Not Supported AutoS: ", ORDER_NAME])
 
     print("\nNumber of (Total) Copies Listed Per File: ",
@@ -252,15 +259,30 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, AUTORUN, print_que, "toptray", D110_IP)
+                                       ORDER_NAME, print_que, "toptray", D110_IP)
 
             return "".join(["Not Supported SPI  : ", ORDER_NAME])
+
+    if os.path.exists(OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PostScript/') == False:
+        try:
+            # Create PostScript File
+            print(colored(
+                "This was an Archived School Order, PostsScript files are being Regenerated.", 'green'))
+            PostScript.postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
+            if(instructions.merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
+                PostScript.file_merge(
+                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(JOB_INFO))
+        except:
+            print("PostScript Conversion Failed")
 
     # This gets the number of pages for every pdf file for the job.
     MERGED = False
     # Sets the correct PJL commands
-    MERGED = instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
-    # Create Directory for Print Ready Files
+    MERGED = instructions.pjl_insert(
+        JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+    if(COVERS and "cover" in str.lower(JOB_INFO.get('Special Instructions', ""))):
+        MERGED = instructions.cover_manual(
+            OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO)
 
    # Merge PostScript Header File to All Postscript Job Files
     pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
@@ -278,7 +300,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
     print("\n")
     if(EMAILPRINT):
         EmailPrint.Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
-                               AUTORUN, print_que, "stacker", D110_IP)
+                               print_que, "stacker", D110_IP)
     lpr_path = ""
 
     if(JOB_INFO.get('Booklets', False) == "Yes"):
@@ -296,19 +318,29 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
         print("PLEASE CHECK PROOF, if any files look incorrect, please cancel order")
         while True:
             try:
-                approved = input(''.join(["Approved?  Yes : ", colored("1", "cyan"), " | Flip & Proof?: ", colored(
-                    "2", "cyan"), " | No : ", colored("0", "cyan"), " "]))
+                approved = int(input(''.join(["Approved?  Yes : ", colored("1", "cyan"), " | Flip & Proof?: ", colored(
+                    "2", "cyan"), " | No : ", colored("0", "cyan"), " "])))
                 break
             except:
                 pass
         if(approved == 1):
             COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
-            instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
+            instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
             pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
         elif(approved == 2):
             JOB_INFO["Duplex"] = "two-sided-short-edge"
-            instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
+            instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
             pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
+            for i in range(SETS):
+                for j in range(len(Print_Files)):
+                    lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
+                    lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
+                        Print_Files[j] + '" -J "' + Print_Files[j] + '"'
+                    print(lpr_path.replace(
+                        "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                        '-P PS "C:/S/SO/', "").split("-J")[0])
+                print_que.append(lpr_path)
+            printer.print_processor(print_que)  # Does the printing
             while True:
                 try:
                     approved = 1 if int(
@@ -318,7 +350,7 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
                     pass
             if(approved == 1):
                 COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
-                instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts)
+                instructions.pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
                 pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
             else:
                 return "Booklet Not Approved"
@@ -348,12 +380,15 @@ def printing(ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN,
             print_que.append(lpr_path)
 
     print("\n")
+    Orders.append(ORDER_NAME)
     return "".join([print_result, LPR[D110_IP][41:44], " : ", ORDER_NAME])
 
 
-def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS):
+def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS):
     # Contains the list of final commands for all the orders that were proccessed to be run.
+
     print_que = []
+    Orders = []
     # Check if user wants to processes jobs with colored paper, if disabled this adds protection against accidentally running jobs on colored paper.
     loop = True
     # Lets the user choose with printer they would like to use, or if they want to autoload balance between both printers.
@@ -388,14 +423,17 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS):
                     ORDER_NUMBER.append(ORDER_NUMBERS)
                 temp = "run"
             else:
+                OUTPUT_DIRECTORY = "SO/"
                 print("\nI am Going to Run:")
                 print('\n'.join(map(str, ORDER_NUMBER)))
                 for orders in ORDER_NUMBER:
+
                     printed.append(
-                        printing(str(orders), "SO", D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS))  # Does all the processing for the orders
+                        printing(Orders, str(orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS))  # Does all the processing for the orders
                 print("\n")
                 print('\n'.join(map(str, printed)))
                 printer.print_processor(print_que)  # Does the printing
+                files.file_cleanup(Orders, OUTPUT_DIRECTORY)
                 print("\n")
                 print('\n'.join(map(str, printed)))
                 while True:
@@ -413,7 +451,9 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS):
 
 
 if __name__ == "__main__":
-    print("\nTerminal AutoPrinting REV: ", colored(__version__, "magenta"))
+    print("Terminal Auto Printing  REV:", colored(__version__, "magenta"))
+    print("Terminal Email Printing REV:",
+          colored(EmailPrint.__version__, "magenta"))
     print('Type Your Order Number and Hit Enter,\nType "', colored(
         'run', 'green'), '" then hit enter when your all set. \n')
     print("Compatible Jobs will AutoRun, jobs will pause for requested input if needed.")
@@ -423,7 +463,7 @@ if __name__ == "__main__":
     while True:
         try:
             SEQUENTIAL = True if int(
-                input(''.join(["Enable Sequential Printing  Paper?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default/recommended) "]))) == 1 else False
+                input(''.join(["Enable Sequential Printing  Paper?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
             break
         except:
             pass
@@ -432,7 +472,7 @@ if __name__ == "__main__":
             EMAILPRINT = True if int(
                 input(''.join(["Print Emails with Jobs?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
             if(EMAILPRINT):
-                print("Make Sure White and Blue Paper is loaded!")
+                print("Make Sure White and Bright Colored Paper is loaded!")
             break
         except:
             pass
@@ -456,4 +496,11 @@ if __name__ == "__main__":
             break
         except:
             pass
-    main(False, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS)
+    while True:
+        try:
+            COVERS = 1 if int(
+                input(''.join(["Enable Covers?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
+            break
+        except:
+            pass
+    main(False, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS)

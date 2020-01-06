@@ -1,5 +1,5 @@
 # test_instructions.py
-__version__ = "v20191021"
+__version__ = "v20200104"
 
 import unittest
 import os
@@ -9,6 +9,72 @@ import instructions
 
 
 class Testing(unittest.TestCase):
+
+    def test_duplex_test(self):
+        self.assertEqual(instructions.duplex_state(
+            {"Duplex": "Two-sided (back to back)"}), 2)
+        self.assertEqual(instructions.duplex_state({"Duplex": "One-Sided"}), 1)
+
+    def test_merging(self):
+        self.assertEqual(instructions.merging({
+            "Files": {
+                "File 1": {},
+            },
+            "Collation": "Uncollated",
+        }, 11), 0)
+        self.assertEqual(instructions.merging({
+            "Files": {
+                "File 1": {},
+                "File 2": {},
+            },
+            "Collation": "Uncollated",
+            "Stapling": "Upper Left - portrait",
+        }, 3), 0)
+        self.assertEqual(instructions.merging({
+            "Files": {
+                "File 1": {},
+                "File 2": {},
+            },
+            "Collation": "Collated",
+            "Stapling": "Upper Left - portrait",
+        }, 3), 0)
+        self.assertEqual(instructions.merging({
+            "Files": {
+                "File 1": {},
+                "File 2": {},
+            },
+            "Collation": "Uncollated",
+            "Stapling": "Upper Left - portrait",
+        }, 3), 0)
+        self.assertEqual(instructions.merging({
+            "Files": {
+                "File 1": {},
+                "File 2": {},
+            },
+            "Collation": "Uncollated",
+        }, 11), 1)
+        self.assertEqual(instructions.merging({
+            "Files": {
+                "File 1": {},
+                "File 2": {},
+            },
+            "Duplex": "Two-sided (back to back)",
+            "Collation": "Uncollated",
+        }, 20), 1)
+        self.assertEqual(instructions.merging({
+            "Files": {
+                "File 1": {},
+                "File 2": {},
+            },
+            "Collation": "Uncollated",
+        }, 20), 0)
+        self.assertEqual(instructions.merging({
+            "Files": {
+                "File 1": {},
+                "File 2": {},
+            },
+            "Collation": "Collated",
+        }, 11), 0)
 
     def test_pass(self):
         self.assertEqual(instructions.Special_Instructions({
@@ -111,7 +177,14 @@ class Testing(unittest.TestCase):
             "Slip Sheets / Shrink Wrap": "two stacks of 75",
             "Special Instructions": "two stacks of 75",
         }), (2, 75))
-        
+        self.assertEqual(instructions.Special_Instructions({
+            "Copies": "150",
+            "Slip Sheets / Shrink Wrap": "two sets of 75",
+        }), (2, 75))
+        self.assertEqual(instructions.Special_Instructions({
+            "Copies": "100",
+            "Slip Sheets / Shrink Wrap": "Please wrap into 4 sets of 25!",
+        }), (4, 25))
 
     def test_manual_input(self):
         self.assertEqual(instructions.Special_Instructions({
@@ -147,6 +220,10 @@ class Testing(unittest.TestCase):
             "Slip Sheets / Shrink Wrap": "Can each file be sorted into 2 groups of 60.",
             "Special Instructions": "Each file in 2 groups of 60",
         }), (0, 0))
+        self.assertEqual(instructions.Special_Instructions({
+            "Copies": "60",
+            "Slip Sheets / Shrink Wrap": "After cutting, please shrinkwrap in packs of 30. There should be 4 shrinkwrapped packs of 30 per file.",
+        }), (0, 0))
 
     def test_default(self):
         self.assertEqual(instructions.default({"Order Number": "11344-2704"}),
@@ -170,9 +247,9 @@ class Testing(unittest.TestCase):
         }), str.encode(''))
 
     def test_collation(self):
-        self.assertEqual(instructions.collation({"Collation": "Collated"}),
+        self.assertEqual(instructions.collation({"Collation": "Collated"}, 1),
                          str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n'))
-        self.assertEqual(instructions.collation({"Collation": "Uncollated"}),
+        self.assertEqual(instructions.collation({"Collation": "Uncollated"}, 1),
                          str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n'))
 
     def test_duplex(self):
@@ -242,7 +319,7 @@ class Testing(unittest.TestCase):
             "Collation": "Collated",
             "Paper": "8.5 x 11 Paper White",
             "Stapling": "Upper Left - portrait",
-        }, 30, 9))
+        }, 30, 9, 0))
         with open('PJL_Commands/input.ps', 'r') as f:
             data = f.readlines()
         count = 0

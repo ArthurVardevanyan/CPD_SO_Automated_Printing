@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20191108"
+__version__ = "v20200104"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -26,6 +26,8 @@ import files
 import EmailPrint
 import Print
 import printer
+import database
+import instructions
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -110,29 +112,6 @@ def order_number_extract(email_body, RANDOM):
         return "", error_state
 
 
-def duplex_state(JOB_INFO):
-    if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
-        print('Double Sided')
-        return 2
-    else:
-        print('Single Sided')
-        return 1
-
-
-def merging(JOB_INFO, PAGE_COUNTS):
-
-    if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-        if PAGE_COUNTS / len(JOB_INFO.get('Files', False)) / duplex_state(JOB_INFO) >= 10:
-            print("DUE TO PAGE COUNT, MERGED TURNED OFF")
-            return 0
-        else:
-            return 1
-    elif len(JOB_INFO.get('Files', False)) != 1 and PAGE_COUNTS == len(JOB_INFO.get('Files', False)):
-        return 1
-    else:
-        print("Not Merging")
-        return 0
-
 
 def process_mailbox(M, AUTORUN, D110_IP):
     OUTPUT_DIRECTORY = 'SO/'
@@ -186,15 +165,20 @@ def process_mailbox(M, AUTORUN, D110_IP):
         except:
             print("JSON File Failed")
         try:
+            # Database Input
+            database.database_input(OUTPUT_DIRECTORY, JOB_INFO)
+        except:
+            print("Database Input Failed")
+        try:
             # Create PostScript File
             PostScript.postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
         except:
             print("PostScript Conversion Failed")
         try:
             # Merge Uncollated Files
-            if(merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
+            if(instructions.merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
                 PostScript.file_merge(
-                    OUTPUT_DIRECTORY, ORDER_NAME, duplex_state(JOB_INFO))
+                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(JOB_INFO))
 
         except:
             print("File Merge Failure")
@@ -210,9 +194,11 @@ def process_mailbox(M, AUTORUN, D110_IP):
             BOOKLETS = 0
             EMAILPRINT = True
             print_que = []
-            Print.printing(ORDER_NUMBER, "SO", D110_IP, COLOR,
-                           print_que, AUTORUN, EMAILPRINT, BOOKLETS)
+            Orders = []
+            Print.printing(Orders, ORDER_NUMBER, "SO", D110_IP, COLOR,
+                           print_que, AUTORUN, EMAILPRINT, BOOKLETS, 0)
             printer.print_processor(print_que)
+            files.file_cleanup(Orders, OUTPUT_DIRECTORY)
 
     return emails_proccessed
 
@@ -267,8 +253,13 @@ def main(AUTORUN, D110_IP):
 
 
 if __name__ == "__main__":
-    print("\nSchool Order Downloader Revision: ",
+    print("\nSchool Order Downloader REV:",
           colored(__version__, "magenta"))
+    print("Terminal Auto Printing  REV:",
+          colored(Print.__version__, "magenta"))
+    print("Terminal Email Printing REV:",
+          colored(EmailPrint.__version__, "magenta"))
+    print("\n")
     D110_IP = 1
     while True:
         try:
