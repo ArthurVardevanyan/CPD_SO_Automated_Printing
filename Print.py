@@ -160,7 +160,7 @@ def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES):
     return 0
 
 
-def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS):
+def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS, nup):
     # Runs the bulk of code
     print_result = ''  # Used for Status Output
 
@@ -302,39 +302,16 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         EmailPrint.Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
                                print_que, "stacker", D110_IP)
     lpr_path = ""
+    if(nup):
+        PostScript.pdf_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
+        PostScript.nup(OUTPUT_DIRECTORY, ORDER_NUMBER)
+        if(instructions.merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
+            PostScript.file_merge_n(
+                OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(JOB_INFO))
 
-    if(JOB_INFO.get('Booklets', False) == "Yes"):
-        approved = 0
-        for i in range(SETS):
-            for j in range(len(Print_Files)):
-                lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-                lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
-                    Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                print(lpr_path.replace(
-                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
-                    '-P PS "C:/S/SO/', "").split("-J")[0])
-                print_que.append(lpr_path)
-        printer.print_processor(print_que)  # Does the printing
-        print("PLEASE CHECK PROOF, if any files look incorrect, please cancel order")
-        while True:
-            try:
-                approved = int(input(''.join(["Approved?  Yes: ", colored("1", "cyan"), " | Flip All & Proof?: ", colored(
-                    "2", "cyan"),  " | Flip Individually & Proof?: ", colored(
-                    "3", "cyan"), " | No: ", colored("0", "cyan"), " :"])))
-                break
-            except:
-                pass
-        flip = []
-        if(approved == 1):
-            COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
-            instructions.pjl_insert(
-                JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
-            pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
-        elif(approved == 2):
-            JOB_INFO["Duplex"] = "two-sided-short-edge"
-            instructions.pjl_insert(
-                JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
-            pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
+    else:
+        if(JOB_INFO.get('Booklets', False) == "Yes"):
+            approved = 0
             for i in range(SETS):
                 for j in range(len(Print_Files)):
                     lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
@@ -344,81 +321,111 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                         "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
                         '-P PS "C:/S/SO/', "").split("-J")[0])
                     print_que.append(lpr_path)
-        elif(approved == 3):
-            for i in range(SETS):
-                for j in range(len(Print_Files)):
-                    while True:
-                        try:
-                            flipT = int(input(''.join(["File: ", str(j), ": Flip?  Yes: ", colored(
-                                "1", "cyan"), " No: ", colored("0", "cyan"), " : "])))
-                            if(flipT == 1 or flipT == 0):
-                                flip.append(flipT)
-                                break
-                            else:
-                                pass
-                        except:
-                            pass
-                    JOB_INFO[
-                        "Duplex"] = "two-sided-short-edge" if flip[-1] else "Two-sided (back to back)"
-                    instructions.pjl_insert(
-                        JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
-                    flip_file = [FILES[j]]
-                    pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, flip_file)
-                    lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-                    lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
-                        Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                    print_que.append(lpr_path)
             printer.print_processor(print_que)  # Does the printing
+            print("PLEASE CHECK PROOF, if any files look incorrect, please cancel order")
             while True:
                 try:
-                    approved = 1 if int(
-                        input(''.join(["Approved?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " "]))) == 1 else 0
+                    approved = int(input(''.join(["Approved?  Yes: ", colored("1", "cyan"), " | Flip All & Proof?: ", colored(
+                        "2", "cyan"),  " | Flip Individually & Proof?: ", colored(
+                        "3", "cyan"), " | No: ", colored("0", "cyan"), " :"])))
                     break
                 except:
                     pass
+            flip = []
             if(approved == 1):
-                if (len(flip) == 0):
-                    COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
-                    instructions.pjl_insert(
-                        JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
-                    pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
-                else:
+                COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
+                instructions.pjl_insert(
+                    JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+                pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
+            elif(approved == 2):
+                JOB_INFO["Duplex"] = "two-sided-short-edge"
+                instructions.pjl_insert(
+                    JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+                pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
+                for i in range(SETS):
                     for j in range(len(Print_Files)):
+                        lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
+                        lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
+                            Print_Files[j] + '" -J "' + Print_Files[j] + '"'
+                        print(lpr_path.replace(
+                            "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                            '-P PS "C:/S/SO/', "").split("-J")[0])
+                        print_que.append(lpr_path)
+            elif(approved == 3):
+                for i in range(SETS):
+                    for j in range(len(Print_Files)):
+                        while True:
+                            try:
+                                flipT = int(input(''.join(["File: ", str(j), ": Flip?  Yes: ", colored(
+                                    "1", "cyan"), " No: ", colored("0", "cyan"), " : "])))
+                                if(flipT == 1 or flipT == 0):
+                                    flip.append(flipT)
+                                    break
+                                else:
+                                    pass
+                            except:
+                                pass
                         JOB_INFO[
-                            "Duplex"] = "two-sided-short-edge" if flip[j] else "Two-sided (back to back)"
+                            "Duplex"] = "two-sided-short-edge" if flip[-1] else "Two-sided (back to back)"
                         instructions.pjl_insert(
                             JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
                         flip_file = [FILES[j]]
                         pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME,
                                   MERGED, flip_file)
+                        lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
+                        lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
+                            Print_Files[j] + '" -J "' + Print_Files[j] + '"'
+                        print_que.append(lpr_path)
+                printer.print_processor(print_que)  # Does the printing
+                while True:
+                    try:
+                        approved = 1 if int(
+                            input(''.join(["Approved?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " "]))) == 1 else 0
+                        break
+                    except:
+                        pass
+                if(approved == 1):
+                    if (len(flip) == 0):
+                        COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
+                        instructions.pjl_insert(
+                            JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+                        pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, MERGED, FILES)
+                    else:
+                        for j in range(len(Print_Files)):
+                            JOB_INFO[
+                                "Duplex"] = "two-sided-short-edge" if flip[j] else "Two-sided (back to back)"
+                            instructions.pjl_insert(
+                                JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+                            flip_file = [FILES[j]]
+                            pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME,
+                                      MERGED, flip_file)
+                else:
+                    return "Booklet Not Approved"
             else:
                 return "Booklet Not Approved"
         else:
-            return "Booklet Not Approved"
-    else:
-        lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
-        print_que.append(lpr_path)
-
-    print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
-    i = 0
-    while i < SETS:
-        i += 1
-        for j in range(len(Print_Files)):
-            print("File Name: ", Print_Files[j])
-    print("\n")
-    print(lpr_path)
-    # Change Path so only File Name Shows up on Printer per File Banner Sheet
-    for i in range(SETS):
-        for j in range(len(Print_Files)):
-            lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-            lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
-                Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-            print(lpr_path.replace(
-                "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
-                '-P PS "C:/S/SO/', "").split("-J")[0])
+            lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
             print_que.append(lpr_path)
 
-    print("\n")
+        print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
+        i = 0
+        while i < SETS:
+            i += 1
+            for j in range(len(Print_Files)):
+                print("File Name: ", Print_Files[j])
+        print("\n")
+        print(lpr_path)
+        # Change Path so only File Name Shows up on Printer per File Banner Sheet
+        for i in range(SETS):
+            for j in range(len(Print_Files)):
+                lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
+                lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
+                    Print_Files[j] + '" -J "' + Print_Files[j] + '"'
+                print(lpr_path.replace(
+                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                    '-P PS "C:/S/SO/', "").split("-J")[0])
+                print_que.append(lpr_path)
+        print("\n")
     # Orders.append(ORDER_NAME)
     return "".join([print_result, LPR[D110_IP][41:44], " : ", ORDER_NAME])
 
@@ -468,7 +475,7 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS):
                 for orders in ORDER_NUMBER:
 
                     printed.append(
-                        printing(Orders, str(orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS))  # Does all the processing for the orders
+                        printing(Orders, str(orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS, True))  # Does all the processing for the orders
                 print("\n")
                 print('\n'.join(map(str, printed)))
                 printer.print_processor(print_que)  # Does the printing
