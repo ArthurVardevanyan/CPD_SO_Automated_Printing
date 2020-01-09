@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200107"
+__version__ = "v20200109"
 
 # Built-In Libraries
 import json
@@ -157,7 +157,7 @@ def file_merge_n(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE):
                 src = "".join(['"', OUTPUT_DIRECTORY, '/',
                                ORDER_NAME, '/PDFn/', FILES[i], '"'])
                 ghostscript_command = "".join(
-                    [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=ledger -dFIXEDMEDIA  -dPDFFitPage   -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
+                    [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write  -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
                 os.system(ghostscript_command)
 
     # Merges Files for Uncollated Printing with SlipSheets
@@ -168,7 +168,7 @@ def file_merge_n(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE):
     output = "".join(
         [OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, 'n.ps'])
     ghostscript_command = "".join(
-        [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write  -sPAPERSIZE=ledger -dFIXEDMEDIA  -dPDFFitPage  -sOutputFile="', output, '" ', files_path, '  -c quit'])
+        [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write   -sOutputFile="', output, '" ', files_path, '  -c quit'])
     # Processes the Conversion
     os.system(ghostscript_command)
     return True
@@ -204,6 +204,8 @@ def nupConversion(inFile, outFile):
     print("2-up input " + inFile)
     input1 = PdfFileReader(open(inFile, "rb"))
     output = PdfFileWriter()
+    output1 = PdfFileWriter()
+
     for iter in range(0, input1.getNumPages()):
         lhs = input1.getPage(iter)
         rhs = input1.getPage(iter)
@@ -211,10 +213,15 @@ def nupConversion(inFile, outFile):
         output.addPage(lhs)
         print(str(iter) + " "),
         sys.stdout.flush()
+    for iter in range(0, output.getNumPages()):
+        page = output.getPage(iter)
+        page.rotateClockwise(90)
+        output1.addPage(page)
+        sys.stdout.flush()
 
     print("writing " + outFile)
     outputStream = open(outFile, "wb")
-    output.write(outputStream)
+    output1.write(outputStream)
     print("done.")
 
 
@@ -253,5 +260,5 @@ def nup(OUTPUT_DIRECTORY, ORDER_NUMBER):
 
     for i in range(len(FILES)):
         # Processes the Conversion
-        os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=ledger -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', OUTPUT_DIRECTORY, '"/"' +
+        os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile="', OUTPUT_DIRECTORY, '"/"' +
                            ORDER_NAME, '"/PostScriptn/"', FILES[i], '.ps" "', OUTPUT_DIRECTORY, '"/"', ORDER_NAME, '"/PDFn/"', FILES[i], '" -c quit']))
