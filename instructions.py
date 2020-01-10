@@ -48,7 +48,10 @@ def Special_Instructions_Processing(QTY, str):
         if(min(Numbers) == max(Numbers)):
             if("every" in str or "each" in str or "into" in str or "between" in str or "stacks of" in str or "sets of" in str):
                 if(QTY % min(Numbers) == 0):
-                    return int(QTY / min(Numbers)), min(Numbers)
+                    if(min(Numbers) <= 5 ):
+                        return min(Numbers), int(QTY / min(Numbers))
+                    else:
+                        return int(QTY / min(Numbers)), min(Numbers)
                 else:
                     return 0, 1
             if("complete" in str or "set" in str):
