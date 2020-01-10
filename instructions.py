@@ -1,4 +1,4 @@
-__version__ = "v2020104"
+__version__ = "v2020108"
 
 import json
 import PostScript
@@ -48,7 +48,10 @@ def Special_Instructions_Processing(QTY, str):
         if(min(Numbers) == max(Numbers)):
             if("every" in str or "each" in str or "into" in str or "between" in str or "stacks of" in str or "sets of" in str):
                 if(QTY % min(Numbers) == 0):
-                    return int(QTY / min(Numbers)), min(Numbers)
+                    if(min(Numbers) <= 5 ):
+                        return min(Numbers), int(QTY / min(Numbers))
+                    else:
+                        return int(QTY / min(Numbers)), min(Numbers)
                 else:
                     return 0, 1
             if("complete" in str or "set" in str):
@@ -193,6 +196,21 @@ def color_extract(JOB_INFO):
     return str.encode("".join(['@PJL XCPT <media-color syntax="keyword">', out, '</media-color>\n']))
 
 
+def size_extract(JOB_INFO):
+    # Converts Input from given form to the value the printer needs
+    paper = (str(JOB_INFO.get('Paper', False))).lower()
+    if "8.5 x 11" in paper:
+        print("letter")
+        return str.encode("")
+    if "11 x 17" in paper:
+        print("ledger")
+        return str.encode("".join(['\
+@PJL XCPT 				<media-size syntax="collection">\n\
+@PJL XCPT 					<x-dimension syntax="integer">27940</x-dimension>\n\
+@PJL XCPT 					<y-dimension syntax="integer">43180</y-dimension>\n\
+@PJL XCPT 				</media-size>\n']))
+
+
 def cover_weight_extract(PAPER):
     # Converts Input from given form to the value the printer needs
     paper = (str(PAPER)).lower()
@@ -278,7 +296,7 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS):
     media_type = weight_extract(JOB_INFO)
     booklet = booklet_extract(JOB_INFO)
     COVER = covers(JOB_INFO, COVERS)
-
+    size = size_extract(JOB_INFO)
     COPIES_COMMAND = str.encode("".join(
         ['@PJL XCPT <copies syntax="integer">', str(COPIES_PER_SET), '</copies>\n', COVER]))
     with open('PJL_Commands/PJL.ps', 'rb') as f:
@@ -287,6 +305,7 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS):
     for i in range(len(lines)):
         if str('<media-color syntax="keyword">') in str(lines[i]):
             lines[i] = media_color
+            lines.insert(i+1, size)
         if str('<media-type syntax="keyword">') in str(lines[i]):
             lines[i] = media_type
         if str('<copies syntax="integer">') in str(lines[i]):
@@ -304,18 +323,24 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS):
         if str('<sides syntax="keyword">one-sided</sides>') in str(lines[i]):
             lines[i] = DUPLEX
         if str('<sheet-collate syntax="keyword">uncollated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]):
-            lines[i] = str.encode(
-                '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
-            lines.insert(i, str.encode(
-                '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n'))
+
+            if("11 x 17" in str(JOB_INFO.get('Paper', False)).lower()):
+                lines[i] = str.encode(
+                    '@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n')
+            else:
+                lines[i] = str.encode(
+                    '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n@PJL XCPT 	<separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             print("\nSplit-Sheeting!")
         # Add SlipSheets to Large Collated Sets
         if (page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and
                 JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and (JOB_INFO.get('Stapling', False) != "Upper Left - landscape") and JOB_INFO.get('Stapling', False) != "Double Left - portrait"):
-            lines[i] = str.encode(
-                '@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
-            lines.insert(i, str.encode(
-                '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n'))
+
+            if("11 x 17" in str(JOB_INFO.get('Paper', False)).lower()):
+                lines[i] = str.encode(
+                    '@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n')
+            else:
+                lines[i] = str.encode(
+                    '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n@PJL XCPT 	<separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             print("\nSplit-Sheeting!")
         if str('<output-bin syntax="keyword">') in str(lines[i]) and booklet != "":
             lines[i] = str.encode(

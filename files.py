@@ -1,5 +1,5 @@
 # files.py
-__version__ = "v20191112"
+__version__ = "v20200108"
 
 # Built-In Libraries
 import os
@@ -95,6 +95,22 @@ def file_cleanup(Orders, OUTPUT_DIRECTORY):
                 shutil.rmtree(filePath)
             filePath = "".join(
                 [OUTPUT_DIRECTORY, "/", order, "/", order, ".ps"])
+            if os.path.exists(filePath):
+                os.remove(filePath)
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PDF/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PDFn/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PostScriptn/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PSPn/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join(
+                [OUTPUT_DIRECTORY, "/", order, "/", order, "n.ps"])
             if os.path.exists(filePath):
                 os.remove(filePath)
         Orders = []
