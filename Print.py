@@ -291,7 +291,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
             print(colored(
                 "This was an Archived School Order, PostsScript files are being Regenerated.", 'green'))
             PostScript.postscript_conversion(order.NUMBER, order.OD)
-            if(instructions.merging(order, files.page_counts(order.OD, order.NAME))):
+            if(instructions.merging(order)):
                 PostScript.file_merge(
                     order.OD, order.NAME, instructions.duplex_state(order))
         except:
@@ -303,8 +303,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     MERGED = instructions.pjl_insert(
         order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
     if(COVERS and "cover" in str.lower(order.SPECIAL_INSTRUCTIONS)):
-        MERGED = instructions.cover_manual(
-            order.OD, order.NAME, order)
+        MERGED = instructions.cover_manual(order)
 
    # Merge PostScript Header File to All Postscript Job Files
     FILES = [i.name for i in order.FILES]
@@ -331,7 +330,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         if os.path.exists(order.OD+'/' + order.NAME + '/PostScriptn/') == False:
             PostScript.pdf_conversion(order.NUMBER, order.OD)
             PostScript.nup(order.OD, order.NUMBER)
-            if(instructions.merging(order, files.page_counts(order.OD, order.NAME))):
+            if(instructions.merging(order)):
                 PostScript.file_merge_n(
                     order.OD, order.NAME, instructions.duplex_state(order))
         order.PAPER = "11 x 17 Paper White"
