@@ -1,5 +1,5 @@
 # test_Print.py
-__version__ = "v20191231"
+__version__ = "v20200110"
 
 import unittest
 from unittest import mock
@@ -87,38 +87,38 @@ class Testing(unittest.TestCase):
             {"Special Instructions":  "Please print in color."}, 0, 0, 0))
 
     def test_printing(self):
-        
-        self.assertEqual(Print.printing([], "11344", "tests/SO", 1, 0, [], True, False, 0, 0),
+
+        self.assertEqual(Print.printing([], "11344", "tests/SO", 1, 0, [], True, False, 0, 0, 0),
                          "SUCCESS SPI! : 162 : 11344-2704 First Last - Test 1")
-        self.assertEqual(Print.printing([], "11345", "tests/SO", 1, 0, [], True, False, 0, 0),
+        self.assertEqual(Print.printing([], "11345", "tests/SO", 1, 0, [], True, False, 0, 0, 0),
                          "SUCCESS SPI! : 162 : 11345-3704 First Last - Test 2")
-        self.assertEqual(Print.printing([], "11349", "tests/SO", 1, 0, [], True, False, 0, 0),
+        self.assertEqual(Print.printing([], "11349", "tests/SO", 1, 0, [], True, False, 0, 0, 0),
                          "SUCCESS SPI! : 162 : 11349-0311 First Last - Test 3")
 
     def test_main(self):
         with mock.patch('builtins.input', side_effect=[0, "run", 0]):
-            self.assertEqual(Print.main(False, 0, 0, 0, 0, 0), 1)
+            self.assertEqual(Print.main(False, 0, 0, 0, 0, 0, 0), 1)
         with mock.patch('builtins.input', side_effect=[0, "run", 0]):
-            self.assertEqual(Print.main(True, 0, 0, 0, 0, 0), 1)
+            self.assertEqual(Print.main(True, 0, 0, 0, 0, 0, 0), 1)
         with mock.patch('builtins.input', side_effect=[0, "run", 0]):
-            self.assertEqual(Print.main(True, 0, 0, 1, 0, 0), 1)
+            self.assertEqual(Print.main(True, 0, 0, 1, 0, 0, 0), 1)
         with mock.patch('builtins.input', side_effect=[1, "run", 0]):
-            self.assertEqual(Print.main(True, 0, 0, 0, 0, 0), 1)
+            self.assertEqual(Print.main(True, 0, 0, 0, 0, 0, 0), 1)
         with mock.patch('builtins.input', side_effect=[2, "run", 0]):
-            self.assertEqual(Print.main(True, 0, 0, 1, 0, 0), 1)
+            self.assertEqual(Print.main(True, 0, 0, 1, 0, 0, 0), 1)
         with mock.patch('builtins.input', side_effect=[1, "run", 0]):
-            self.assertEqual(Print.main(True, 0, 0, 1, 0, 0), 1)
+            self.assertEqual(Print.main(True, 0, 0, 1, 0, 0, 0), 1)
         with mock.patch('builtins.input', side_effect=[2, "run", 0]):
-            self.assertEqual(Print.main(True, 0, 0, 1, 0, 0), 1)
+            self.assertEqual(Print.main(True, 0, 0, 1, 0, 0, 0), 1)
         for i in range(3):
             with mock.patch('builtins.input', side_effect=[i, "run", 0]):
-                self.assertEqual(Print.main(True, 0, 0, 1, 0, 0), 1)
+                self.assertEqual(Print.main(True, 0, 0, 1, 0, 0, 0), 1)
             with mock.patch('builtins.input', side_effect=[i, "run", 0]):
-                self.assertEqual(Print.main(True, 0, 1, 1, 0, 0), 1)
+                self.assertEqual(Print.main(True, 0, 1, 1, 0, 0, 0), 1)
             with mock.patch('builtins.input', side_effect=[i, 0, 0, 0]):
-                self.assertEqual(Print.main(True, 1, 1, 1, 0, 0), 1)
+                self.assertEqual(Print.main(True, 1, 1, 1, 0, 0, 0), 1)
             with mock.patch('builtins.input', side_effect=[i, 0, 0, 0]):
-                self.assertEqual(Print.main(True, 1, 0, 1, 0, 0), 1)
+                self.assertEqual(Print.main(True, 1, 0, 1, 0, 0, 0), 1)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200104"
+__version__ = "v202001008"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -112,7 +112,6 @@ def order_number_extract(email_body, RANDOM):
         return "", error_state
 
 
-
 def process_mailbox(M, AUTORUN, D110_IP):
     OUTPUT_DIRECTORY = 'SO/'
 
@@ -179,9 +178,16 @@ def process_mailbox(M, AUTORUN, D110_IP):
             if(instructions.merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
                 PostScript.file_merge(
                     OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(JOB_INFO))
-
         except:
             print("File Merge Failure")
+        try:
+            PostScript.pdf_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
+            PostScript.nup(OUTPUT_DIRECTORY, ORDER_NUMBER)
+            if(instructions.merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
+                PostScript.file_merge_n(
+                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(JOB_INFO))
+        except:
+            print("Multi-Up Failure")
         try:
             # Create Email Html Pdf & PS
             EmailPrint.Email_Printer(OUTPUT_DIRECTORY, ORDER_NAME, error_state)
@@ -196,7 +202,7 @@ def process_mailbox(M, AUTORUN, D110_IP):
             print_que = []
             Orders = []
             Print.printing(Orders, ORDER_NUMBER, "SO", D110_IP, COLOR,
-                           print_que, AUTORUN, EMAILPRINT, BOOKLETS, 0)
+                           print_que, AUTORUN, EMAILPRINT, BOOKLETS, 0, False)
             printer.print_processor(print_que)
             files.file_cleanup(Orders, OUTPUT_DIRECTORY)
 
