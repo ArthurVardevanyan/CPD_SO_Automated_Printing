@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v202001008"
+__version__ = "v20200110"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -175,17 +175,17 @@ def process_mailbox(M, AUTORUN, D110_IP):
             print("PostScript Conversion Failed")
         try:
             # Merge Uncollated Files
-            if(instructions.merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
+            if(instructions.merging(order)):
                 PostScript.file_merge(
-                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(JOB_INFO))
+                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(order))
         except:
             print("File Merge Failure")
         try:
             PostScript.pdf_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
             PostScript.nup(OUTPUT_DIRECTORY, ORDER_NUMBER)
-            if(instructions.merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
+            if(instructions.merging(order)):
                 PostScript.file_merge_n(
-                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(JOB_INFO))
+                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(order))
         except:
             print("Multi-Up Failure")
         try:
