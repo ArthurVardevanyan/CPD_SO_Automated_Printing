@@ -1,42 +1,86 @@
+import files
+
+
 class Files:
+
     name = ""
     page_count = ""
 
 
 class Order:
 
-    uid = ""
+    OD = ""
+    UID = ""
     status = ""
-    number = ""
-    subject = ""
-    copies = ""
-    duplex = ""
-    collation = ""
-    stapling = ""
-    drilling = ""
-    folding = ""
-    cutting = ""
-    front_cover = ""
-    back_cover = ""
-    slipsheets = ""
-    special_instructions = ""
+    NAME = ""
+    NUMBER = ""
+    SUBJECT = ""
+    COPIES = 0
+    DUPLEX = ""
+    COLLATION = ""
+    STAPLING = ""
+    DRILLING = ""
+    FOLDING = ""
+    CUTTING = ""
+    BOOKLET = ""
+    FRONT_COVER = ""
+    BACK_COVER = ""
+    SLIPSHEETS = ""
+    SPECIAL_INSTRUCTIONS = ""
 
-    paper = ""
-    paper_size = ""
-    paper_color = ""
-    paper_weight = ""
+    PAPER = ""
+    PAPER_SIZE = ""
+    PAPER_COLOR = ""
+    PAPER_WEIGHT = ""
 
-    date = ""
-    first_name = ""
-    last_name = ""
-    email = ""
-    bill_to = ""
-    deliver_to_name = ""
-    deliver_to_address = ""
+    DATE = ""
+    FIRST_NAME = ""
+    LAST_NAME = ""
+    EMAIL = ""
+    PHONE = ""
+    BILL_TO = ""
+    DELIVER_TO_NAME = ""
+    DELIVER_TO_ADDRESS = ""
 
-    page_counts = ""
-    files = [Files()]
+    PAGE_COUNTS = ""
+
+    def __init__(self):
+        self.FILES = []
 
 
-orders = Order()
-orders.files[0].page_count
+def order_initialization(order, JOB_INFO):
+    order.UID = JOB_INFO.get('Email_ID', False)
+    order.status = JOB_INFO.get('Ran', False)
+    order.NUMBER = JOB_INFO.get('Order Number', False)
+    order.SUBJECT = JOB_INFO.get('Order Subject', False)
+    order.COPIES = int(JOB_INFO.get('Copies', False))
+    order.DUPLEX = JOB_INFO.get('Duplex', False)
+    order.COLLATION = JOB_INFO.get('Collation', False)
+    order.STAPLING = JOB_INFO.get('Stapling', False)
+    order.DRILLING = JOB_INFO.get('Drilling', False)
+    order.FOLDING = JOB_INFO.get('Folding', False)
+    order.CUTTING = JOB_INFO.get('Cutting', False)
+    order.BOOKLET = JOB_INFO.get('Booklets', False)
+    order.FRONT_COVER = JOB_INFO.get('Front Cover', False)
+    order.BACK_COVER = JOB_INFO.get('Back Cover', False)
+    order.SLIPSHEETS = JOB_INFO.get('Slip Sheets / Shrink Wrap', False)
+    order.SPECIAL_INSTRUCTIONS = JOB_INFO.get('Special Instructions', False)
+    order.PAPER = JOB_INFO.get('Paper', False)
+    order.DATE = JOB_INFO.get('Date Ordered', False)
+    order.FIRST_NAME = JOB_INFO.get('First Name', False)
+    order.LAST_NAME = JOB_INFO.get('Last Name', False)
+    order.EMAIL = JOB_INFO.get('Email', False)
+    order.PHONE = JOB_INFO.get('Phone Number', False)
+    order.DELIVER_TO_NAME = JOB_INFO.get('Deliver To Name', False)
+    order.DELIVER_TO_ADDRESS = JOB_INFO.get('Deliver To Address', False)
+
+    JOB_INFO_FILES = JOB_INFO.get('Files', False)
+    for FILE in JOB_INFO_FILES:
+        FILE_INFO = JOB_INFO_FILES.get(str(FILE), 0)
+        F = Files()
+        F.name = str(FILE_INFO.get('File Name', 0))
+        F.page_count = int(FILE_INFO.get('Page Count', 0))
+        order.FILES.append(F)
+    order.PAGE_COUNTS = files.page_counts(order.OD, order.NAME)
+
+    return order
