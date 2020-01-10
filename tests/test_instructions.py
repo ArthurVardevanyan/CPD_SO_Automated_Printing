@@ -1,5 +1,5 @@
 # test_instructions.py
-__version__ = "v20200104"
+__version__ = "v20200110"
 
 import unittest
 import os
@@ -185,6 +185,11 @@ class Testing(unittest.TestCase):
             "Copies": "100",
             "Slip Sheets / Shrink Wrap": "Please wrap into 4 sets of 25!",
         }), (4, 25))
+        self.assertEqual(instructions.Special_Instructions({
+            "Copies": "90",
+            "Slip Sheets / Shrink Wrap": "Please divide into 3 sets going to 3 different teachers.",
+            "Special Instructions": "both are 2-sided",
+        }), (3, 30))
 
     def test_manual_input(self):
         self.assertEqual(instructions.Special_Instructions({
