@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200110"
+__version__ = "v20200111"
 
 # Local Files
 import files
@@ -8,6 +8,8 @@ import instructions
 import EmailPrint
 import printer
 import PostScript
+import SchoolDataJson
+import order as o
 
 # Built-In Libraries
 import os
@@ -46,52 +48,52 @@ def impression_counter(PAGE_COUNTS, COPIES, PRINTER):
         return 1
 
 
-def can_run(JOB_INFO, COLOR, BOOKLETS, COVERS):
+def can_run(order, COLOR, BOOKLETS, COVERS):
     # Determines if jobs is able to be ran or not using this script
-    if(JOB_INFO.get('Ran', False) == "True"):
+    if(order.status == "True"):
         return False
-    if(JOB_INFO.get('Stapling', False)):
-        if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait" or JOB_INFO.get('Stapling', False) == "Upper Left - landscape" or JOB_INFO.get('Stapling', False) == "Double Left - portrait" or JOB_INFO.get('Stapling', False) == "None"):
+    if(order.STAPLING):
+        if(order.STAPLING == "Upper Left - portrait" or order.STAPLING == "Upper Left - landscape" or order.STAPLING == "Double Left - portrait" or order.STAPLING == "None"):
             None
         else:
             return False
-    if(not COVERS and JOB_INFO.get('Front Cover', False)):
+    if(not COVERS and order.FRONT_COVER):
         return False
-    if(not COVERS and JOB_INFO.get('Back Cover', False)):
+    if(not COVERS and order.BACK_COVER):
         return False
-    if(JOB_INFO.get('Booklets', False) == "Yes" and BOOKLETS == 0):
+    if(order.BOOKLET == "Yes" and BOOKLETS == 0):
         return False
-    if("11 x 17" in str(JOB_INFO.get('Paper', False))):
+    if("11 x 17" in order.PAPER):
         return False
-    if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White" and COLOR == 0):
+    if(order.PAPER != "8.5 x 11 Paper White" and COLOR == 0):
         return False
-    if("color" in str.lower(JOB_INFO.get('Slip Sheets / Shrink Wrap', "")) and "print" in str.lower(JOB_INFO.get('Slip Sheets / Shrink Wrap', ""))):
+    if("color" in str.lower(str(order.SLIPSHEETS)) and "print" in str.lower(str(order.SLIPSHEETS))):
         return False
-    if("color" in str.lower(JOB_INFO.get('Special Instructions', "")) and "print" in str.lower(JOB_INFO.get('Special Instructions', ""))):
+    if("color" in str.lower(str(order.SPECIAL_INSTRUCTIONS)) and "print" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
         return False
-    if(not COVERS and "cover" in str.lower(JOB_INFO.get('Special Instructions', ""))):
+    if(not COVERS and "cover" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
         return False
     return True
 
 
-def can_nup(JOB_INFO, Color, SETS):
-    if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait" or JOB_INFO.get('Stapling', False) == "Upper Left - landscape" or JOB_INFO.get('Stapling', False) == "Double Left - portrait" or JOB_INFO.get('Stapling', False) == "None"):
+def can_nup(order, Color, SETS):
+    if(order.STAPLING == "Upper Left - portrait" or order.STAPLING == "Upper Left - landscape" or order.STAPLING == "Double Left - portrait" or order.STAPLING == "None"):
         return False
-    if(not COVERS and JOB_INFO.get('Front Cover', False)):
+    if(order.FRONT_COVER):
         return False
-    if(not COVERS and JOB_INFO.get('Back Cover', False)):
+    if(order.BACK_COVER):
         return False
-    if(JOB_INFO.get('Booklets', False)):
+    if(order.BOOKLET):
         return False
-    if("11 x 17" in str(JOB_INFO.get('Paper', False))):
+    if("11 x 17" in order.PAPER):
         return False
-    if(JOB_INFO.get('Paper', False) != "8.5 x 11 Paper White" and COLOR == 0):
+    if(order.PAPER != "8.5 x 11 Paper White" and COLOR == 0):
         return False
-    if("color" in str.lower(JOB_INFO.get('Slip Sheets / Shrink Wrap', "")) and "print" in str.lower(JOB_INFO.get('Slip Sheets / Shrink Wrap', ""))):
+    if("color" in str.lower(str(order.SLIPSHEETS)) and "print" in str.lower(str(order.SLIPSHEETS))):
         return False
-    if("color" in str.lower(JOB_INFO.get('Special Instructions', "")) and "print" in str.lower(JOB_INFO.get('Special Instructions', ""))):
+    if("color" in str.lower(str(order.SPECIAL_INSTRUCTIONS)) and "print" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
         return False
-    if("cover" in str.lower(JOB_INFO.get('Special Instructions', ""))):
+    if("cover" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
         return False
     if (SETS == 1):
         print(colored("Only One Set, Running Normally", "red"))
@@ -188,67 +190,62 @@ def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, outFOLDER, MERGED, FILES):
 def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS, nup):
     # Runs the bulk of code
     print_result = ''  # Used for Status Output
-
+    order = o.Order()
+    order.NUMBER = ORDER_NUMBER
+    order.OD = OUTPUT_DIRECTORY
     # Calls a function in files.py, which gets a list of all the orders downladed
-    Folders = files.folder_list(OUTPUT_DIRECTORY)
+    FOLDERS = files.folder_list(order.OD)
 
-    ORDER_NAME = order_selection(ORDER_NUMBER, Folders, AUTORUN)
-    if("Order DNE" in ORDER_NAME or "Aborted @ CO#" in ORDER_NAME or "ON Not Valid" in ORDER_NAME or "Aborted @ INT: " in ORDER_NAME):
-        return ORDER_NAME
-    # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
-    FILES = files.file_list(OUTPUT_DIRECTORY, ORDER_NAME)
-
+    order.NAME = order_selection(order.NUMBER, FOLDERS, AUTORUN)
+    if("Order DNE" in order.NAME or "Aborted @ CO#" in order.NAME or "ON Not Valid" in order.NAME or "Aborted @ INT: " in order.NAME):
+        return order.NAME
     try:
-        with open(OUTPUT_DIRECTORY+'/'+ORDER_NAME+'/'+ORDER_NAME+'.json') as json_file:
-            JOB_INFO = json.load(json_file)
+        with open(order.OD+'/'+order.NAME+'/'+order.NAME+'.json') as json_file:
+            order = o.order_initialization(order, json.load(json_file))
     except:
         if(not AUTORUN):
-            return "".join(["Aborted @ JS#: ", ORDER_NUMBER, " ", ORDER_NAME])
+            return "".join(["Aborted @ JS#: ", order.NUMBER, " ", order.NAME])
         else:
             if(EMAILPRINT):
                 D110_IP = "156" if PRINTER == 0 else "162"
-                EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, print_que, "toptray", D110_IP)
-                return "".join(["Not Supported S:  ", ORDER_NAME])
+                EmailPrint.Email_Print(order.OD,
+                                       order.NAME, print_que, "toptray", D110_IP)
+                return "".join(["Not Supported S:  ", order.NAME])
+
     # Keeps track of how much each printer has printed for load balancing
-    page_counts = files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME)
-    D110_IP = impression_counter(page_counts, int(
-        JOB_INFO.get('Copies', False)), PRINTER)
+    D110_IP = impression_counter(order.PAGE_COUNTS, order.COPIES, PRINTER)
 
     # This calls the function that creates the banner sheet for the given order number
-    BANNER_SHEET_FILE = BannerSheet.banner_sheet(
-        JOB_INFO, "".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/']))
+    BANNER_SHEET_FILE = BannerSheet.banner_sheet(order)
 
     # Checks if the job specs can be ran
-    if (not can_run(JOB_INFO, COLOR, BOOKLETS, COVERS)):
+    if (not can_run(order, COLOR, BOOKLETS, COVERS)):
         print(colored("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.", "red"))
         if(not AUTORUN):
             if(EMAILPRINT):
-                EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, print_que, "toptray", D110_IP)
-            return "".join(["Not Supported:  ", ORDER_NAME])
+                EmailPrint.Email_Print(order.OD,
+                                       order.NAME, print_que, "toptray", D110_IP)
+            return "".join(["Not Supported:  ", order.NAME])
         else:
             if(EMAILPRINT):
-                EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, print_que, "toptray", D110_IP)
-            return "".join(["Not Supported AutoS: ", ORDER_NAME])
+                EmailPrint.Email_Print(order.OD,
+                                       order.NAME, print_que, "toptray", D110_IP)
+            return "".join(["Not Supported AutoS: ", order.NAME])
 
     print("\nNumber of (Total) Copies Listed Per File: ",
-          colored(JOB_INFO.get('Copies', False), "magenta"))
-    if(JOB_INFO.get('Special Instructions', False)):
-        print("SPECIAL INSTRUCTIONS: ",
-              JOB_INFO.get('Special Instructions', False))
-    if(JOB_INFO.get('Slip Sheets / Shrink Wrap', False)):
-        print("Slip or Shrink Wrap: ",
-              JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
+          colored(order.COPIES, "magenta"))
+    if(order.SPECIAL_INSTRUCTIONS):
+        print("SPECIAL INSTRUCTIONS: ", order.SPECIAL_INSTRUCTIONS)
+    if(order.SLIPSHEETS):
+        print("Slip or Shrink Wrap: ", order.SLIPSHEETS)
 
-    SIP = instructions.Special_Instructions(JOB_INFO)
-    if(JOB_INFO.get('Special Instructions', False) == False and JOB_INFO.get('Slip Sheets / Shrink Wrap', False) == False or JOB_INFO.get('Booklets', False) == "Yes"):
+    SIP = instructions.Special_Instructions(order)
+    if(order.SPECIAL_INSTRUCTIONS == False and order.SLIPSHEETS == False or order.BOOKLET == "Yes"):
         SETS = 1
-        if(JOB_INFO.get('Booklets', False) == "Yes"):
+        if(order.BOOKLET == "Yes"):
             COPIES_PER_SET = 1
         else:
-            COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
+            COPIES_PER_SET = order.COPIES
         print("\n!--I WILL TAKE IT FROM HERE--!")
         print_result = "SUCCESS!     : "
     elif(SIP != (0, 0)):
@@ -268,7 +265,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 try:
                     SETS = int(input("\nHow Many Sets?: "))
                     if(SETS == 0):
-                        return "".join(["Aborted @ Set: ", ORDER_NAME])
+                        return "".join(["Aborted @ Set: ", order.NAME])
                     break
                 except:
                     pass
@@ -276,27 +273,26 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 try:
                     COPIES_PER_SET = int(input("How Many Copies Per Set?: "))
                     if(COPIES_PER_SET == 0):
-                        return "".join(["Aborted @ CPS: ", ORDER_NAME])
+                        return "".join(["Aborted @ CPS: ", order.NAME])
                     break
                 except:
                     pass
             print_result = "Manual Input : "
         else:
             if(EMAILPRINT):
-                EmailPrint.Email_Print(OUTPUT_DIRECTORY,
-                                       ORDER_NAME, print_que, "toptray", D110_IP)
+                EmailPrint.Email_Print(order.OD,
+                                       order.NAME, print_que, "toptray", D110_IP)
 
-            return "".join(["Not Supported SPI  : ", ORDER_NAME])
+            return "".join(["Not Supported SPI  : ", order.NAME])
 
-    if os.path.exists(OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PostScript/') == False:
+    if os.path.exists(order.OD+'/' + order.NAME + '/PostScript/') == False:
         try:
             # Create PostScript File
             print(colored(
                 "This was an Archived School Order, PostsScript files are being Regenerated.", 'green'))
-            PostScript.postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
-            if(instructions.merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
-                PostScript.file_merge(
-                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(JOB_INFO))
+            PostScript.postscript_conversion(order)
+            if(instructions.merging(order)):
+                PostScript.file_merge(order, instructions.duplex_state(order))
         except:
             print("PostScript Conversion Failed")
 
@@ -304,43 +300,44 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     MERGED = False
     # Sets the correct PJL commands
     MERGED = instructions.pjl_insert(
-        JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
-    if(COVERS and "cover" in str.lower(JOB_INFO.get('Special Instructions', ""))):
-        MERGED = instructions.cover_manual(
-            OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO)
+        order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
+    if(COVERS and "cover" in str.lower(order.SPECIAL_INSTRUCTIONS)):
+        MERGED = instructions.cover_manual(order)
 
    # Merge PostScript Header File to All Postscript Job Files
-    pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, "PSP", MERGED, FILES)
+    FILES = [i.NAME for i in order.FILES]
+    pjl_merge(order.OD, order.NAME, "PSP", MERGED, FILES)
     try:
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:
         print("Temp File Remove Failed")
 
     # Gets list of Files in the Postscript Print Ready Folder
-    Print_Files = files.postscript_list(OUTPUT_DIRECTORY, ORDER_NAME, "PSP")
+    Print_Files = files.postscript_list(order.OD, order.NAME, "PSP")
 
     LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
 
     print("\n")
     if(EMAILPRINT):
-        EmailPrint.Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
+        EmailPrint.Email_Print(order.OD, order.NAME,
                                print_que, "stacker", D110_IP)
     lpr_path = ""
 
-    if(nup and can_nup(JOB_INFO, COLOR, SETS) and SETS > 1):
+    if(nup and can_nup(order, COLOR, SETS) and SETS > 1):
         print("Running Multi Up")
-        if os.path.exists(OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PostScriptn/') == False:
-            PostScript.pdf_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
-            PostScript.nup(OUTPUT_DIRECTORY, ORDER_NUMBER)
-            if(instructions.merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
+        if os.path.exists(order.OD+'/' + order.NAME + '/PostScriptn/') == False:
+            PostScript.pdf_conversion(order)
+            PostScript.nup(order)
+            if(instructions.merging(order)):
                 PostScript.file_merge_n(
-                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(JOB_INFO))
-        JOB_INFO['Paper'] = "11 x 17 Paper White"
-        JOB_INFO["Duplex"] = "two-sided-short-edge"
+                    order, instructions.duplex_state(order))
+        order.PAPER = "11 x 17 Paper White"
+        if(order.DUPLEX != 'One-sided'):
+            order.DUPLEX = "two-sided-short-edge"
         MERGED = instructions.pjl_insert(
-            JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
-        pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, "PSPn", MERGED, FILES)
+            order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
+        pjl_merge(order.OD, order.NAME, "PSPn", MERGED, FILES)
         try:
             os.remove("PJL_Commands/input.ps")  # remove temp file
         except:
@@ -359,7 +356,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         for i in range(int(SETS / 2)):
             for j in range(len(Print_Files)):
                 lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-                lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSPn/' + \
+                lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSPn/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                 print(lpr_path.replace(
                     "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
@@ -369,7 +366,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         if (SETS % 2) != 0:
             for j in range(len(Print_Files)):
                 lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-                lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
+                lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                 print(lpr_path.replace(
                     "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
@@ -377,7 +374,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 print_que.append(lpr_path)
 
     else:
-        if(JOB_INFO.get('Booklets', False) == "Yes"):
+        if(order.BOOKLET == "Yes"):
             approved = 0
             printer.print_processor(print_que)  # Does the printing
             print("PLEASE CHECK PROOF, if any files look incorrect, please cancel order")
@@ -392,29 +389,28 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
             flip = []
             if(approved == 1):
                 if (len(flip) == 0):
-                    COPIES_PER_SET = int(JOB_INFO.get('Copies', False))
+                    COPIES_PER_SET = order.COPIES
                     instructions.pjl_insert(
-                        JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
-                    pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME,
+                        order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
+                    pjl_merge(order.OD, order.NAME,
                               "PSP", MERGED, FILES)
                 else:
                     for j in range(len(Print_Files)):
-                        JOB_INFO[
-                            "Duplex"] = "two-sided-short-edge" if flip[j] else "Two-sided (back to back)"
+                        order.DUPLEX = "two-sided-short-edge" if flip[j] else "Two-sided (back to back)"
                         instructions.pjl_insert(
-                            JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+                            order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
                         flip_file = [FILES[j]]
-                        pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, "PSP",
+                        pjl_merge(order.OD, order.NAME, "PSP",
                                   MERGED, flip_file)
             elif(approved == 2):
-                JOB_INFO["Duplex"] = "two-sided-short-edge"
+                order.DUPLEX = "two-sided-short-edge"
                 instructions.pjl_insert(
-                    JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
-                pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, "PSP", MERGED, FILES)
+                    order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
+                pjl_merge(order.OD, order.NAME, "PSP", MERGED, FILES)
                 for i in range(SETS):
                     for j in range(len(Print_Files)):
                         lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-                        lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
+                        lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                             Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                         print(lpr_path.replace(
                             "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
@@ -442,15 +438,14 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                                     pass
                             except:
                                 pass
-                        JOB_INFO[
-                            "Duplex"] = "two-sided-short-edge" if flip[-1] else "Two-sided (back to back)"
+                        order.DUPLEX = "two-sided-short-edge" if flip[-1] else "Two-sided (back to back)"
                         instructions.pjl_insert(
-                            JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
+                            order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
                         flip_file = [FILES[j]]
-                        pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME,
+                        pjl_merge(order.OD, order.NAME,
                                   "PSP", MERGED, flip_file)
                         lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-                        lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
+                        lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                             Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                         print_que.append(lpr_path)
                 printer.print_processor(print_que)  # Does the printing
@@ -480,15 +475,15 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         for i in range(SETS):
             for j in range(len(Print_Files)):
                 lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-                lpr_path = LPR[D110_IP] + '"' + OUTPUT_DIRECTORY+'/' + ORDER_NAME + '/PSP/' + \
+                lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                 print(lpr_path.replace(
                     "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0])
                 print_que.append(lpr_path)
         print("\n")
-    Orders.append(ORDER_NAME)
-    return "".join([print_result, LPR[D110_IP][41:44], " : ", ORDER_NAME])
+    Orders.append(order.NAME)
+    return "".join([print_result, LPR[D110_IP][41:44], " : ", order.NAME])
 
 
 def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
