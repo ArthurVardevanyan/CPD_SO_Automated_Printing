@@ -12,6 +12,7 @@ import subprocess
 # Downloaded Libraries
 import PyPDF2
 from PyPDF2 import PdfFileWriter, PdfFileReader
+from PyPDF2.pdf import PageObject
 
 # Local Files
 import files
@@ -205,10 +206,20 @@ def nupConversion(inFile, outFile):
     input1 = PdfFileReader(open(inFile, "rb"))
     output = PdfFileWriter()
     output1 = PdfFileWriter()
+    scaled = PdfFileWriter()
 
     for iter in range(0, input1.getNumPages()):
-        lhs = input1.getPage(iter)
-        rhs = input1.getPage(iter)
+        page = input1.getPage(iter)
+        doc = PageObject.createBlankPage(
+            page, page.mediaBox.getWidth(),  page.mediaBox.getHeight())
+        leftmargin = (page.mediaBox.getWidth() * .03 / 2)
+        bottommargin = (page.mediaBox.getHeight() * .03 / 2)
+        doc.mergeScaledTranslatedPage(page, .97, leftmargin, bottommargin)
+        sys.stdout.flush()
+        scaled.addPage(doc)
+    for iter in range(0, scaled.getNumPages()):
+        lhs = scaled.getPage(iter)
+        rhs = scaled.getPage(iter)
         lhs.mergeTranslatedPage(rhs, lhs.mediaBox.getUpperRight_x(), 0, True)
         output.addPage(lhs)
         print(str(iter) + " "),
