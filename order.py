@@ -1,10 +1,12 @@
+__version__ = "v20200111"
+
 import files
 
 
 class Files:
 
-    name = ""
-    page_count = ""
+    NAME = ""
+    PAGE_COUNT = ""
 
 
 class Order:
@@ -79,10 +81,10 @@ def order_initialization(order, JOB_INFO):
     for FILE in JOB_INFO_FILES:
         FILE_INFO = JOB_INFO_FILES.get(str(FILE), 0)
         F = Files()
-        F.name = str(FILE_INFO.get('File Name', 0))
-        F.page_count = int(FILE_INFO.get('Page Count', 0))
+        F.NAME = str(FILE_INFO.get('File Name', 0))
+        F.PAGE_COUNT = int(FILE_INFO.get('Page Count', 0))
         order.FILES.append(F)
-    order.FILE_NAMES = [i.name for i in order.FILES]
+    order.FILE_NAMES = [i.NAME for i in order.FILES]
     order.PAGE_COUNTS = files.page_counts(order)
 
     return order

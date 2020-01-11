@@ -305,7 +305,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         MERGED = instructions.cover_manual(order)
 
    # Merge PostScript Header File to All Postscript Job Files
-    FILES = [i.name for i in order.FILES]
+    FILES = [i.NAME for i in order.FILES]
     pjl_merge(order.OD, order.NAME, "PSP", MERGED, FILES)
     try:
         os.remove("PJL_Commands/input.ps")  # remove temp file
