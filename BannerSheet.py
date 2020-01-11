@@ -1,5 +1,5 @@
 # BannerSheet.py
-__version__ = "v20200110"
+__version__ = "v20200111"
 
 
 # Setups up BannerSheet Postscript File
@@ -35,7 +35,7 @@ def banner_sheet(order):
     files_list = []
     for i in range(len(order.FILES)):
         files_list.append(("".join(["File ",
-                                    str(i+1), ": ", order.FILES[i].name[13:]]), "".join(["Page Count: ", str(order.FILES[i].page_count)])))  # Remove clutter from string
+                                    str(i+1), ": ", order.FILES[i].NAME[13:]]), "".join(["Page Count: ", str(order.FILES[i].PAGE_COUNT)])))  # Remove clutter from string
 
     # Template Postscript information
     POSTSCRIPT = (
