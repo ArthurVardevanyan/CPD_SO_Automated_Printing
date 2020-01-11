@@ -1,5 +1,5 @@
 # test_Print.py
-__version__ = "v20200110"
+__version__ = "v20200111"
 
 import unittest
 from unittest import mock
@@ -7,7 +7,7 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Print
-
+import order as o
 
 class Testing(unittest.TestCase):
 
@@ -55,10 +55,12 @@ class Testing(unittest.TestCase):
         self.assertFalse(Print.impression_counter(9, 10, 2))
 
     def test_can_run(self):
-        self.assertTrue(Print.can_run(
-            {"Paper": "8.5 x 11 Paper White"}, 0, 0, 0))
-        self.assertFalse(Print.can_run(
-            {"Paper": "11 x 17 Paper White"}, 0, 0, 0))
+        order = o.Order()
+        order.OD = "tests/SO"
+        order.PAPER = "8.5 x 11 Paper White"
+        self.assertTrue(Print.can_run(order, 0, 0, 0))
+        order.PAPER = "11 x 17 Paper White"
+        self.assertFalse(Print.can_run(order, 0, 0, 0))
         self.assertFalse(Print.can_run(
             {"Paper": "11 x 17 Paper White"}, 1, 0, 0))
         self.assertFalse(Print.can_run(
