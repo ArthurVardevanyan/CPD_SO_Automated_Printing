@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200109"
+__version__ = "v20200111"
 
 # Built-In Libraries
 import json
@@ -215,7 +215,10 @@ def nupConversion(inFile, outFile):
         sys.stdout.flush()
     for iter in range(0, output.getNumPages()):
         page = output.getPage(iter)
-        page.rotateClockwise(90)
+        orientation = output.getPage(iter).mediaBox
+        if orientation.getUpperRight_x() - orientation.getUpperLeft_x() < orientation.getUpperRight_y() - orientation.getLowerRight_y():
+            # https://stackoverflow.com/a/46017058
+            page.rotateClockwise(90)
         output1.addPage(page)
         sys.stdout.flush()
 
