@@ -1,11 +1,10 @@
-__version__ = "v2020108"
+__version__ = "v20201011"
 
-import json
 import PostScript
 
 
-def duplex_state(JOB_INFO):
-    if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
+def duplex_state(order):
+    if(order.DUPLEX == "Two-sided (back to back)"):
         print('Double Sided')
         return 2
     else:
@@ -13,15 +12,15 @@ def duplex_state(JOB_INFO):
         return 1
 
 
-def merging(JOB_INFO, PAGE_COUNTS):
+def merging(order):
 
-    if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-        if PAGE_COUNTS / len(JOB_INFO.get('Files', False)) / duplex_state(JOB_INFO) >= 10:
+    if order.COLLATION == "Uncollated" and order.STAPLING != "Upper Left - portrait" and len(order.FILES) != 1:
+        if order.PAGE_COUNTS / len(order.FILES) / duplex_state(order) >= 10:
             print("DUE TO PAGE COUNT, MERGED TURNED OFF")
             return 0
         else:
             return 1
-    elif len(JOB_INFO.get('Files', False)) != 1 and PAGE_COUNTS == len(JOB_INFO.get('Files', False)):
+    elif len(order.FILES) != 1 and order.PAGE_COUNTS == len(order.FILES):
         return 1
     else:
         print("Not Merging")
@@ -48,7 +47,7 @@ def Special_Instructions_Processing(QTY, str):
         if(min(Numbers) == max(Numbers)):
             if("every" in str or "each" in str or "into" in str or "between" in str or "stacks of" in str or "sets of" in str):
                 if(QTY % min(Numbers) == 0):
-                    if(min(Numbers) <= 5 ):
+                    if(min(Numbers) <= 5):
                         return min(Numbers), int(QTY / min(Numbers))
                     else:
                         return int(QTY / min(Numbers)), min(Numbers)
@@ -70,14 +69,12 @@ def Special_Instructions_Processing(QTY, str):
         return 0, 0
 
 
-def Special_Instructions(JOB_INFO):
+def Special_Instructions(order):
    # Get Information from JSON file, QTY, Comment Line #1 & #2
    # Process the information from both comment sections
-    QTY = int(JOB_INFO.get('Copies', False))
-    SPIO = Special_Instructions_Processing(
-        QTY, JOB_INFO.get('Special Instructions', False))
-    SLIO = Special_Instructions_Processing(
-        QTY, JOB_INFO.get('Slip Sheets / Shrink Wrap', False))
+    QTY = order.COPIES
+    SPIO = Special_Instructions_Processing(QTY, order.SPECIAL_INSTRUCTIONS)
+    SLIO = Special_Instructions_Processing(QTY, order.SLIPSHEETS)
 
     # Output States
     if(SPIO == (0, 1)):
@@ -102,9 +99,9 @@ def Special_Instructions(JOB_INFO):
     return 0, 0
 
 
-def default(JOB_INFO):
-    if((JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and JOB_INFO.get('Stapling', False) != "Upper Left - landscape" and JOB_INFO.get('Stapling', False) != "Double Left - portrait")
-       and JOB_INFO.get('Drilling', False) != "Yes" and JOB_INFO.get('Booklets', False) != "Yes"):
+def default(order):
+    if((order.STAPLING != "Upper Left - portrait" and order.STAPLING != "Upper Left - landscape" and order.STAPLING != "Double Left - portrait")
+       and order.DRILLING != "Yes" and order.BOOKLET != "Yes"):
         print('No Finishing')
         return str.encode(
             '@PJL XCPT <value syntax="enum">3</value>\n')
@@ -112,8 +109,8 @@ def default(JOB_INFO):
         return str.encode('')
 
 
-def collation(JOB_INFO, page_counts):
-    if(JOB_INFO.get('Collation', False) != "Collated" or (len(JOB_INFO.get('Files', {})) != 1 and page_counts == len(JOB_INFO.get('Files', {})))):
+def collation(order):
+    if(order.COLLATION != "Collated" or (len(order.FILES)) != 1 and order.PAGE_COUNTS == len(order.FILES)):
         print('UnCollated')
         return str.encode(
             '@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')
@@ -123,12 +120,12 @@ def collation(JOB_INFO, page_counts):
             '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
 
 
-def duplex(JOB_INFO):
-    if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
+def duplex(order):
+    if(order.DUPLEX == "Two-sided (back to back)"):
         print('Double Sided')
         return str.encode(
             '@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>\n'), 2
-    elif(JOB_INFO.get('Duplex', False) == "two-sided-short-edge"):
+    elif(order.DUPLEX == "two-sided-short-edge"):
         print('Double Sided')
         return str.encode(
             '@PJL XCPT <sides syntax="keyword">two-sided-short-edge</sides>\n'), 2
@@ -138,8 +135,8 @@ def duplex(JOB_INFO):
             '@PJL XCPT <sides syntax="keyword">one-sided</sides>\n'), 1
 
 
-def stapling(JOB_INFO, collation):
-    if(JOB_INFO.get('Stapling', False) == "Upper Left - portrait"):
+def stapling(order, collation):
+    if(order.STAPLING == "Upper Left - portrait"):
         stapling = str.encode(
             '@PJL XCPT <value syntax="enum">20</value>\n')
         if str('<sheet-collate syntax="keyword">uncollated') in str(collation):
@@ -148,7 +145,7 @@ def stapling(JOB_INFO, collation):
             print("Collation Overide - Collated")
         print("Staple - Upper Left - portrait")
         return stapling, collation
-    elif(JOB_INFO.get('Stapling', False) == "Upper Left - landscape"):
+    elif(order.STAPLING == "Upper Left - landscape"):
         stapling = str.encode(
             '@PJL XCPT <value syntax="enum">21</value>\n')
         if str('<sheet-collate syntax="keyword">uncollated') in str(collation):
@@ -157,7 +154,7 @@ def stapling(JOB_INFO, collation):
             print("Collation Overide - Collated")
         print("Staple - Upper Left - landscape")
         return stapling, collation
-    elif(JOB_INFO.get('Stapling', False) == "Double Left - portrait"):
+    elif(order.STAPLING == "Double Left - portrait"):
         stapling = str.encode(
             '@PJL XCPT <value syntax="enum">28</value>\n')
         if str('<sheet-collate syntax="keyword">uncollated') in str(collation):
@@ -170,35 +167,39 @@ def stapling(JOB_INFO, collation):
         return str.encode(''), collation
 
 
-def drilling(JOB_INFO):
-    if(JOB_INFO.get('Drilling', False) == "Yes"):
+def drilling(order):
+    if(order.DRILLING == "Yes"):
         print('Hole Punched')
-        return str.encode(
-            '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>\n')
+        if("11 x 17" in str(order.PAPER).lower()):
+            return str.encode(
+                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">96</value>\n')
+        else:
+            return str.encode(
+                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>\n')
     else:
         return str.encode('')
 
 
-def weight_extract(JOB_INFO):
+def weight_extract(order):
     # Converts Input from given form to the value the printer needs
-    paper = (str(JOB_INFO.get('Paper', False))).lower()
+    paper = (str(order.PAPER)).lower()
     out = "stationery-heavyweight" if "card stock" in paper else "use-ready"
     print(out)
     return str.encode("".join([
         '@PJL XCPT <media-type syntax="keyword">', out, '</media-type>\n']))
 
 
-def color_extract(JOB_INFO):
+def color_extract(order):
     # Converts Input from given form to the value the printer needs
-    color = (str(JOB_INFO.get('Paper', False))).split()[-1].lower()
+    color = (str(order.PAPER)).split()[-1].lower()
     out = 'yellow' if color == 'canary' else color
     print(out)
     return str.encode("".join(['@PJL XCPT <media-color syntax="keyword">', out, '</media-color>\n']))
 
 
-def size_extract(JOB_INFO):
+def size_extract(order):
     # Converts Input from given form to the value the printer needs
-    paper = (str(JOB_INFO.get('Paper', False))).lower()
+    paper = (str(order.PAPER)).lower()
     if "8.5 x 11" in paper:
         print("letter")
         return str.encode("")
@@ -227,22 +228,20 @@ def cover_color_extract(PAPER):
     return out
 
 
-def booklet_extract(JOB_INFO):
+def booklet_extract(order):
     # Converts Input from given form to the value the printer needs
-    if JOB_INFO.get('Booklets', False) == "Yes":
+    if order.BOOKLET == "Yes":
         return str.encode("".join(['@PJL XCPT <value syntax="enum">110</value>\n']))
     return ""
 
 
-def covers(JOB_INFO, COVERS):
+def covers(order, COVERS):
     if(COVERS):
         Back = ""
-        if(JOB_INFO.get('Back Cover', False)):
+        if(order.BACK_COVER):
             print("Back Cover")
-            Back_Cover_Color = cover_color_extract(
-                JOB_INFO.get('Back Cover', False))
-            Back_Cover_Weight = cover_weight_extract(
-                JOB_INFO.get('Back Cover', False))
+            Back_Cover_Color = cover_color_extract(order.BACK_COVER)
+            Back_Cover_Weight = cover_weight_extract(order.BACK_COVER)
             Back = "".join(['\
 @PJL XCPT 		<cover-back syntax="collection">\n\
 @PJL XCPT 			<cover-type syntax="keyword">print-none</cover-type>\n\
@@ -252,12 +251,10 @@ def covers(JOB_INFO, COVERS):
 @PJL XCPT 			</media-col>\n\
 @PJL XCPT 		</cover-back>\n'])
         Front = ""
-        if(JOB_INFO.get('Front Cover', False)):
+        if(order.FRONT_COVER):
             print("Front Cover")
-            Front_Cover_Color = cover_color_extract(
-                JOB_INFO.get('Front Cover', False))
-            Front_Cover_Weight = cover_weight_extract(
-                JOB_INFO.get('Front Cover', False))
+            Front_Cover_Color = cover_color_extract(order.FRONT_COVER)
+            Front_Cover_Weight = cover_weight_extract(order.FRONT_COVER)
             Front = "".join(['\
 @PJL XCPT <page-overrides syntax="1setOf">\n\
 @PJL XCPT 			<value syntax="collection">\n\
@@ -284,19 +281,19 @@ def covers(JOB_INFO, COVERS):
     return ""
 
 
-def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS):
+def pjl_insert(order, COPIES_PER_SET, page_counts, COVERS):
     print('\nChosen Options:')
 
-    COLLATION = collation(JOB_INFO, page_counts)
-    DUPLEX, duplex_state = duplex(JOB_INFO)
-    STAPLING, COLLATION = stapling(JOB_INFO, COLLATION)
-    hole_punch = drilling(JOB_INFO)
-    DEFAULT = default(JOB_INFO)
-    media_color = color_extract(JOB_INFO)
-    media_type = weight_extract(JOB_INFO)
-    booklet = booklet_extract(JOB_INFO)
-    COVER = covers(JOB_INFO, COVERS)
-    size = size_extract(JOB_INFO)
+    COLLATION = collation(order)
+    DUPLEX, duplex_state = duplex(order)
+    STAPLING, COLLATION = stapling(order, COLLATION)
+    hole_punch = drilling(order)
+    DEFAULT = default(order)
+    media_color = color_extract(order)
+    media_type = weight_extract(order)
+    booklet = booklet_extract(order)
+    COVER = covers(order, COVERS)
+    size = size_extract(order)
     COPIES_COMMAND = str.encode("".join(
         ['@PJL XCPT <copies syntax="integer">', str(COPIES_PER_SET), '</copies>\n', COVER]))
     with open('PJL_Commands/PJL.ps', 'rb') as f:
@@ -324,20 +321,20 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS):
             lines[i] = DUPLEX
         if str('<sheet-collate syntax="keyword">uncollated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]):
 
-            if("11 x 17" in str(JOB_INFO.get('Paper', False)).lower()):
+            if("11 x 17" in str(order.PAPER).lower()):
                 lines[i] = str.encode(
-                    '@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n')
+                    '@PJL XCPT <media-col syntax="collection">\n@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n@PJL XCPT </media-col>\n@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             else:
                 lines[i] = str.encode(
                     '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n@PJL XCPT 	<separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             print("\nSplit-Sheeting!")
         # Add SlipSheets to Large Collated Sets
-        if (page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and
-                JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and (JOB_INFO.get('Stapling', False) != "Upper Left - landscape") and JOB_INFO.get('Stapling', False) != "Double Left - portrait"):
+        if (page_counts / len(order.FILES) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and
+                order.STAPLING != "Upper Left - portrait" and (order.STAPLING != "Upper Left - landscape") and order.STAPLING != "Double Left - portrait"):
 
-            if("11 x 17" in str(JOB_INFO.get('Paper', False)).lower()):
+            if("11 x 17" in str(order.PAPER).lower()):
                 lines[i] = str.encode(
-                    '@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n')
+                    '@PJL XCPT<media-col syntax="collection">\n@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n@PJL XCPT </media-col>\n@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             else:
                 lines[i] = str.encode(
                     '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n@PJL XCPT 	<separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
@@ -352,19 +349,19 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS):
             f.write(item)
 
     # If it makes sense to use merged files, it uses them.
-    if str('<sheet-collate syntax="keyword">uncollated') in str(COLLATION) and len(JOB_INFO.get('Files', False)) != 1:
-        if page_counts / len(JOB_INFO.get('Files', False)) / duplex_state >= 10:
+    if str('<sheet-collate syntax="keyword">uncollated') in str(COLLATION) and len(order.FILES) != 1:
+        if page_counts / len(order.FILES) / duplex_state >= 10:
             print("DUE TO PAGE COUNT, MERGED TURNED OFF")
             return False
         else:
             print("THESE FILES WERE MERGED!")
             return True
-    elif len(JOB_INFO.get('Files', False)) != 1 and page_counts == len(JOB_INFO.get('Files', False)):
+    elif len(order.FILES) != 1 and page_counts == len(order.FILES):
         return True
     return False
 
 
-def cover_manual(OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO):
+def cover_manual(order):
     while True:
         try:
             file_order = input(
@@ -381,9 +378,5 @@ def cover_manual(OUTPUT_DIRECTORY, ORDER_NAME, JOB_INFO):
             break
         except:
             pass
-    JOB_INFO_FILES = JOB_INFO.get('Files', False)
-    for files in file_order:
-        JOB_INFO_FILES = JOB_INFO.get('Files', False)
-        FILE_INFO = JOB_INFO_FILES.get(" ".join(["File", str(files)]), False)
-        FILES.append(FILE_INFO.get("File Name", False))
-    return PostScript.file_merge_manual(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE, FILES)
+    FILES = [i.name for i in order.FILES]
+    return PostScript.file_merge_manual(order.OD, order.NAME, DUPLEX_STATE, FILES)

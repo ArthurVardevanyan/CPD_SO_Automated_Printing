@@ -1,11 +1,12 @@
 # test_Print.py
-__version__ = "v20200110"
+__version__ = "v20200111"
 
 import unittest
 from unittest import mock
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+import order as o
 import Print
 
 
@@ -55,36 +56,45 @@ class Testing(unittest.TestCase):
         self.assertFalse(Print.impression_counter(9, 10, 2))
 
     def test_can_run(self):
-        self.assertTrue(Print.can_run(
-            {"Paper": "8.5 x 11 Paper White"}, 0, 0, 0))
-        self.assertFalse(Print.can_run(
-            {"Paper": "11 x 17 Paper White"}, 0, 0, 0))
-        self.assertFalse(Print.can_run(
-            {"Paper": "11 x 17 Paper White"}, 1, 0, 0))
-        self.assertFalse(Print.can_run(
-            {"Paper": "8.5 x 11 Paper Blue"}, 0, 0, 0))
-        self.assertTrue(Print.can_run(
-            {"Paper": "8.5 x 11 Paper Blue"}, 1, 0, 0))
-        self.assertFalse(Print.can_run(
-            {"Front Cover": "8.5 x 11 Paper Blue"}, 0, 0, 0))
-        self.assertFalse(Print.can_run(
-            {"Back Cover": "8.5 x 11 Paper Blue"}, 0, 0, 0))
-        self.assertFalse(Print.can_run(
-            {"Front Cover": "8.5 x 11 Paper Blue"}, 1, 0, 0))
-        self.assertFalse(Print.can_run(
-            {"Back Cover": "8.5 x 11 Paper Blue"}, 1, 0, 0))
-        self.assertTrue(Print.can_run(
-            {"Paper": "8.5 x 11 Paper White", "Stapling": "Upper Left - portrait"}, 0, 0, 0))
-        self.assertTrue(Print.can_run(
-            {"Paper": "8.5 x 11 Paper White", "Stapling": "Upper Left - landscape"}, 0, 0, 0))
-        self.assertTrue(Print.can_run(
-            {"Paper": "8.5 x 11 Paper White", "Stapling": "Double Left - portrait"}, 0, 0, 0))
-        self.assertFalse(Print.can_run({"Booklets": "Yes"}, 0, 0, 0))
-        self.assertTrue(Print.can_run({"Booklets": "Yes"}, 1, 1, 0))
-        self.assertFalse(Print.can_run(
-            {"Special Instructions": "please print each file on a different color- the  specific color "}, 0, 0, 0))
-        self.assertFalse(Print.can_run(
-            {"Special Instructions":  "Please print in color."}, 0, 0, 0))
+        order = o.Order()
+        order.PAPER = "8.5 x 11 Paper White"
+        self.assertTrue(Print.can_run(order, 0, 0, 0))
+        order.PAPER = "11 x 17 Paper White"
+        self.assertFalse(Print.can_run(order, 0, 0, 0))
+        order.PAPER = "11 x 17 Paper White"
+        self.assertFalse(Print.can_run(order, 1, 0, 0))
+        order.PAPER = "8.5 x 11 Paper Blue"
+        self.assertFalse(Print.can_run(order, 0, 0, 0))
+        order.PAPER = "8.5 x 11 Paper Blue"
+        self.assertTrue(Print.can_run(order, 1, 0, 0))
+        order.FRONT_COVER = "8.5 x 11 Paper Blue"
+        self.assertFalse(Print.can_run(order, 0, 0, 0))
+        order.BACK_COVER = "8.5 x 11 Paper Blue"
+        self.assertFalse(Print.can_run(order, 0, 0, 0))
+        order.FRONT_COVER = "8.5 x 11 Paper Blue"
+        self.assertFalse(Print.can_run(order, 1, 0, 0))
+        order.BACK_COVER = "8.5 x 11 Paper Blue"
+        self.assertFalse(Print.can_run(order, 1, 0, 0))
+        order.FRONT_COVER = ""
+        order.BACK_COVER = ""
+        order.PAPER = "8.5 x 11 Paper White"
+        order.STAPLING = "Upper Left - portrait"
+        self.assertTrue(Print.can_run(order, 0, 0, 0))
+        order.PAPER = "8.5 x 11 Paper White"
+        order.STAPLING = "Upper Left - landscape"
+        self.assertTrue(Print.can_run(order, 0, 0, 0))
+        order.PAPER = "8.5 x 11 Paper White"
+        order.STAPLING = "Double Left - portrait"
+        self.assertTrue(Print.can_run(order, 0, 0, 0))
+        order.STAPLING = ""
+        order.BOOKLET = "Yes"
+        self.assertFalse(Print.can_run(order, 0, 0, 0))
+        order.BOOKLET = "Yes"
+        self.assertTrue(Print.can_run(order, 1, 1, 0))
+        order.SPECIAL_INSTRUCTIONS = "please print each file on a different color- the  specific color "
+        self.assertFalse(Print.can_run(order, 0, 0, 0))
+        order.SPECIAL_INSTRUCTIONS = "Please print in color."
+        self.assertFalse(Print.can_run(order, 0, 0, 0))
 
     def test_printing(self):
 
