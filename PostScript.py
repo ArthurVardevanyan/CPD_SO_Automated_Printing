@@ -67,8 +67,7 @@ def file_merge(order, DUPLEX_STATE):
                     open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', order.FILE_NAMES[i]]), "rb"))
                 pdf = pdf.getNumPages()
             except:
-                pdf = order.FILE_NAMES.page_count(
-                    '/'.join([order.OD, order.NAME, order.FILE_NAMES[i]]))
+                pdf = order.PAGE_COUNTS
 
             if (int(pdf) % 2) != 0:  # If odd number pages, add blank page
                 print("Adding Blank Page!")
