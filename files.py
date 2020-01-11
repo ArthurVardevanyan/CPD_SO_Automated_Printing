@@ -32,9 +32,9 @@ def folder_list(folder):
     return Stripped_List  # Returns the Stripped List to Main Function
 
 
-def file_list(folder, OName):
+def file_list(order):
     # Grabs the PDF's in the requested order
-    fileList = sorted(glob.glob("".join([folder, "/", OName, "/*.pdf"]))
+    fileList = sorted(glob.glob("".join([order.OD, "/", order.NAME, "/*.pdf"]))
                       )  # Gathers all the Files
     # Strips the file path data to leave just the filename
     Stripped_List = [os.path.basename(x) for x in fileList]
@@ -49,19 +49,19 @@ def postscript_list(folder, OName, sub):
     return Stripped_List  # Returns the Stripped List to Main Function
 
 
-def page_counts(OUTPUT_DIRECTORY, ORDER_NAME):
+def page_counts(order):
     # Returns the total page counts for an Order
-    files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
+    files = file_list(order)
     counts = 0
     print("\n")
     for i in range(len(files)):
         try:
             pdf = PyPDF2.PdfFileReader(
-                open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', files[i]]), "rb"))
+                open("".join([order.OD, '/', order.NAME, '/', files[i]]), "rb"))
             pdf = pdf.getNumPages()
         except:
             pdf = page_count(
-                '/'.join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', files[i]]))
+                '/'.join([order.OD, '/', order.NAME, '/', files[i]]))
         print("Page Count: ", colored(str(pdf),
                                       "magenta"), " FileName: ", files[i])
         counts = counts + pdf

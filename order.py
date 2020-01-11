@@ -44,6 +44,7 @@ class Order:
 
     PAGE_COUNTS = ""
 
+    FILE_NAMES = []
     def __init__(self):
         self.FILES = []
 
@@ -81,6 +82,7 @@ def order_initialization(order, JOB_INFO):
         F.name = str(FILE_INFO.get('File Name', 0))
         F.page_count = int(FILE_INFO.get('Page Count', 0))
         order.FILES.append(F)
-    order.PAGE_COUNTS = files.page_counts(order.OD, order.NAME)
+    order.FILE_NAMES = [i.name for i in order.FILES]
+    order.PAGE_COUNTS = files.page_counts(order)
 
     return order

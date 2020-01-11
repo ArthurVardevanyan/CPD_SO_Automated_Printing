@@ -28,6 +28,7 @@ import Print
 import printer
 import database
 import instructions
+import order as o
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -113,7 +114,6 @@ def order_number_extract(email_body, RANDOM):
 
 
 def process_mailbox(M, AUTORUN, D110_IP):
-    OUTPUT_DIRECTORY = 'SO/'
 
     # Gets all the UNSEEN emails from the INBOX
     rv, data = M.search(None, 'UNSEEN')
@@ -123,6 +123,9 @@ def process_mailbox(M, AUTORUN, D110_IP):
 
     emails_proccessed = 0
     for num in data[0].split():
+
+        order = o.Order()
+        order.OD = 'SO/'
 
         rv, data = M.fetch(num, '(UID BODY[TEXT])')  # Email Body
         # Email Subject
@@ -134,63 +137,69 @@ def process_mailbox(M, AUTORUN, D110_IP):
             str(email_body), order_number_random())
         print("Order: ", ORDER_NUMBER, " ", subject)
         ORDER_NAME = "".join([ORDER_NUMBER, " ", subject])
+
+        order.NUMBER = ORDER_NUMBER
+        order.NAME = ORDER_NAME
+        order.SUBJECT = subject
+
         if rv != 'OK':
             print("ERROR getting message", num)
             return
 
         try:
-            os.makedirs("".join([OUTPUT_DIRECTORY,
+            os.makedirs("".join([order.OD,
                                  error_state, ORDER_NAME]))
         except OSError:
             print("Creation of the directory %s failed" %
-                  OUTPUT_DIRECTORY, error_state, "/", subject)
+                  order.OD, error_state, "/", subject)
         print("Successfully created the directory %s " %
-              OUTPUT_DIRECTORY, error_state, "/", subject)
+              order.OD, error_state, "/", subject)
         if("Re:" in subject):  # Ignore Replies
             print("This is a reply, skipping")
         else:
             # Calls Google Drive Link Extractor
             Drive_Downloader(str(email_body), ORDER_NUMBER,
-                             OUTPUT_DIRECTORY, subject, error_state)
+                             order.OD, subject, error_state)
             # Makes a file and Writes Email Contents to it.
-            f = open("".join([OUTPUT_DIRECTORY, error_state,
+            f = open("".join([order.OD, error_state,
                               ORDER_NAME, "/", ORDER_NAME, '.txt']), 'wb')
             f.write(email_body)
             f.close()
         try:
+
             # Create JSON file with Job Requirements
-            JOB_INFO = SchoolDataJson.school_data_json(
-                ORDER_NUMBER, subject, OUTPUT_DIRECTORY)
+            JOB_INFO = SchoolDataJson.school_data_json(order)
+            order = o.order_initialization(order, JOB_INFO)
         except:
             print("JSON File Failed")
         try:
             # Database Input
-            database.database_input(OUTPUT_DIRECTORY, JOB_INFO)
+            database.database_input(order.OD, JOB_INFO)
         except:
             print("Database Input Failed")
         try:
             # Create PostScript File
-            PostScript.postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
+            PostScript.postscript_conversion(order)
         except:
             print("PostScript Conversion Failed")
         try:
             # Merge Uncollated Files
             if(instructions.merging(order)):
-                PostScript.file_merge(
-                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(order))
+                PostScript.file_merge(order, instructions.duplex_state(order))
         except:
             print("File Merge Failure")
         try:
-            PostScript.pdf_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
-            PostScript.nup(OUTPUT_DIRECTORY, ORDER_NUMBER)
-            if(instructions.merging(order)):
-                PostScript.file_merge_n(
-                    OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(order))
+            if(Print.can_nup(order, False, 0)):
+                PostScript.pdf_conversion(order)
+                PostScript.nup(order)
+                if(instructions.merging(order)):
+                    PostScript.file_merge_n(
+                        order, instructions.duplex_state(order))
         except:
             print("Multi-Up Failure")
         try:
             # Create Email Html Pdf & PS
-            EmailPrint.Email_Printer(OUTPUT_DIRECTORY, ORDER_NAME, error_state)
+            EmailPrint.Email_Printer(order.OD, ORDER_NAME, error_state)
         except:
             print("Email Conversion Failed")
         emails_proccessed += 1
@@ -204,7 +213,7 @@ def process_mailbox(M, AUTORUN, D110_IP):
             Print.printing(Orders, ORDER_NUMBER, "SO", D110_IP, COLOR,
                            print_que, AUTORUN, EMAILPRINT, BOOKLETS, 0, False)
             printer.print_processor(print_que)
-            files.file_cleanup(Orders, OUTPUT_DIRECTORY)
+            files.file_cleanup(Orders, order.OD)
 
     return emails_proccessed
 
@@ -230,7 +239,7 @@ def main(AUTORUN, D110_IP):
         print("Im Resting, Check Back Later:")
         while(True):  # Infinite Loop for checking emails
             try:
-                time.sleep(25)
+                # time.sleep(25)
                 print("Running Loop")
                 M = imaplib.IMAP4_SSL(IMAP_SERVER)
                 M.login(EMAIL_ACCOUNT, PASSWORD)

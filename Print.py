@@ -79,11 +79,11 @@ def can_run(order, COLOR, BOOKLETS, COVERS):
 def can_nup(order, Color, SETS):
     if(order.STAPLING == "Upper Left - portrait" or order.STAPLING == "Upper Left - landscape" or order.STAPLING == "Double Left - portrait" or order.STAPLING == "None"):
         return False
-    if(not COVERS and order.FRONT_COVER):
+    if(order.FRONT_COVER):
         return False
-    if(not COVERS and order.BACK_COVER):
+    if(order.BACK_COVER):
         return False
-    if(order.BOOKLETS):
+    if(order.BOOKLET):
         return False
     if("11 x 17" in order.PAPER):
         return False
@@ -290,10 +290,9 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
             # Create PostScript File
             print(colored(
                 "This was an Archived School Order, PostsScript files are being Regenerated.", 'green'))
-            PostScript.postscript_conversion(order.NUMBER, order.OD)
+            PostScript.postscript_conversion(order)
             if(instructions.merging(order)):
-                PostScript.file_merge(
-                    order.OD, order.NAME, instructions.duplex_state(order))
+                PostScript.file_merge(order, instructions.duplex_state(order))
         except:
             print("PostScript Conversion Failed")
 
@@ -328,11 +327,11 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     if(nup and can_nup(order, COLOR, SETS) and SETS > 1):
         print("Running Multi Up")
         if os.path.exists(order.OD+'/' + order.NAME + '/PostScriptn/') == False:
-            PostScript.pdf_conversion(order.NUMBER, order.OD)
-            PostScript.nup(order.OD, order.NUMBER)
+            PostScript.pdf_conversion(order)
+            PostScript.nup(order)
             if(instructions.merging(order)):
                 PostScript.file_merge_n(
-                    order.OD, order.NAME, instructions.duplex_state(order))
+                    order, instructions.duplex_state(order))
         order.PAPER = "11 x 17 Paper White"
         order.DUPLEX = "two-sided-short-edge"
         MERGED = instructions.pjl_insert(
