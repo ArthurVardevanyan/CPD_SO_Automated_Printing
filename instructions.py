@@ -1,4 +1,4 @@
-__version__ = "v2020108"
+__version__ = "v20201011"
 
 import json
 import PostScript
@@ -48,7 +48,7 @@ def Special_Instructions_Processing(QTY, str):
         if(min(Numbers) == max(Numbers)):
             if("every" in str or "each" in str or "into" in str or "between" in str or "stacks of" in str or "sets of" in str):
                 if(QTY % min(Numbers) == 0):
-                    if(min(Numbers) <= 5 ):
+                    if(min(Numbers) <= 5):
                         return min(Numbers), int(QTY / min(Numbers))
                     else:
                         return int(QTY / min(Numbers)), min(Numbers)
@@ -173,8 +173,12 @@ def stapling(JOB_INFO, collation):
 def drilling(JOB_INFO):
     if(JOB_INFO.get('Drilling', False) == "Yes"):
         print('Hole Punched')
-        return str.encode(
-            '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>\n')
+        if("11 x 17" in str(JOB_INFO.get('Paper', False)).lower()):
+            return str.encode(
+                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">96</value>\n')
+        else:
+            return str.encode(
+                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>\n')
     else:
         return str.encode('')
 
@@ -326,7 +330,7 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS):
 
             if("11 x 17" in str(JOB_INFO.get('Paper', False)).lower()):
                 lines[i] = str.encode(
-                    '@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n')
+                    '@PJL XCPT <media-col syntax="collection">\n@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n@PJL XCPT </media-col>\n@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             else:
                 lines[i] = str.encode(
                     '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n@PJL XCPT 	<separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
@@ -337,7 +341,7 @@ def pjl_insert(JOB_INFO, COPIES_PER_SET, page_counts, COVERS):
 
             if("11 x 17" in str(JOB_INFO.get('Paper', False)).lower()):
                 lines[i] = str.encode(
-                    '@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n')
+                    '@PJL XCPT<media-col syntax="collection">\n@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n@PJL XCPT </media-col>\n@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             else:
                 lines[i] = str.encode(
                     '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n@PJL XCPT 	<separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
