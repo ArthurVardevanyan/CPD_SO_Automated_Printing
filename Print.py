@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200110"
+__version__ = "v20200111"
 
 # Local Files
 import files
@@ -337,7 +337,8 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 PostScript.file_merge_n(
                     OUTPUT_DIRECTORY, ORDER_NAME, instructions.duplex_state(JOB_INFO))
         JOB_INFO['Paper'] = "11 x 17 Paper White"
-        JOB_INFO["Duplex"] = "two-sided-short-edge"
+        if(JOB_INFO["Duplex"] != 'One-sided'):
+            JOB_INFO["Duplex"] = "two-sided-short-edge"
         MERGED = instructions.pjl_insert(
             JOB_INFO, COPIES_PER_SET, page_counts, COVERS)
         pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, "PSPn", MERGED, FILES)
