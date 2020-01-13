@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200111"
+__version__ = "v20200112"
 
 # Built-In Libraries
 import json
@@ -20,7 +20,7 @@ import files
 if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
 else:
-    GHOSTSCRIPT_PATH = 'C:/"Program order.FILE_NAMES (x86)"/gs/gs9.27/bin/gswin32c.exe'
+    GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
 
 # Grayscale Ghostscript Parameter
 # https://gist.github.com/firstdoit/6390547
@@ -203,19 +203,19 @@ def nupConversion(inFile, outFile):
         sys.stdout.flush()
         scaled.addPage(doc)
     for iter in range(0, scaled.getNumPages()):
-        lhs = scaled.getPage(iter)
-        rhs = scaled.getPage(iter)
-        lhs.mergeTranslatedPage(rhs, lhs.mediaBox.getUpperRight_x(), 0, True)
-        output.addPage(lhs)
-        print(str(iter) + " "),
-        sys.stdout.flush()
-    for iter in range(0, output.getNumPages()):
-        page = output.getPage(iter)
-        orientation = output.getPage(iter).mediaBox
+        page = scaled.getPage(iter)
+        orientation = scaled.getPage(iter).mediaBox
         if orientation.getUpperRight_x() - orientation.getUpperLeft_x() < orientation.getUpperRight_y() - orientation.getLowerRight_y():
             # https://stackoverflow.com/a/46017058
             page.rotateClockwise(90)
-        output1.addPage(page)
+        output.addPage(page)
+        sys.stdout.flush()
+    for iter in range(0, output.getNumPages()):
+        lhs = output.getPage(iter)
+        rhs = output.getPage(iter)
+        lhs.mergeTranslatedPage(rhs, lhs.mediaBox.getUpperRight_x(), 0, True)
+        output1.addPage(lhs)
+        print(str(iter) + " "),
         sys.stdout.flush()
 
     print("writing " + outFile)
