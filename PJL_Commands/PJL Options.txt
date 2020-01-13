@@ -21,6 +21,9 @@ Stapling Portrait Double Left
 3 Hole Punch Left Landscape
 <value syntax="enum">91</value>
 <value syntax="enum">96</value>
+3 Hole Punch Right LandScape
+<value syntax="enum">91</value>
+<value syntax="enum">94</value>
 Booklet
 <value syntax="enum">110</value>
 

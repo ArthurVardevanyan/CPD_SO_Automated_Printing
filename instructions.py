@@ -1,4 +1,4 @@
-__version__ = "v20201011"
+__version__ = "v20201012"
 
 import PostScript
 
@@ -172,7 +172,7 @@ def drilling(order):
         print('Hole Punched')
         if("11 x 17" in str(order.PAPER).lower()):
             return str.encode(
-                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">96</value>\n')
+                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">94</value>\n')
         else:
             return str.encode(
                 '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>\n')
