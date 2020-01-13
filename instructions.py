@@ -1,4 +1,4 @@
-__version__ = "v20201012"
+__version__ = "v20201013"
 
 import PostScript
 
@@ -21,6 +21,8 @@ def merging(order):
         else:
             return 1
     elif len(order.FILES) != 1 and order.PAGE_COUNTS == len(order.FILES):
+        order.DUPLEX = "One-sided"
+        order.STAPLING = ""
         return 1
     else:
         print("Not Merging")
