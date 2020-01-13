@@ -1,12 +1,12 @@
 # test_instructions.py
-__version__ = "v20200111"
+__version__ = "v2020011"
 
 import unittest
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-import instructions
 import order as o
+import instructions
 
 
 class Testing(unittest.TestCase):
@@ -204,18 +204,19 @@ class Testing(unittest.TestCase):
     def test_default(self):
         order = o.Order()
         order.NUMBER = "11344-2704"
+        order.STAPLING_BOOL = False
         self.assertEqual(instructions.default(order),
                          str.encode('@PJL XCPT <value syntax="enum">3</value>\n'))
-        order.STAPLING = "Upper Left - portrait"
+        order.STAPLING_BOOL = True
         self.assertEqual(instructions.default(order), str.encode(''))
-        order.STAPLING = "Upper Left - landscape"
+        order.STAPLING_BOOL = True
         self.assertEqual(instructions.default(order), str.encode(''))
-        order.STAPLING = ""
+        order.STAPLING_BOOL = False
         order.DRILLING = "Yes"
         self.assertEqual(instructions.default(order), str.encode(''))
-        order.STAPLING = "Upper Left - landscape"
+        order.STAPLING_BOOL = True
         self.assertEqual(instructions.default(order), str.encode(''))
-        order.STAPLING = "Upper Left - portrait"
+        order.STAPLING_BOOL = True
         self.assertEqual(instructions.default(order), str.encode(''))
 
     def test_collation(self):
@@ -307,11 +308,13 @@ class Testing(unittest.TestCase):
         order.COLLATION = "Collated"
         order.PAPER = "8.5 x 11 Paper White"
         order. STAPLING = "Upper Left - portrait"
+        order.STAPLING_BOOL = True
         FILE = o.Files()
         FILE.NAME = "11344-2704.01 Test File.pdf"
         FILE.PAGE_COUNT = "9"
+        order.PAGE_COUNTS = 9
         order.FILES.append(FILE)
-        self.assertFalse(instructions.pjl_insert(order, 30, 9, 0))
+        self.assertFalse(instructions.pjl_insert(order, 30, 0))
         with open('PJL_Commands/input.ps', 'r') as f:
             data = f.readlines()
         count = 0

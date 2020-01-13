@@ -1,4 +1,4 @@
-__version__ = "v20201011"
+__version__ = "v20201013"
 
 import PostScript
 
@@ -21,6 +21,8 @@ def merging(order):
         else:
             return 1
     elif len(order.FILES) != 1 and order.PAGE_COUNTS == len(order.FILES):
+        order.DUPLEX = "One-sided"
+        order.STAPLING = ""
         return 1
     else:
         print("Not Merging")
@@ -45,7 +47,7 @@ def Special_Instructions_Processing(QTY, str):
         if(QTY == min(Numbers) == max(Numbers)):
             return 1, max(Numbers)
         if(min(Numbers) == max(Numbers)):
-            if("every" in str or "each" in str or "into" in str or "between" in str or "stacks of" in str or "sets of" in str):
+            if(any(s in str for s in ("every", "each", "into", "between", "stacks of", "sets of"))):
                 if(QTY % min(Numbers) == 0):
                     if(min(Numbers) <= 5):
                         return min(Numbers), int(QTY / min(Numbers))
@@ -60,7 +62,8 @@ def Special_Instructions_Processing(QTY, str):
             if(QTY == min(Numbers) * max(Numbers)):
                 return min(Numbers), max(Numbers)
             return 0, 1
-        if("set" in str or "slip" in str or "page" in str or "sort" in str or "group" in str or "into" in str):
+
+        if(any(s in str for s in ("set", "slip", "page", "sort", "group", "into"))):
             return 0, 1
         if((QTY * 2) == min(Numbers) * max(Numbers)):
             return 0, 1
@@ -100,8 +103,7 @@ def Special_Instructions(order):
 
 
 def default(order):
-    if((order.STAPLING != "Upper Left - portrait" and order.STAPLING != "Upper Left - landscape" and order.STAPLING != "Double Left - portrait")
-       and order.DRILLING != "Yes" and order.BOOKLET != "Yes"):
+    if(order.STAPLING_BOOL == False and order.DRILLING != "Yes" and order.BOOKLET != "Yes"):
         print('No Finishing')
         return str.encode(
             '@PJL XCPT <value syntax="enum">3</value>\n')
@@ -172,7 +174,7 @@ def drilling(order):
         print('Hole Punched')
         if("11 x 17" in str(order.PAPER).lower()):
             return str.encode(
-                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">96</value>\n')
+                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">94</value>\n')
         else:
             return str.encode(
                 '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>\n')
@@ -281,7 +283,7 @@ def covers(order, COVERS):
     return ""
 
 
-def pjl_insert(order, COPIES_PER_SET, page_counts, COVERS):
+def pjl_insert(order, COPIES_PER_SET, COVERS):
     print('\nChosen Options:')
 
     COLLATION = collation(order)
@@ -329,8 +331,8 @@ def pjl_insert(order, COPIES_PER_SET, page_counts, COVERS):
                     '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n@PJL XCPT 	<separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
             print("\nSplit-Sheeting!")
         # Add SlipSheets to Large Collated Sets
-        if (page_counts / len(order.FILES) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and
-                order.STAPLING != "Upper Left - portrait" and (order.STAPLING != "Upper Left - landscape") and order.STAPLING != "Double Left - portrait"):
+        if (order.PAGE_COUNTS / len(order.FILES) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and
+                order.STAPLING_BOOL == False):
 
             if("11 x 17" in str(order.PAPER).lower()):
                 lines[i] = str.encode(
@@ -350,13 +352,13 @@ def pjl_insert(order, COPIES_PER_SET, page_counts, COVERS):
 
     # If it makes sense to use merged files, it uses them.
     if str('<sheet-collate syntax="keyword">uncollated') in str(COLLATION) and len(order.FILES) != 1:
-        if page_counts / len(order.FILES) / duplex_state >= 10:
+        if order.PAGE_COUNTS / len(order.FILES) / duplex_state >= 10:
             print("DUE TO PAGE COUNT, MERGED TURNED OFF")
             return False
         else:
             print("THESE FILES WERE MERGED!")
             return True
-    elif len(order.FILES) != 1 and page_counts == len(order.FILES):
+    elif len(order.FILES) != 1 and order.PAGE_COUNTS == len(order.FILES):
         return True
     return False
 
