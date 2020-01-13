@@ -32,7 +32,7 @@ D110_162 = 0  # Impressions ran on this machine
 D110_156 = 1  # Impressions ran on this machine
 
 
-def impression_counter(PAGE_COUNTS, COPIES, PRINTER):
+def impression_counter(order, PRINTER):
     if PRINTER == 0:
         return 0
     if PRINTER == 1:
@@ -41,10 +41,10 @@ def impression_counter(PAGE_COUNTS, COPIES, PRINTER):
     global D110_156
     global D110_162
     if D110_156 < D110_162:
-        D110_156 += PAGE_COUNTS * COPIES
+        D110_156 += order.PAGE_COUNTS * order.COPIES
         return 0
     if D110_162 < D110_156:
-        D110_162 += PAGE_COUNTS * COPIES
+        D110_162 += order.PAGE_COUNTS * order.COPIES
         return 1
 
 
@@ -53,7 +53,7 @@ def can_run(order, COLOR, BOOKLETS, COVERS):
     if(order.status == "True"):
         return False
     if(order.STAPLING):
-        if(order.STAPLING == "Upper Left - portrait" or order.STAPLING == "Upper Left - landscape" or order.STAPLING == "Double Left - portrait" or order.STAPLING == "None"):
+        if(order.STAPLING_BOOL):
             None
         else:
             return False
@@ -77,7 +77,7 @@ def can_run(order, COLOR, BOOKLETS, COVERS):
 
 
 def can_nup(order, Color, SETS):
-    if(order.STAPLING == "Upper Left - portrait" or order.STAPLING == "Upper Left - landscape" or order.STAPLING == "Double Left - portrait" or order.STAPLING == "None"):
+    if(order.STAPLING_BOOL):
         return False
     if(order.FRONT_COVER):
         return False
@@ -152,22 +152,22 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
             return "".join(["Order DNE: ", ORDER_NAME])
 
 
-def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, outFOLDER, MERGED, FILES):
+def pjl_merge(order, outFOLDER, MERGED, FILES):
     N = "n" if outFOLDER == "PSPn" else ""
     try:
-        os.makedirs(OUTPUT_DIRECTORY +
-                    "/"+ORDER_NAME + "/" + outFOLDER)
+        os.makedirs(order.OD +
+                    "/"+order.NAME + "/" + outFOLDER)
         print("Successfully created the directory ",
-              "/", OUTPUT_DIRECTORY, "/", ORDER_NAME, "/", outFOLDER)
+              "/", order.OD, "/", order.NAME, "/", outFOLDER)
     except OSError:
         print("Creation of the directory failed ",
-              "/", OUTPUT_DIRECTORY, "/", ORDER_NAME, "/", outFOLDER)
+              "/", order.OD, "/", order.NAME, "/", outFOLDER)
 
     if MERGED == True:
         # Add the PJL Commands to the merged file in preperation to print.
-        file_names = ['PJL_Commands/input.ps', OUTPUT_DIRECTORY+"/" +
-                      ORDER_NAME + "/"+ORDER_NAME+N+".ps", 'PJL_Commands/End.ps']
-        with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/"+outFOLDER + "/"+ORDER_NAME+".ps", 'wb') as outfile:
+        file_names = ['PJL_Commands/input.ps', order.OD+"/" +
+                      order.NAME + "/"+order.NAME+N+".ps", 'PJL_Commands/End.ps']
+        with open(order.OD+"/"+order.NAME + "/"+outFOLDER + "/"+order.NAME+".ps", 'wb') as outfile:
             for fname in file_names:
                 with open(fname, 'rb') as infile:
                     for line in infile:
@@ -176,9 +176,9 @@ def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, outFOLDER, MERGED, FILES):
     elif MERGED == False:
         # Add the PJL Commands to the files in preperation to print.
         for i in range(len(FILES)):
-            file_names = ['PJL_Commands/input.ps', OUTPUT_DIRECTORY+"/"+ORDER_NAME +
+            file_names = ['PJL_Commands/input.ps', order.OD+"/"+order.NAME +
                           "/PostScript"+N+"/"+FILES[i]+".ps", 'PJL_Commands/End.ps']
-            with open(OUTPUT_DIRECTORY+"/"+ORDER_NAME + "/" + outFOLDER + "/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
+            with open(order.OD+"/"+order.NAME + "/" + outFOLDER + "/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
                 for fname in file_names:
                     with open(fname, 'rb') as infile:
                         for line in infile:
@@ -189,15 +189,15 @@ def pjl_merge(OUTPUT_DIRECTORY, ORDER_NAME, outFOLDER, MERGED, FILES):
 
 def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS, nup):
     # Runs the bulk of code
-    print_result = ''  # Used for Status Output
     order = o.Order()
-    order.NUMBER = ORDER_NUMBER
     order.OD = OUTPUT_DIRECTORY
+    order.RESULT = ''  # Used for Status Output
+    order.NUMBER = ORDER_NUMBER
     # Calls a function in files.py, which gets a list of all the orders downladed
     FOLDERS = files.folder_list(order.OD)
 
     order.NAME = order_selection(order.NUMBER, FOLDERS, AUTORUN)
-    if("Order DNE" in order.NAME or "Aborted @ CO#" in order.NAME or "ON Not Valid" in order.NAME or "Aborted @ INT: " in order.NAME):
+    if(any(str in order.NAME for str in ("Order DNE", "Aborted @ CO#", "ON Not Valid", "Aborted @ INT: "))):
         return order.NAME
     try:
         with open(order.OD+'/'+order.NAME+'/'+order.NAME+'.json') as json_file:
@@ -213,7 +213,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 return "".join(["Not Supported S:  ", order.NAME])
 
     # Keeps track of how much each printer has printed for load balancing
-    D110_IP = impression_counter(order.PAGE_COUNTS, order.COPIES, PRINTER)
+    D110_IP = impression_counter(order, PRINTER)
 
     # This calls the function that creates the banner sheet for the given order number
     BANNER_SHEET_FILE = BannerSheet.banner_sheet(order)
@@ -247,7 +247,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         else:
             COPIES_PER_SET = order.COPIES
         print("\n!--I WILL TAKE IT FROM HERE--!")
-        print_result = "SUCCESS!     : "
+        order.RESULT = "SUCCESS!     : "
     elif(SIP != (0, 0)):
         SETS = SIP[0]
         COPIES_PER_SET = SIP[1]
@@ -255,7 +255,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         print("CPS : ", colored(COPIES_PER_SET, "magenta"))
         print(
             "\n!--I WILL TAKE IT FROM HERE & DONE WITH SPECIAL INSTRUCTION PROCESSING --!")
-        print_result = "SUCCESS SPI! : "
+        order.RESULT = "SUCCESS SPI! : "
     else:
         if(not AUTORUN):
             # If their are special instructions prompt the user to manually enter copies and set counts
@@ -277,7 +277,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                     break
                 except:
                     pass
-            print_result = "Manual Input : "
+            order.RESULT = "Manual Input : "
         else:
             if(EMAILPRINT):
                 EmailPrint.Email_Print(order.OD,
@@ -300,13 +300,12 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     MERGED = False
     # Sets the correct PJL commands
     MERGED = instructions.pjl_insert(
-        order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
+        order, COPIES_PER_SET,  COVERS)
     if(COVERS and "cover" in str.lower(order.SPECIAL_INSTRUCTIONS)):
         MERGED = instructions.cover_manual(order)
 
    # Merge PostScript Header File to All Postscript Job Files
-    FILES = [i.NAME for i in order.FILES]
-    pjl_merge(order.OD, order.NAME, "PSP", MERGED, FILES)
+    pjl_merge(order, "PSP", MERGED, order.FILE_NAMES)
     try:
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:
@@ -336,8 +335,8 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         if(order.DUPLEX != 'One-sided'):
             order.DUPLEX = "two-sided-short-edge"
         MERGED = instructions.pjl_insert(
-            order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
-        pjl_merge(order.OD, order.NAME, "PSPn", MERGED, FILES)
+            order, COPIES_PER_SET,  COVERS)
+        pjl_merge(order, "PSPn", MERGED, order.FILE_NAMES)
         try:
             os.remove("PJL_Commands/input.ps")  # remove temp file
         except:
@@ -391,22 +390,22 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 if (len(flip) == 0):
                     COPIES_PER_SET = order.COPIES
                     instructions.pjl_insert(
-                        order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
-                    pjl_merge(order.OD, order.NAME,
-                              "PSP", MERGED, FILES)
+                        order, COPIES_PER_SET,  COVERS)
+                    pjl_merge(order,
+                              "PSP", MERGED, order.FILE_NAMES)
                 else:
                     for j in range(len(Print_Files)):
                         order.DUPLEX = "two-sided-short-edge" if flip[j] else "Two-sided (back to back)"
                         instructions.pjl_insert(
-                            order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
-                        flip_file = [FILES[j]]
-                        pjl_merge(order.OD, order.NAME, "PSP",
+                            order, COPIES_PER_SET,  COVERS)
+                        flip_file = [order.FILE_NAMES[j]]
+                        pjl_merge(order, "PSP",
                                   MERGED, flip_file)
             elif(approved == 2):
                 order.DUPLEX = "two-sided-short-edge"
                 instructions.pjl_insert(
-                    order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
-                pjl_merge(order.OD, order.NAME, "PSP", MERGED, FILES)
+                    order, COPIES_PER_SET,  COVERS)
+                pjl_merge(order, "PSP", MERGED, order.FILE_NAMES)
                 for i in range(SETS):
                     for j in range(len(Print_Files)):
                         lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
@@ -440,9 +439,9 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                                 pass
                         order.DUPLEX = "two-sided-short-edge" if flip[-1] else "Two-sided (back to back)"
                         instructions.pjl_insert(
-                            order, COPIES_PER_SET, order.PAGE_COUNTS, COVERS)
-                        flip_file = [FILES[j]]
-                        pjl_merge(order.OD, order.NAME,
+                            order, COPIES_PER_SET,  COVERS)
+                        flip_file = [order.FILE_NAMES[j]]
+                        pjl_merge(order,
                                   "PSP", MERGED, flip_file)
                         lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                         lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
@@ -483,7 +482,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 print_que.append(lpr_path)
         print("\n")
     Orders.append(order.NAME)
-    return "".join([print_result, LPR[D110_IP][41:44], " : ", order.NAME])
+    return "".join([order.RESULT, LPR[D110_IP][41:44], " : ", order.NAME])
 
 
 def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):

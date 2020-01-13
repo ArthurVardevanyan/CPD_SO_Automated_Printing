@@ -1,4 +1,4 @@
-__version__ = "v20200111"
+__version__ = "v20200113"
 
 import files
 
@@ -14,6 +14,7 @@ class Order:
     OD = ""
     UID = ""
     status = ""
+    RESULT = ""
     NAME = ""
     NUMBER = ""
     SUBJECT = ""
@@ -21,6 +22,7 @@ class Order:
     DUPLEX = ""
     COLLATION = ""
     STAPLING = ""
+    STAPLING_BOOL = False
     DRILLING = ""
     FOLDING = ""
     CUTTING = ""
@@ -47,6 +49,7 @@ class Order:
     PAGE_COUNTS = ""
 
     FILE_NAMES = []
+
     def __init__(self):
         self.FILES = []
 
@@ -86,5 +89,8 @@ def order_initialization(order, JOB_INFO):
         order.FILES.append(F)
     order.FILE_NAMES = [i.NAME for i in order.FILES]
     order.PAGE_COUNTS = files.page_counts(order)
+
+    if(any(str in order.STAPLING for str in ("Upper Left - portrait",  "Upper Left - landscape",  "Double Left - portrait",  "None"))):
+        order.STAPLING_BOOL = True
 
     return order

@@ -1,13 +1,12 @@
 # test_Print.py
-__version__ = "v20200111"
-
+__version__ = "v20200113"
 import unittest
 from unittest import mock
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-import order as o
 import Print
+import order as o
 
 
 class Testing(unittest.TestCase):
@@ -50,10 +49,19 @@ class Testing(unittest.TestCase):
         # Still need to test duplicate order numbers
 
     def test_impression_counter(self):
-        self.assertFalse(Print.impression_counter(0, 0, 0))
-        self.assertTrue(Print.impression_counter(0, 0, 1))
-        self.assertTrue(Print.impression_counter(9, 10, 2))
-        self.assertFalse(Print.impression_counter(9, 10, 2))
+        order = o.Order()
+        order.PAGE_COUNTS = 0
+        order.COPIES = 0
+        self.assertFalse(Print.impression_counter(order, 0))
+        order.PAGE_COUNTS = 0
+        order.COPIES = 0
+        self.assertTrue(Print.impression_counter(order, 1))
+        order.PAGE_COUNTS = 9
+        order.COPIES = 10
+        self.assertTrue(Print.impression_counter(order, 2))
+        order.PAGE_COUNTS = 9
+        order.COPIES = 10
+        self.assertFalse(Print.impression_counter(order, 2))
 
     def test_can_run(self):
         order = o.Order()
@@ -78,15 +86,15 @@ class Testing(unittest.TestCase):
         order.FRONT_COVER = ""
         order.BACK_COVER = ""
         order.PAPER = "8.5 x 11 Paper White"
-        order.STAPLING = "Upper Left - portrait"
+        order.STAPLING_BOOL = True
         self.assertTrue(Print.can_run(order, 0, 0, 0))
         order.PAPER = "8.5 x 11 Paper White"
-        order.STAPLING = "Upper Left - landscape"
+        order.STAPLING_BOOL = True
         self.assertTrue(Print.can_run(order, 0, 0, 0))
         order.PAPER = "8.5 x 11 Paper White"
-        order.STAPLING = "Double Left - portrait"
+        order.STAPLING_BOOL = True
         self.assertTrue(Print.can_run(order, 0, 0, 0))
-        order.STAPLING = ""
+        order.STAPLING_BOOL = False
         order.BOOKLET = "Yes"
         self.assertFalse(Print.can_run(order, 0, 0, 0))
         order.BOOKLET = "Yes"
