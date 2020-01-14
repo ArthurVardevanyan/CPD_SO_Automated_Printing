@@ -90,7 +90,7 @@ def order_initialization(order, JOB_INFO):
     order.FILE_NAMES = [i.NAME for i in order.FILES]
     order.PAGE_COUNTS = files.page_counts(order)
 
-    if(any(str in order.STAPLING for str in ("Upper Left - portrait",  "Upper Left - landscape",  "Double Left - portrait",  "None"))):
+    if(any(s in str(order.STAPLING) for s in ("Upper Left - portrait",  "Upper Left - landscape",  "Double Left - portrait",  "None"))):
         order.STAPLING_BOOL = True
 
     return order
