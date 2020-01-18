@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200111"
+__version__ = "v20200118"
 
 # Local Files
 import files
@@ -375,6 +375,15 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     else:
         if(order.BOOKLET == "Yes"):
             approved = 0
+            for i in range(SETS):
+                for j in range(len(Print_Files)):
+                    lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
+                    lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
+                        Print_Files[j] + '" -J "' + Print_Files[j] + '"'
+                    print(lpr_path.replace(
+                        "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                        '-P PS "C:/S/SO/', "").split("-J")[0])
+                    print_que.append(lpr_path)
             printer.print_processor(print_que)  # Does the printing
             print("PLEASE CHECK PROOF, if any files look incorrect, please cancel order")
             while True:
