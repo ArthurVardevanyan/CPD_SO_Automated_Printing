@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200112"
+__version__ = "v20200118"
 
 # Built-In Libraries
 import json
@@ -180,8 +180,9 @@ def pdf_conversion(order):
 
     for i in range(len(order.FILE_NAMES)):
         # Processes the Conversion
-        os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', order.OD, '"/"' +
-                           order.NAME, '"/PDF/"', order.FILE_NAMES[i], '" "', order.OD, '"/"', order.NAME, '"/PostScript/"', order.FILE_NAMES[i], '".ps -c quit']))
+        ghostscript_command = "".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', order.OD, '"/"' +
+                           order.NAME, '/PDF/', order.FILE_NAMES[i], '" "', order.OD, '/', order.NAME, '/PostScript/', order.FILE_NAMES[i], '.ps" -c quit'])
+        os.system(ghostscript_command)
     return True
 
 

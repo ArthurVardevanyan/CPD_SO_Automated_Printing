@@ -241,7 +241,7 @@ def main(AUTORUN, D110_IP):
         print("Im Resting, Check Back Later:")
         while(True):  # Infinite Loop for checking emails
             try:
-                # time.sleep(25)
+                time.sleep(25)
                 print("Running Loop")
                 M = imaplib.IMAP4_SSL(IMAP_SERVER)
                 M.login(EMAIL_ACCOUNT, PASSWORD)
