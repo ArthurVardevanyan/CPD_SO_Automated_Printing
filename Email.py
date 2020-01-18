@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200110"
+__version__ = "v20200118"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -172,6 +172,8 @@ def process_mailbox(M, AUTORUN, D110_IP):
             order = o.order_initialization(order, JOB_INFO)
         except:
             print("JSON File Failed")
+        if(error_state == "Error/"):
+            order.OD = order.OD + "/Error/"
         try:
             # Database Input
             database.database_input(order.OD, JOB_INFO)
@@ -239,7 +241,7 @@ def main(AUTORUN, D110_IP):
         print("Im Resting, Check Back Later:")
         while(True):  # Infinite Loop for checking emails
             try:
-                time.sleep(25)
+                # time.sleep(25)
                 print("Running Loop")
                 M = imaplib.IMAP4_SSL(IMAP_SERVER)
                 M.login(EMAIL_ACCOUNT, PASSWORD)
