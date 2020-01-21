@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200118"
+__version__ = "v20200121"
 
 # Built-In Libraries
 import json
@@ -60,7 +60,7 @@ def postscript_conversion(order):
 
 
 def file_merge(order, DUPLEX_STATE):
-    order.FILE_NAMES_path = ''
+    FILES_path = ''
     if DUPLEX_STATE == 2:  # Adds blanks for doublesided uncollated printing
         for i in range(len(order.FILE_NAMES)):
             try:
@@ -81,14 +81,14 @@ def file_merge(order, DUPLEX_STATE):
                 os.system(ghostscript_command)
 
     # Merges order.FILE_NAMES for Uncollated Printing with SlipSheets
-    for order.FILE_NAMES in order.FILE_NAMES:
-        order.FILE_NAMES_path = "".join([order.FILE_NAMES_path, '"', order.OD,
-                                         '/', order.NAME, '/PostScript/', order.FILE_NAMES, '.ps" '])
-    print("These order.FILE_NAMES are being MERGED!!")
+    for FILE in order.FILE_NAMES:
+        FILES_path = "".join([FILES_path, '"', order.OD,
+                              '/', order.NAME, '/PostScript/', FILE, '.ps" '])
+    print("These Files are being MERGED!!")
     output = "".join(
         [order.OD, '/', order.NAME, '/', order.NAME, '.ps'])
     ghostscript_command = "".join(
-        [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write  -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -sOutputFile="', output, '" ', order.FILE_NAMES_path, '  -c quit'])
+        [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write  -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -sOutputFile="', output, '" ', FILES_path, '  -c quit'])
     # Processes the Conversion
     os.system(ghostscript_command)
     return True
@@ -180,8 +180,8 @@ def pdf_conversion(order):
 
     for i in range(len(order.FILE_NAMES)):
         # Processes the Conversion
-        ghostscript_command = "".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', order.OD, '"/"' +
-                           order.NAME, '/PDF/', order.FILE_NAMES[i], '" "', order.OD, '/', order.NAME, '/PostScript/', order.FILE_NAMES[i], '.ps" -c quit'])
+        ghostscript_command = "".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', order.OD, '/' +
+                                       order.NAME, '/PDF/', order.FILE_NAMES[i], '" "', order.OD, '/', order.NAME, '/PostScript/', order.FILE_NAMES[i], '.ps" -c quit'])
         os.system(ghostscript_command)
     return True
 

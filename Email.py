@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200118"
+__version__ = "v20200121"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -87,6 +87,7 @@ def subject_line(subject):
         "Subject: ", "").replace("Copy Job - ", "")
     subject = subject[2:-9].strip()
     subject = re.sub(r'[/\r\n\\:*?\"()<>|.;]', " ", subject)
+    subject = subject.replace("&", "and")
     # Keeps only the First 35 Characters of the subject.
     subject = subject[:35].rstrip()
     return subject
