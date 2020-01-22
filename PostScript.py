@@ -1,29 +1,42 @@
 # PostScript.py
-__version__ = "v20200121"
+__version__ = "v20200122"
 
 # Built-In Libraries
+import files
+from PyPDF2.pdf import PageObject
+from PyPDF2 import PdfFileWriter, PdfFileReader
+import PyPDF2
 import json
 import os
 import glob
 import sys
 import locale
 import subprocess
+import log
+print = log.Print
+input = log.Input
 
 # Downloaded Libraries
-import PyPDF2
-from PyPDF2 import PdfFileWriter, PdfFileReader
-from PyPDF2.pdf import PageObject
 
 # Local order.FILE_NAMES
-import files
 
 if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
 else:
     GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
 
+
 # Grayscale Ghostscript Parameter
 # https://gist.github.com/firstdoit/6390547
+
+def ghostscript(gsCMD):
+    output = subprocess.Popen(gsCMD, stdout=subprocess.PIPE, shell=True)
+    (out, err) = output.communicate()  # pylint: disable=unused-variable
+    out = str(out).replace("b'GPL Ghostscript 9.27 (2019-04-04)\\nCopyright (C) 2018 Artifex Software, Inc.  All rights reserved.\\nThis software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:\\nsee the file COPYING for details.\\n", "")
+    out = out.split("\\n")
+    for line in out:
+        log.logger.debug(line)
+    return 1
 
 
 def ticket_conversion(PATH):
@@ -36,8 +49,9 @@ def ticket_conversion(PATH):
         with open(PATH, 'wb') as f:
             output.write(f)
     # Processes the Conversion
-    os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -sOutputFile="',
-                       PATH, '.ps" "', PATH, '" "', PATH, '" -c quit']))
+    gsCMD = "".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -sOutputFile="',
+                     PATH, '.ps" "', PATH, '" "', PATH, '" -c quit'])
+    ghostscript(gsCMD)
 
 
 def postscript_conversion(order):
@@ -46,16 +60,17 @@ def postscript_conversion(order):
         # Creates the Directory for Output
         os.makedirs("".join([order.OD,
                              "/", order.NAME, "/PostScript"]))
-        print("Successfully created the directory ",
-              "/", order.OD, "/", order.NAME, "/PostScript")
+        print("".join(["Successfully created the directory ",
+                       "/", order.OD, "/", order.NAME, "/PostScript"]))
     except OSError:
-        print("Creation of the directory failed ",
-              "/", order.OD, "/", order.NAME, "/PostScript")
+        print("".join(["Creation of the directory failed ",
+                       "/", order.OD, "/", order.NAME, "/PostScript"]))
 
     for i in range(len(order.FILE_NAMES)):
         # Processes the Conversion
-        os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', order.OD, '"/"' +
-                           order.NAME, '"/PostScript/"', order.FILE_NAMES[i], '.ps" "', order.OD, '"/"', order.NAME, '"/"', order.FILE_NAMES[i], '" -c quit']))
+        gsCMD = "".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', order.OD, '"/"' +
+                         order.NAME, '"/PostScript/"', order.FILE_NAMES[i], '.ps" "', order.OD, '"/"', order.NAME, '"/"', order.FILE_NAMES[i], '" -c quit'])
+        ghostscript(gsCMD)
     return True
 
 
@@ -68,6 +83,7 @@ def file_merge(order, DUPLEX_STATE):
                     open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', order.FILE_NAMES[i]]), "rb"))
                 pdf = pdf.getNumPages()
             except:
+                log.logger.exception("")
                 pdf = order.PAGE_COUNTS
 
             if (int(pdf) % 2) != 0:  # If odd number pages, add blank page
@@ -76,9 +92,9 @@ def file_merge(order, DUPLEX_STATE):
                     ['"', order.OD, '/', order.NAME, '/PostScript/', order.FILE_NAMES[i], '.ps"'])
                 src = "".join(['"', order.OD, '/',
                                order.NAME, '/', order.FILE_NAMES[i], '"'])
-                ghostscript_command = "".join(
+                gsCMD = "".join(
                     [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage   -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
-                os.system(ghostscript_command)
+                ghostscript(gsCMD)
 
     # Merges order.FILE_NAMES for Uncollated Printing with SlipSheets
     for FILE in order.FILE_NAMES:
@@ -87,10 +103,10 @@ def file_merge(order, DUPLEX_STATE):
     print("These Files are being MERGED!!")
     output = "".join(
         [order.OD, '/', order.NAME, '/', order.NAME, '.ps'])
-    ghostscript_command = "".join(
+    gsCMD = "".join(
         [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write  -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -sOutputFile="', output, '" ', FILES_path, '  -c quit'])
     # Processes the Conversion
-    os.system(ghostscript_command)
+    ghostscript(gsCMD)
     return True
 
 
@@ -103,6 +119,7 @@ def file_merge_manual(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE, FILES):
                     open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', FILES[i]]), "rb"))
                 pdf = pdf.getNumPages()
             except:
+                log.logger.exception("")
                 pdf = FILES.page_count(
                     '/'.join([OUTPUT_DIRECTORY, ORDER_NAME, FILES[i]]))
 
@@ -112,9 +129,9 @@ def file_merge_manual(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE, FILES):
                     ['"', OUTPUT_DIRECTORY, '/', ORDER_NAME, '/PostScript/', FILES[i], '.ps"'])
                 src = "".join(['"', OUTPUT_DIRECTORY, '/',
                                ORDER_NAME, '/', FILES[i], '"'])
-                ghostscript_command = "".join(
+                gsCMD = "".join(
                     [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
-                os.system(ghostscript_command)
+                ghostscript(gsCMD)
 
     # Merges FILES for Uncollated Printing with SlipSheets
     for FILES in FILES:
@@ -123,10 +140,10 @@ def file_merge_manual(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE, FILES):
     print("These FILES are being MERGED!!")
     output = "".join(
         [OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, '.ps'])
-    ghostscript_command = "".join(
+    gsCMD = "".join(
         [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write   -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -sOutputFile="', output, '" ', FILES_path, '  -c quit'])
     # Processes the Conversion
-    os.system(ghostscript_command)
+    ghostscript(gsCMD)
     return True
 
 
@@ -139,6 +156,7 @@ def file_merge_n(order, DUPLEX_STATE):
                     open("".join([order.OD, '/',  order.NAME, '/PDF/', order.FILE_NAMES[i]]), "rb"))
                 pdf = pdf.getNumPages()
             except:
+                log.logger.exception("")
                 pdf = order.FILE_NAMES.page_count(
                     '/'.join([order.OD,  order.NAME, "PDF", order.FILE_NAMES[i]]))
 
@@ -148,9 +166,9 @@ def file_merge_n(order, DUPLEX_STATE):
                     ['"', order.OD, '/',  order.NAME, '/PostScriptn/', order.FILE_NAMES[i], '.ps"'])
                 src = "".join(['"', order.OD, '/',
                                order.NAME, '/PDFn/', order.FILE_NAMES[i], '"'])
-                ghostscript_command = "".join(
+                gsCMD = "".join(
                     [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write  -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
-                os.system(ghostscript_command)
+                ghostscript(gsCMD)
 
     # Merges FILES for Uncollated Printing with SlipSheets
     for FILES in order.FILE_NAMES:
@@ -159,10 +177,10 @@ def file_merge_n(order, DUPLEX_STATE):
     print("These FILES are being MERGED!!")
     output = "".join(
         [order.OD, '/', order.NAME, '/',  order.NAME, 'n.ps'])
-    ghostscript_command = "".join(
+    gsCMD = "".join(
         [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write   -sOutputFile="', output, '" ', FILES_path, '  -c quit'])
     # Processes the Conversion
-    os.system(ghostscript_command)
+    ghostscript(gsCMD)
     return True
 
 
@@ -172,23 +190,23 @@ def pdf_conversion(order):
         # Creates the Directory for Output
         os.makedirs("".join([order.OD,
                              "/", order.NAME, "/PDF"]))
-        print("Successfully created the directory ",
-              "/", order.OD, "/", order.NAME, "/PDF")
+        print("".join(["Successfully created the directory ",
+                       "/", order.OD, "/", order.NAME, "/PDF"]))
     except OSError:
-        print("Creation of the directory failed ",
-              "/", order.OD, "/", order.NAME, "/PDF")
+        print("".join(["Creation of the directory failed ",
+                       "/", order.OD, "/", order.NAME, "/PDF"]))
 
     for i in range(len(order.FILE_NAMES)):
         # Processes the Conversion
-        ghostscript_command = "".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', order.OD, '/' +
-                                       order.NAME, '/PDF/', order.FILE_NAMES[i], '" "', order.OD, '/', order.NAME, '/PostScript/', order.FILE_NAMES[i], '.ps" -c quit'])
-        os.system(ghostscript_command)
+        gsCMD = "".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', order.OD, '/' +
+                         order.NAME, '/PDF/', order.FILE_NAMES[i], '" "', order.OD, '/', order.NAME, '/PostScript/', order.FILE_NAMES[i], '.ps" -c quit'])
+        ghostscript(gsCMD)
     return True
 
 
 def nupConversion(inFile, outFile):
     # https://github.com/mstamy2/PyPDF2/blob/master/Scripts/2-up.py
-    print("2-up input " + inFile)
+    log.logger.debug("2-up input " + inFile)
     input1 = PdfFileReader(open(inFile, "rb"))
     output = PdfFileWriter()
     output1 = PdfFileWriter()
@@ -216,13 +234,13 @@ def nupConversion(inFile, outFile):
         rhs = output.getPage(iter)
         lhs.mergeTranslatedPage(rhs, lhs.mediaBox.getUpperRight_x(), 0, True)
         output1.addPage(lhs)
-        print(str(iter) + " "),
+        log.logger.debug(str(iter) + " "),
         sys.stdout.flush()
 
-    print("writing " + outFile)
+    log.logger.debug("writing " + outFile)
     outputStream = open(outFile, "wb")
     output1.write(outputStream)
-    print("done.")
+    log.logger.debug("done.")
 
 
 def nup(order):
@@ -231,11 +249,11 @@ def nup(order):
         # Creates the Directory for Output
         os.makedirs("".join([order.OD,
                              "/", order.NAME, "/PDFn"]))
-        print("Successfully created the directory ",
-              "/", order.OD, "/", order.NAME, "/PDFn")
+        print("".join(["Successfully created the directory ",
+                       "/", order.OD, "/", order.NAME, "/PDFn"]))
     except OSError:
-        print("Creation of the directory failed ",
-              "/", order.OD, "/", order.NAME, "/PDFn")
+        print("".join(["Creation of the directory failed ",
+                       "/", order.OD, "/", order.NAME, "/PDFn"]))
 
     for i in range(len(order.FILE_NAMES)):
         nupConversion("".join([order.OD, '/', order.NAME, '/PDF/', order.FILE_NAMES[i]]), "".join([order.OD, '/' +
@@ -245,13 +263,14 @@ def nup(order):
         # Creates the Directory for Output
         os.makedirs("".join([order.OD,
                              "/", order.NAME, "/PostScriptn"]))
-        print("Successfully created the directory ",
-              "/", order.OD, "/", order.NAME, "/PostScriptn")
+        print("".join(["Successfully created the directory ",
+                       "/", order.OD, "/", order.NAME, "/PostScriptn"]))
     except OSError:
-        os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile="', order.OD, '"/"' +
-                           order.NAME, '"/PostScriptn/"', order.FILE_NAMES[i], '.ps" "', order.OD, '"/"', order.NAME, '"/PDFn/"', order.FILE_NAMES[i], '" -c quit']))
+        print("".join(["Creation of the directory failed ",
+                       "/", order.OD, "/", order.NAME, "/PostScriptn"]))
 
     for i in range(len(order.FILE_NAMES)):
         # Processes the Conversion
-        os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile="', order.OD, '"/"' +
-                           order.NAME, '"/PostScriptn/"', order.FILE_NAMES[i], '.ps" "', order.OD, '"/"', order.NAME, '"/PDFn/"', order.FILE_NAMES[i], '" -c quit']))
+        gsCMD = "".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile="', order.OD, '"/"' +
+                         order.NAME, '"/PostScriptn/"', order.FILE_NAMES[i], '.ps" "', order.OD, '"/"', order.NAME, '"/PDFn/"', order.FILE_NAMES[i], '" -c quit'])
+        ghostscript(gsCMD)

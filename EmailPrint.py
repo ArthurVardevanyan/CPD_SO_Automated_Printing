@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191211"
+__version__ = "v20191222"
 
 # Built-In Libraries
 import os
@@ -15,6 +15,7 @@ import colorama
 import files
 import PostScript
 import printer
+import log
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -66,6 +67,7 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
         'margin-bottom': '0.2in',
         'margin-left': '0.2in',
     }
+    # Doesn't Output to Log
     if(os.name == "posix"):
         pdfkit.from_string(html, "".join([PATH, "/Tickets/",
                                           ORDER_NAME, '.pdf']), options=options,)
@@ -130,7 +132,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
             for i in range(len(pjl_lines)):
                 if str('<value syntax="keyword">') in str(pjl_lines[i]):
                     pjl_lines[i] = str.encode(
-                            '@PJL XCPT 	<value syntax="keyword">none</value>\n')
+                        '@PJL XCPT 	<value syntax="keyword">none</value>\n')
 
         with open('PJL_Commands/input.ps', 'wb') as f:
             for item in pjl_lines:
@@ -193,6 +195,9 @@ def main():
 
 
 if __name__ == "__main__":
+    log.logInit("EmailPrint")
+    print = log.Print
+    input = log.Input
     print("\nTerminal Email Printing REV: ",
           colored(__version__, "magenta"))
     print('Make Sure White and Bright Colored Paper is loaded!\nSet Colored Paper as ',
