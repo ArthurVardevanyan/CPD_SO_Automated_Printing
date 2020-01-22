@@ -1,6 +1,7 @@
-__version__ = "v20201013"
+__version__ = "v20200122"
 
 import PostScript
+import log
 
 
 def duplex_state(order):
@@ -371,6 +372,7 @@ def cover_manual(order):
             file_order = [int(s) for s in file_order.split() if s.isdigit()]
             break
         except:
+            log.logger.exception("")
             pass
     FILES = []
     while True:
@@ -379,6 +381,7 @@ def cover_manual(order):
                 input("Duplex Merge? 2 Yes - 1 No (Default: 2): "))
             break
         except:
+            log.logger.exception("")
             pass
     FILES = [i.name for i in order.FILES]
     return PostScript.file_merge_manual(order.OD, order.NAME, DUPLEX_STATE, FILES)

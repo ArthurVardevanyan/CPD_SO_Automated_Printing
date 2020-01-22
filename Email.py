@@ -110,6 +110,7 @@ def order_number_extract(email_body, RANDOM):
         # Adds some randomness to the order number's using time
         return "".join([ORDER_NUMBER, RANDOM]), ""
     except:
+        logger.exception("")
         print("This Email is Not Standard, Will Still Attempt to Download Files.")
         error_state = "Error/"
         return "", error_state
@@ -137,7 +138,7 @@ def process_mailbox(M, AUTORUN, D110_IP):
         email_body = data[0][1]
         ORDER_NUMBER, error_state, = order_number_extract(
             str(email_body), order_number_random())
-        print("Order: ", ORDER_NUMBER+ " ", subject)
+        print("Order: ", ORDER_NUMBER + " ", subject)
         ORDER_NAME = "".join([ORDER_NUMBER, " ", subject])
 
         order.NUMBER = ORDER_NUMBER
@@ -153,9 +154,9 @@ def process_mailbox(M, AUTORUN, D110_IP):
                                  error_state, ORDER_NAME]))
         except OSError:
             print("".join(["Creation of the directory %s failed" %
-                  order.OD, error_state, "/", subject]))
+                           order.OD, error_state, "/", subject]))
         print("".join(["Successfully created the directory %s " %
-              order.OD, error_state, "/", subject]))
+                       order.OD, error_state, "/", subject]))
         if("Re:" in subject):  # Ignore Replies
             print("This is a reply, skipping")
         else:
@@ -173,24 +174,28 @@ def process_mailbox(M, AUTORUN, D110_IP):
             JOB_INFO = SchoolDataJson.school_data_json(order)
             order = o.order_initialization(order, JOB_INFO)
         except:
+            logger.exception("")
             print("JSON File Failed")
         if(error_state == "Error/"):
             order.OD = order.OD + "/Error/"
-        try:
-            # Database Input
-            database.database_input(order.OD, JOB_INFO)
-        except:
-            print("Database Input Failed")
+       # try:
+       #     # Database Input
+       #     database.database_input(order.OD, JOB_INFO)
+       # except:
+       #     logger.exception("")
+       #     print("Database Input Failed")
         try:
             # Create PostScript File
             PostScript.postscript_conversion(order)
         except:
+            logger.exception("")
             print("PostScript Conversion Failed")
         try:
             # Merge Uncollated Files
             if(instructions.merging(order)):
                 PostScript.file_merge(order, instructions.duplex_state(order))
         except:
+            logger.exception("")
             print("File Merge Failure")
         try:
             if(Print.can_nup(order, False, 0)):
@@ -200,11 +205,13 @@ def process_mailbox(M, AUTORUN, D110_IP):
                     PostScript.file_merge_n(
                         order, instructions.duplex_state(order))
         except:
+            logger.exception("")
             print("Multi-Up Failure")
         try:
             # Create Email Html Pdf & PS
             EmailPrint.Email_Printer(order.OD, ORDER_NAME, error_state)
         except:
+            logger.exception("")
             print("Email Conversion Failed")
         emails_proccessed += 1
 
@@ -233,6 +240,7 @@ def main(AUTORUN, D110_IP):
         cred = [x.strip() for x in cred]
         EMAIL_ACCOUNT = "".join([str(cred[0]), EMAIL_ACCOUNT])
     except:
+        logger.exception("")
         print("Credential Failure")
     M = imaplib.IMAP4_SSL(IMAP_SERVER)
     M.login(EMAIL_ACCOUNT, PASSWORD)  # Credentials Info
@@ -261,6 +269,7 @@ def main(AUTORUN, D110_IP):
                     "ERROR: Unable to open mailbox ", rv)
                 time.sleep(250)
             except:
+                logger.exception("")
                 print("SOMETHING WENT HORRIBLY WRONG, Check Internet Connection")
                 time.sleep(30)
                 continue
@@ -299,8 +308,10 @@ if __name__ == "__main__":
                         else:
                             pass
                     except:
+                        logger.exception("")
                         pass
             break
         except:
+            logger.exception("")
             pass
     main(AUTORUN, D110_IP)

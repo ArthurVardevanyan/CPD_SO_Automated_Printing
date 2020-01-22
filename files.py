@@ -1,5 +1,5 @@
 # files.py
-__version__ = "v20200108"
+__version__ = "v20200122"
 
 # Built-In Libraries
 import os
@@ -14,6 +14,8 @@ import shutil
 
 
 # Local Files
+import log
+
 if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
 else:
@@ -60,6 +62,7 @@ def page_counts(order):
                 open("".join([order.OD, '/', order.NAME, '/', files[i]]), "rb"))
             pdf = pdf.getNumPages()
         except:
+            log.logger.exception("")
             pdf = page_count(
                 '/'.join([order.OD, '/', order.NAME, '/', files[i]]))
         print("Page Count: ", colored(str(pdf),
@@ -116,5 +119,6 @@ def file_cleanup(Orders, OUTPUT_DIRECTORY):
         Orders = []
         return True
     except:
+        log.logger.exception("")
         print("File Cleanup Failed")
         return False
