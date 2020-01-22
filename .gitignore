@@ -12,5 +12,6 @@ __pycache__/
 *.csv
 /web/node_modules
 /dist/
-/doc/Time.ods
-doc/.~lock.Time.ods#
+/doc/CPD_SO_AP_Time.ods
+doc/.~lock.CPD_SO_AP_Time.ods#
+*.log
