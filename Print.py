@@ -113,6 +113,7 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
                 if str(ORDER_NUMBER) in i:
                     ORDER_NAMES.append(i)
         except:
+            log.logger.exception("")
             return "".join(["Aborted @ INT: ", ORDER_NUMBER])
     if(not AUTORUN):
         if(len(ORDER_NAMES) == 0):
@@ -204,6 +205,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         with open(order.OD+'/'+order.NAME+'/'+order.NAME+'.json') as json_file:
             order = o.order_initialization(order, json.load(json_file))
     except:
+        log.logger.exception("")
         if(not AUTORUN):
             return "".join(["Aborted @ JS#: ", order.NUMBER, " ", order.NAME])
         else:
@@ -269,6 +271,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                         return "".join(["Aborted @ Set: ", order.NAME])
                     break
                 except:
+                    log.logger.exception("")
                     pass
             while True:
                 try:
@@ -277,6 +280,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                         return "".join(["Aborted @ CPS: ", order.NAME])
                     break
                 except:
+                    log.logger.exception("")
                     pass
             order.RESULT = "Manual Input : "
         else:
@@ -295,6 +299,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
             if(instructions.merging(order)):
                 PostScript.file_merge(order, instructions.duplex_state(order))
         except:
+            log.logger.exception("")
             print("PostScript Conversion Failed")
 
     # This gets the number of pages for every pdf file for the job.
@@ -310,6 +315,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     try:
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:
+        log.logger.exception("")
         print("Temp File Remove Failed")
 
     # Gets list of Files in the Postscript Print Ready Folder
@@ -341,6 +347,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         try:
             os.remove("PJL_Commands/input.ps")  # remove temp file
         except:
+            log.logger.exception("")
             print("Temp File Remove Failed")
         lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
         print_que.append(lpr_path)
@@ -358,7 +365,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSPn/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                logger.debug((lpr_path.replace(
+                log.logger.debug((lpr_path.replace(
                     "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
@@ -368,7 +375,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                logger.debug((lpr_path.replace(
+                log.logger.debug((lpr_path.replace(
                     "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
@@ -381,7 +388,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                     lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                     lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                         Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                    logger.debug((lpr_path.replace(
+                    log.logger.debug((lpr_path.replace(
                         "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
                         '-P PS "C:/S/SO/', "").split("-J")[0]))
                     print_que.append(lpr_path)
@@ -394,6 +401,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                         "3", "cyan"), " | No: ", colored("0", "cyan"), " :"])))
                     break
                 except:
+                    log.logger.exception("")
                     pass
             flip = []
             if(approved == 1):
@@ -421,7 +429,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                         lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                         lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                             Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                        logger.debug((lpr_path.replace(
+                        log.logger.debug((lpr_path.replace(
                             "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
                             '-P PS "C:/S/SO/', "").split("-J")[0]))
                         print_que.append(lpr_path)
@@ -432,6 +440,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                             input(''.join(["Approved?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " "]))) == 1 else 0
                         break
                     except:
+                        log.logger.exception("")
                         pass
             elif(approved == 3):
                 for i in range(SETS):
@@ -446,6 +455,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                                 else:
                                     pass
                             except:
+                                log.logger.exception("")
                                 pass
                         order.DUPLEX = "two-sided-short-edge" if flip[-1] else "Two-sided (back to back)"
                         instructions.pjl_insert(
@@ -467,6 +477,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                             "3", "cyan"), " | No: ", colored("0", "cyan"), " :"])))
                         break
                     except:
+                        log.logger.exception("")
                         pass
         else:
             lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
@@ -486,7 +497,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                logger.debug((lpr_path.replace(
+                log.logger.debug((lpr_path.replace(
                     "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
@@ -513,6 +524,7 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
                 else:
                     pass
             except:
+                log.logger.exception("")
                 pass
         loop = True
         ORDER_NUMBER = []  # The List of order numbers to validate and run
@@ -553,6 +565,7 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
                             input(''.join(["\nSubmit Another Set of Orders?  Yes : (", colored("1", "cyan"), ") | No : (", colored("0", "cyan"), "): "]))) == 1 else False
                         break
                     except:
+                        log.logger.exception("")
                         pass
 
                 os.system('clear')  # on linux
@@ -564,10 +577,9 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
 if __name__ == "__main__":
 
     log.logInit("Print")
-    from log import logger
     print = log.Print
     input = log.Input
-    
+
     print("Terminal Auto Printing  REV:", colored(__version__, "magenta"))
     print("Terminal Email Printing REV:",
           colored(EmailPrint.__version__, "magenta"))
@@ -583,6 +595,7 @@ if __name__ == "__main__":
                 input(''.join(["Enable Sequential Printing  Paper?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
             break
         except:
+            log.logger.exception("")
             pass
     while True:
         try:
@@ -592,6 +605,7 @@ if __name__ == "__main__":
                 print("Make Sure White and Bright Colored Paper is loaded!")
             break
         except:
+            log.logger.exception("")
             pass
     while True:
         try:
@@ -602,6 +616,7 @@ if __name__ == "__main__":
                     "Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
             break
         except:
+            log.logger.exception("")
             pass
     while True:
         try:
@@ -612,6 +627,7 @@ if __name__ == "__main__":
                     "BOOKLETS CAN ONLY BE RAN ONE ORDER AT A TIME! Currently only Pre-Imposed and Letter Sized")
             break
         except:
+            log.logger.exception("")
             pass
     while True:
         try:
@@ -619,6 +635,7 @@ if __name__ == "__main__":
                 input(''.join(["Enable Multi Up Printing?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
             break
         except:
+            log.logger.exception("")
             pass
     COVERS = 0
 #    while True:
@@ -627,5 +644,6 @@ if __name__ == "__main__":
 #                input(''.join(["Enable Covers?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
 #            break
 #        except:
+#            log.logger.exception("")
 #            pass
     main(False, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup)

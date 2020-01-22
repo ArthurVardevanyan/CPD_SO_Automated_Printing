@@ -83,6 +83,7 @@ def file_merge(order, DUPLEX_STATE):
                     open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', order.FILE_NAMES[i]]), "rb"))
                 pdf = pdf.getNumPages()
             except:
+                log.logger.exception("")
                 pdf = order.PAGE_COUNTS
 
             if (int(pdf) % 2) != 0:  # If odd number pages, add blank page
@@ -118,6 +119,7 @@ def file_merge_manual(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE, FILES):
                     open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', FILES[i]]), "rb"))
                 pdf = pdf.getNumPages()
             except:
+                log.logger.exception("")
                 pdf = FILES.page_count(
                     '/'.join([OUTPUT_DIRECTORY, ORDER_NAME, FILES[i]]))
 
@@ -154,6 +156,7 @@ def file_merge_n(order, DUPLEX_STATE):
                     open("".join([order.OD, '/',  order.NAME, '/PDF/', order.FILE_NAMES[i]]), "rb"))
                 pdf = pdf.getNumPages()
             except:
+                log.logger.exception("")
                 pdf = order.FILE_NAMES.page_count(
                     '/'.join([order.OD,  order.NAME, "PDF", order.FILE_NAMES[i]]))
 
