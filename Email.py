@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200121"
+__version__ = "v20200122"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -29,6 +29,7 @@ import printer
 import database
 import instructions
 import order as o
+import log
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -136,7 +137,7 @@ def process_mailbox(M, AUTORUN, D110_IP):
         email_body = data[0][1]
         ORDER_NUMBER, error_state, = order_number_extract(
             str(email_body), order_number_random())
-        print("Order: ", ORDER_NUMBER, " ", subject)
+        print("Order: ", ORDER_NUMBER+ " ", subject)
         ORDER_NAME = "".join([ORDER_NUMBER, " ", subject])
 
         order.NUMBER = ORDER_NUMBER
@@ -151,10 +152,10 @@ def process_mailbox(M, AUTORUN, D110_IP):
             os.makedirs("".join([order.OD,
                                  error_state, ORDER_NAME]))
         except OSError:
-            print("Creation of the directory %s failed" %
-                  order.OD, error_state, "/", subject)
-        print("Successfully created the directory %s " %
-              order.OD, error_state, "/", subject)
+            print("".join(["Creation of the directory %s failed" %
+                  order.OD, error_state, "/", subject]))
+        print("".join(["Successfully created the directory %s " %
+              order.OD, error_state, "/", subject]))
         if("Re:" in subject):  # Ignore Replies
             print("This is a reply, skipping")
         else:
@@ -271,6 +272,11 @@ def main(AUTORUN, D110_IP):
 
 
 if __name__ == "__main__":
+    log.logInit("Email")
+    from log import logger
+    print = log.Print
+    input = log.Input
+
     print("\nSchool Order Downloader REV:",
           colored(__version__, "magenta"))
     print("Terminal Auto Printing  REV:",
