@@ -1,5 +1,5 @@
 # test_Print.py
-__version__ = "v20200113"
+__version__ = "v20200122"
 import unittest
 from unittest import mock
 import os
@@ -7,11 +7,13 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Print
 import order as o
+import log
 
 
 class Testing(unittest.TestCase):
 
     def test_order_selection(self):
+        log.logInit("test")
         import files
         Folders = files.folder_list("tests/SO")
         Folders.pop()
@@ -105,7 +107,7 @@ class Testing(unittest.TestCase):
         self.assertFalse(Print.can_run(order, 0, 0, 0))
 
     def test_printing(self):
-
+        log.logInit("test")
         self.assertEqual(Print.printing([], "11344", "tests/SO", 1, 0, [], True, False, 0, 0, 0),
                          "SUCCESS SPI! : 162 : 11344-2704 First Last - Test 1")
         self.assertEqual(Print.printing([], "11345", "tests/SO", 1, 0, [], True, False, 0, 0, 0),

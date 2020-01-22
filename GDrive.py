@@ -8,7 +8,8 @@ from oauth2client import file, client, tools
 
 # Built-In Libraries
 import re
-__version__ = "v20200114"
+import log
+__version__ = "v20200122"
 
 # Source https://developers.google.com/drive/api/v3/quickstart/python
 # Source https://stackoverflow.com/questions/52211886/downloading-file-from-google-drive-using-api-nameerror-name-service-is-not-d
@@ -61,5 +62,6 @@ def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, c
         print("Finished writing ", file_name)
         return 1
     except:
+        log.logger.exception("")
         print("DRIVE FAILED: LINK (or path) PROBABLY DOES NOT EXIST: ", DRIVE_ID)
         return 0
