@@ -358,9 +358,9 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSPn/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                print(lpr_path.replace(
+                logger.debug((lpr_path.replace(
                     "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
-                    '-P PS "C:/S/SO/', "").split("-J")[0])
+                    '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
         print("\n")
         if (SETS % 2) != 0:
@@ -368,9 +368,9 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                print(lpr_path.replace(
+                logger.debug((lpr_path.replace(
                     "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
-                    '-P PS "C:/S/SO/', "").split("-J")[0])
+                    '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
 
     else:
@@ -381,9 +381,9 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                     lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                     lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                         Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                    print(lpr_path.replace(
+                    logger.debug((lpr_path.replace(
                         "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
-                        '-P PS "C:/S/SO/', "").split("-J")[0])
+                        '-P PS "C:/S/SO/', "").split("-J")[0]))
                     print_que.append(lpr_path)
             printer.print_processor(print_que)  # Does the printing
             print("PLEASE CHECK PROOF, if any files look incorrect, please cancel order")
@@ -421,9 +421,9 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                         lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                         lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                             Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                        print(lpr_path.replace(
+                        logger.debug((lpr_path.replace(
                             "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
-                            '-P PS "C:/S/SO/', "").split("-J")[0])
+                            '-P PS "C:/S/SO/', "").split("-J")[0]))
                         print_que.append(lpr_path)
                 printer.print_processor(print_que)  # Does the printing
                 while True:
@@ -486,9 +486,9 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                print(lpr_path.replace(
+                logger.debug((lpr_path.replace(
                     "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
-                    '-P PS "C:/S/SO/', "").split("-J")[0])
+                    '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
         print("\n")
     Orders.append(order.NAME)
