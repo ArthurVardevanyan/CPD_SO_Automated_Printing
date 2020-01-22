@@ -1,26 +1,30 @@
 # PostScript.py
-__version__ = "v20200121"
+__version__ = "v20200122"
 
 # Built-In Libraries
+import files
+from PyPDF2.pdf import PageObject
+from PyPDF2 import PdfFileWriter, PdfFileReader
+import PyPDF2
 import json
 import os
 import glob
 import sys
 import locale
 import subprocess
+import log
+print = log.Print
+input = log.Input
 
 # Downloaded Libraries
-import PyPDF2
-from PyPDF2 import PdfFileWriter, PdfFileReader
-from PyPDF2.pdf import PageObject
 
 # Local order.FILE_NAMES
-import files
 
 if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
 else:
     GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
+
 
 # Grayscale Ghostscript Parameter
 # https://gist.github.com/firstdoit/6390547
@@ -46,16 +50,22 @@ def postscript_conversion(order):
         # Creates the Directory for Output
         os.makedirs("".join([order.OD,
                              "/", order.NAME, "/PostScript"]))
-        print("Successfully created the directory ",
-              "/", order.OD, "/", order.NAME, "/PostScript")
+        print("".join(["Successfully created the directory ",
+                       "/", order.OD, "/", order.NAME, "/PostScript"]))
     except OSError:
-        print("Creation of the directory failed ",
-              "/", order.OD, "/", order.NAME, "/PostScript")
+        print("".join(["Creation of the directory failed ",
+                       "/", order.OD, "/", order.NAME, "/PostScript"]))
 
     for i in range(len(order.FILE_NAMES)):
         # Processes the Conversion
-        os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', order.OD, '"/"' +
-                           order.NAME, '"/PostScript/"', order.FILE_NAMES[i], '.ps" "', order.OD, '"/"', order.NAME, '"/"', order.FILE_NAMES[i], '" -c quit']))
+        gsCMD = "".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile="', order.OD, '"/"' +
+                         order.NAME, '"/PostScript/"', order.FILE_NAMES[i], '.ps" "', order.OD, '"/"', order.NAME, '"/"', order.FILE_NAMES[i], '" -c quit'])
+        output = subprocess.Popen(gsCMD, stdout=subprocess.PIPE, shell=True)
+        (out, err) = output.communicate()  # pylint: disable=unused-variable
+        out = str(out).replace("b'GPL Ghostscript 9.27 (2019-04-04)\\nCopyright (C) 2018 Artifex Software, Inc.  All rights reserved.\\nThis software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:\\nsee the file COPYING for details.\\n","")
+        out = out.split("\\n")
+        for line in out:
+            log.logger.debug(line)
     return True
 
 
@@ -172,11 +182,11 @@ def pdf_conversion(order):
         # Creates the Directory for Output
         os.makedirs("".join([order.OD,
                              "/", order.NAME, "/PDF"]))
-        print("Successfully created the directory ",
-              "/", order.OD, "/", order.NAME, "/PDF")
+        print("".join(["Successfully created the directory ",
+                       "/", order.OD, "/", order.NAME, "/PDF"]))
     except OSError:
-        print("Creation of the directory failed ",
-              "/", order.OD, "/", order.NAME, "/PDF")
+        print("".join(["Creation of the directory failed ",
+                       "/", order.OD, "/", order.NAME, "/PDF"]))
 
     for i in range(len(order.FILE_NAMES)):
         # Processes the Conversion
@@ -231,11 +241,11 @@ def nup(order):
         # Creates the Directory for Output
         os.makedirs("".join([order.OD,
                              "/", order.NAME, "/PDFn"]))
-        print("Successfully created the directory ",
-              "/", order.OD, "/", order.NAME, "/PDFn")
+        print("".join(["Successfully created the directory ",
+                       "/", order.OD, "/", order.NAME, "/PDFn"]))
     except OSError:
-        print("Creation of the directory failed ",
-              "/", order.OD, "/", order.NAME, "/PDFn")
+        print("".join(["Creation of the directory failed ",
+                       "/", order.OD, "/", order.NAME, "/PDFn"]))
 
     for i in range(len(order.FILE_NAMES)):
         nupConversion("".join([order.OD, '/', order.NAME, '/PDF/', order.FILE_NAMES[i]]), "".join([order.OD, '/' +
@@ -245,8 +255,8 @@ def nup(order):
         # Creates the Directory for Output
         os.makedirs("".join([order.OD,
                              "/", order.NAME, "/PostScriptn"]))
-        print("Successfully created the directory ",
-              "/", order.OD, "/", order.NAME, "/PostScriptn")
+        print("".join(["Successfully created the directory ",
+                       "/", order.OD, "/", order.NAME, "/PostScriptn"]))
     except OSError:
         os.system("".join([GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sOutputFile="', order.OD, '"/"' +
                            order.NAME, '"/PostScriptn/"', order.FILE_NAMES[i], '.ps" "', order.OD, '"/"', order.NAME, '"/PDFn/"', order.FILE_NAMES[i], '" -c quit']))

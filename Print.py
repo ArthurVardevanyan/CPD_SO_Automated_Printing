@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200118"
+__version__ = "v20200122"
 
 # Local Files
 import files
@@ -10,6 +10,7 @@ import printer
 import PostScript
 import SchoolDataJson
 import order as o
+import log
 
 # Built-In Libraries
 import os
@@ -158,10 +159,10 @@ def pjl_merge(order, outFOLDER, MERGED, FILES):
         os.makedirs(order.OD +
                     "/"+order.NAME + "/" + outFOLDER)
         print("Successfully created the directory ",
-              "/", order.OD, "/", order.NAME, "/", outFOLDER)
+              "/" + order.OD, "/" + order.NAME+"/" + outFOLDER)
     except OSError:
         print("Creation of the directory failed ",
-              "/", order.OD, "/", order.NAME, "/", outFOLDER)
+              "/" + order.OD, "/" + order.NAME + "/" + outFOLDER)
 
     if MERGED == True:
         # Add the PJL Commands to the merged file in preperation to print.
@@ -561,6 +562,12 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
 
 
 if __name__ == "__main__":
+
+    log.logInit("Print")
+    from log import logger
+    print = log.Print
+    input = log.Input
+    
     print("Terminal Auto Printing  REV:", colored(__version__, "magenta"))
     print("Terminal Email Printing REV:",
           colored(EmailPrint.__version__, "magenta"))
