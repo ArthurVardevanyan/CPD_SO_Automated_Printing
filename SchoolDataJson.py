@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20200122"
+__version__ = "v20200123"
 
 # Built-In Libraries
 import json
@@ -34,7 +34,7 @@ def school_data_json(order):
     for i in range(len(FILES)):
         try:
             pdf = PyPDF2.PdfFileReader(
-                open('/'.join([order.OD, ORDER_order.NAME, NAME, FILES[i]]), "rb"))
+                open('/'.join([order.OD, order.NAME, FILES[i]]), "rb"))
             school_data["Files"]["".join(["File ", str(
                 i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf.getNumPages())}
         except:
