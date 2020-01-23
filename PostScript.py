@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200122"
+__version__ = "v20200123"
 
 # Built-In Libraries
 import files
@@ -80,7 +80,7 @@ def file_merge(order, DUPLEX_STATE):
         for i in range(len(order.FILE_NAMES)):
             try:
                 pdf = PyPDF2.PdfFileReader(
-                    open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', order.FILE_NAMES[i]]), "rb"))
+                    open('/'.join([order.OD, order.NAME, FILES[i]]), "rb"))
                 pdf = pdf.getNumPages()
             except:
                 log.logger.exception("")
@@ -207,7 +207,8 @@ def pdf_conversion(order):
 def nupConversion(inFile, outFile):
     # https://github.com/mstamy2/PyPDF2/blob/master/Scripts/2-up.py
     log.logger.debug("2-up input " + inFile)
-    input1 = PdfFileReader(open(inFile, "rb"))
+    inFile = open(inFile, "rb")
+    input1 = PdfFileReader(inFile)
     output = PdfFileWriter()
     output1 = PdfFileWriter()
     scaled = PdfFileWriter()
@@ -240,6 +241,7 @@ def nupConversion(inFile, outFile):
     log.logger.debug("writing " + outFile)
     outputStream = open(outFile, "wb")
     output1.write(outputStream)
+    inFile.close()
     log.logger.debug("done.")
 
 
