@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200123"
+__version__ = "v20200124"
 
 # Built-In Libraries
 import files
@@ -55,16 +55,15 @@ def ticket_conversion(PATH):
 
 
 def postscript_conversion(order):
-
+    F = "".join([order.OD,
+                 "/", order.NAME, "/PostScript"])
     try:
         # Creates the Directory for Output
-        os.makedirs("".join([order.OD,
-                             "/", order.NAME, "/PostScript"]))
-        print("".join(["Successfully created the directory ",
-                       "/", order.OD, "/", order.NAME, "/PostScript"]))
+        if not os.path.exists(F):
+            os.makedirs(F)
+            print("".join(["Successfully created the directory ", F]))
     except OSError:
-        print("".join(["Creation of the directory failed ",
-                       "/", order.OD, "/", order.NAME, "/PostScript"]))
+        print("".join(["Creation of the directory failed ", F]))
 
     for i in range(len(order.FILE_NAMES)):
         # Processes the Conversion
@@ -185,16 +184,16 @@ def file_merge_n(order, DUPLEX_STATE):
 
 
 def pdf_conversion(order):
-
+    F = "".join([order.OD,
+                 "/", order.NAME, "/PDF"])
     try:
         # Creates the Directory for Output
-        os.makedirs("".join([order.OD,
-                             "/", order.NAME, "/PDF"]))
-        print("".join(["Successfully created the directory ",
-                       "/", order.OD, "/", order.NAME, "/PDF"]))
+        if not os.path.exists(F):
+            os.makedirs(F)
+            print(
+                "".join(["Successfully created the directory ", F]))
     except OSError:
-        print("".join(["Creation of the directory failed ",
-                       "/", order.OD, "/", order.NAME, "/PDF"]))
+        print("".join(["Creation of the directory failed ", F]))
 
     for i in range(len(order.FILE_NAMES)):
         # Processes the Conversion
@@ -247,29 +246,28 @@ def nupConversion(inFile, outFile):
 
 def nup(order):
 
+    F = "".join([order.OD,
+                 "/", order.NAME, "/PDFn"])
     try:
         # Creates the Directory for Output
-        os.makedirs("".join([order.OD,
-                             "/", order.NAME, "/PDFn"]))
-        print("".join(["Successfully created the directory ",
-                       "/", order.OD, "/", order.NAME, "/PDFn"]))
+        if not os.path.exists(F):
+            os.makedirs(F)
+            print("".join(["Successfully created the directory ", F]))
     except OSError:
-        print("".join(["Creation of the directory failed ",
-                       "/", order.OD, "/", order.NAME, "/PDFn"]))
+        print("".join(["Creation of the directory failed ", F]))
 
     for i in range(len(order.FILE_NAMES)):
         nupConversion("".join([order.OD, '/', order.NAME, '/PDF/', order.FILE_NAMES[i]]), "".join([order.OD, '/' +
                                                                                                    order.NAME, '/PDFn/', order.FILE_NAMES[i]]))
-
+    F = "".join([order.OD,
+                 "/", order.NAME, "/PostScriptn"])
     try:
         # Creates the Directory for Output
-        os.makedirs("".join([order.OD,
-                             "/", order.NAME, "/PostScriptn"]))
-        print("".join(["Successfully created the directory ",
-                       "/", order.OD, "/", order.NAME, "/PostScriptn"]))
+        if not os.path.exists(F):
+            os.makedirs(F)
+            print("".join(["Successfully created the directory ", F]))
     except OSError:
-        print("".join(["Creation of the directory failed ",
-                       "/", order.OD, "/", order.NAME, "/PostScriptn"]))
+        print("".join(["Creation of the directory failed ", F]))
 
     for i in range(len(order.FILE_NAMES)):
         # Processes the Conversion
