@@ -179,12 +179,12 @@ def process_mailbox(M, AUTORUN, D110_IP):
             print("JSON File Failed")
         if(error_state == "Error/"):
             order.OD = order.OD + "/Error/"
-       # try:
-       #     # Database Input
-       #     database.database_input(order.OD, JOB_INFO)
-       # except:
-       #     logger.exception("")
-       #     print("Database Input Failed")
+        try:
+            # Database Input
+            database.database_input(order.OD, JOB_INFO)
+        except:
+            logger.exception("")
+            print("Database Input Failed")
         try:
             # Create PostScript File
             PostScript.postscript_conversion(order)

@@ -175,6 +175,10 @@ def orderStatusExport(order, STATUS):
 
 
 def main(OUTPUT_DIRECTORY):
+    log.logInit("Print")
+    print = log.Print
+    input = log.Input
+
     Start = str(input("Start #: "))
     End = str(input("End   #: "))
     folders = files.folder_list(OUTPUT_DIRECTORY)
