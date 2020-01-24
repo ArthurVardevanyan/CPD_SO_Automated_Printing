@@ -1,5 +1,5 @@
 # files.py
-__version__ = "v20191112"
+__version__ = "v20200122"
 
 # Built-In Libraries
 import os
@@ -10,9 +10,12 @@ import PyPDF2
 from termcolor import colored
 import colorama
 import subprocess
+import shutil
 
 
 # Local Files
+import log
+
 if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
 else:
@@ -31,9 +34,9 @@ def folder_list(folder):
     return Stripped_List  # Returns the Stripped List to Main Function
 
 
-def file_list(folder, OName):
+def file_list(order):
     # Grabs the PDF's in the requested order
-    fileList = sorted(glob.glob("".join([folder, "/", OName, "/*.pdf"]))
+    fileList = sorted(glob.glob("".join([order.OD, "/", order.NAME, "/*.pdf"]))
                       )  # Gathers all the Files
     # Strips the file path data to leave just the filename
     Stripped_List = [os.path.basename(x) for x in fileList]
@@ -48,19 +51,20 @@ def postscript_list(folder, OName, sub):
     return Stripped_List  # Returns the Stripped List to Main Function
 
 
-def page_counts(OUTPUT_DIRECTORY, ORDER_NAME):
+def page_counts(order):
     # Returns the total page counts for an Order
-    files = file_list(OUTPUT_DIRECTORY, ORDER_NAME)
+    files = file_list(order)
     counts = 0
     print("\n")
     for i in range(len(files)):
         try:
             pdf = PyPDF2.PdfFileReader(
-                open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', files[i]]), "rb"))
+                open("".join([order.OD, '/', order.NAME, '/', files[i]]), "rb"))
             pdf = pdf.getNumPages()
         except:
+            log.logger.exception("")
             pdf = page_count(
-                '/'.join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', files[i]]))
+                '/'.join([order.OD, '/', order.NAME, '/', files[i]]))
         print("Page Count: ", colored(str(pdf),
                                       "magenta"), " FileName: ", files[i])
         counts = counts + pdf
@@ -73,8 +77,48 @@ def page_count(path):
     if(os.name == "posix"):
         status = subprocess.Popen(args, stdout=subprocess.PIPE)
     else:
-        status = subprocess.Popen(args, stdout=subprocess.PIPE, shell = True)
+        status = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
     (out, err) = status.communicate()  # pylint: disable=unused-variable
     out = out.strip()
     out = [int(s) for s in out.split() if s.isdigit()]
     return out[0]
+
+
+def file_cleanup(Orders, OUTPUT_DIRECTORY):
+    try:
+        for order in Orders:
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PostScript/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PSP/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/Tickets/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join(
+                [OUTPUT_DIRECTORY, "/", order, "/", order, ".ps"])
+            if os.path.exists(filePath):
+                os.remove(filePath)
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PDF/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PDFn/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PostScriptn/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PSPn/"])
+            if os.path.exists(filePath):
+                shutil.rmtree(filePath)
+            filePath = "".join(
+                [OUTPUT_DIRECTORY, "/", order, "/", order, "n.ps"])
+            if os.path.exists(filePath):
+                os.remove(filePath)
+        Orders = []
+        return True
+    except:
+        log.logger.exception("")
+        print("File Cleanup Failed")
+        return False
