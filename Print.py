@@ -502,6 +502,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 print_que.append(lpr_path)
         print("\n")
     Orders.append(order.NAME)
+    SchoolDataJson.orderStatusExport(order, "Printed")
     return "".join([order.RESULT, LPR[D110_IP][41:44], " : ", order.NAME])
 
 

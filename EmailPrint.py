@@ -16,6 +16,8 @@ import files
 import PostScript
 import printer
 import log
+import SchoolDataJson
+import order as o
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -150,6 +152,18 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         print(ORDER_NAME)
         print_que.append(
             "".join([LPR, '"', PATH[:-6], "pjl.ps", '" -J "', ORDER_NAME, '"']))
+
+        #TEMPORARY TILL WHOLE FILE GETS CONVERTED TO OOP
+        JSON_PATH = "".join(
+            [OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, '.json'])
+        order = o.Order()
+        order.OD = OUTPUT_DIRECTORY
+        order.NAME = ORDER_NAME
+        with open(JSON_PATH) as json_file:
+            order = o.order_initialization(order, json.load(json_file))
+        order.OD = OUTPUT_DIRECTORY
+        # Update Json File to Show the Email Ticket was Printing
+        SchoolDataJson.orderStatusExport(order, "TicketPrinted")
 
         try:
             os.remove("PJL_Commands/input.ps")  # remove temp file
