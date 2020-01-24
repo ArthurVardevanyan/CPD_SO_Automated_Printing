@@ -1,10 +1,11 @@
 # SchoolDataJson.py
-__version__ = "v20200123"
+__version__ = "v20200124"
 
 # Built-In Libraries
 import json
 import os
 import glob
+from datetime import datetime
 
 # Downloaded Libraries
 import PyPDF2
@@ -152,13 +153,25 @@ def school_data_json(order):
         if test_string in email[i]:
             line = email[i].split(test_string)
             school_data["Deliver To Address"] = line[1]
-        school_data["Ran"] = "False"
+        school_data["Status"] = "False"
         school_data["Cost"] = str(invoice.invoice(order, school_data))
 
         # Creates the JSON file
     with open("".join([order.OD, '/', order.NAME, '/', order.NAME, '.json']), 'w') as outfile:
         json.dump(school_data, outfile, indent=4, separators=(',', ': '))
     return school_data
+
+
+def orderStatusExport(order, STATUS):
+    JSON_PATH = "".join(
+        [order.OD, '/', order.NAME, '/', order.NAME, '.json'])
+    with open(JSON_PATH) as json_file:
+        JOB_INFO = json.load(json_file)
+    now = datetime.now()
+    current_time = now.strftime("%Y%m%d:%H%M")
+    JOB_INFO["Status"] = STATUS + "_" + current_time
+    with open(JSON_PATH, 'w') as outfile:
+        json.dump(JOB_INFO, outfile, indent=4, separators=(',', ': '))
 
 
 def main(OUTPUT_DIRECTORY):
