@@ -14,6 +14,7 @@ import files
 import PostScript
 import order as o
 import log
+import invoice
 
 
 def school_data_json(order):
@@ -152,6 +153,7 @@ def school_data_json(order):
             line = email[i].split(test_string)
             school_data["Deliver To Address"] = line[1]
         school_data["Ran"] = "False"
+        school_data["Cost"] = str(invoice.invoice(order, school_data))
 
         # Creates the JSON file
     with open("".join([order.OD, '/', order.NAME, '/', order.NAME, '.json']), 'w') as outfile:

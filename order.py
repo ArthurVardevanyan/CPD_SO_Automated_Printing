@@ -53,6 +53,8 @@ class Order:
     def __init__(self):
         self.FILES = []
 
+    COST = 0
+
 
 def order_initialization(order, JOB_INFO):
     order.UID = JOB_INFO.get('Email_ID', False)
