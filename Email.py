@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200122"
+__version__ = "v20200124"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -148,12 +148,13 @@ def process_mailbox(M, AUTORUN, D110_IP):
         if rv != 'OK':
             print("ERROR getting message", num)
             return
-
+        F = "".join([order.OD,
+                     error_state, ORDER_NAME])
         try:
-            os.makedirs("".join([order.OD,
-                                 error_state, ORDER_NAME]))
+            if not os.path.exists(F):
+                os.makedirs(F)
         except OSError:
-            print("".join(["Creation of the directory %s failed" %
+            print("".join(["Creation of the directory failed" %
                            order.OD, error_state, "/", subject]))
         print("".join(["Successfully created the directory %s " %
                        order.OD, error_state, "/", subject]))

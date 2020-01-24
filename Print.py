@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200122"
+__version__ = "v20200124"
 
 # Local Files
 import files
@@ -156,14 +156,13 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
 
 def pjl_merge(order, outFOLDER, MERGED, FILES):
     N = "n" if outFOLDER == "PSPn" else ""
+    F = order.OD + "/"+order.NAME + "/" + outFOLDER
     try:
-        os.makedirs(order.OD +
-                    "/"+order.NAME + "/" + outFOLDER)
-        print("Successfully created the directory ",
-              "/" + order.OD, "/" + order.NAME+"/" + outFOLDER)
+        if not os.path.exists(F):
+            os.makedirs(F)
+            print("Successfully created the directory ", F)
     except OSError:
-        print("Creation of the directory failed ",
-              "/" + order.OD, "/" + order.NAME + "/" + outFOLDER)
+        print("Creation of the directory failed ", F)
 
     if MERGED == True:
         # Add the PJL Commands to the merged file in preperation to print.

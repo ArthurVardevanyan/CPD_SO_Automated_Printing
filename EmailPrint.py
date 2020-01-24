@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191222"
+__version__ = "v20191224"
 
 # Built-In Libraries
 import os
@@ -24,9 +24,11 @@ colorama.init()
 
 
 def Email_Html(ORDER_NAME, PATH, NAME, Files):
+    F = "".join([PATH, "/Tickets"])
     try:
-        os.makedirs("".join([PATH, "/Tickets"]))
-        print("Successfully created the directory ", PATH, "/Tickets")
+        if not os.path.exists(F):
+            os.makedirs(F)
+            print("Successfully created the directory ", F)
     except OSError:
         print("Creation of the directory failed ", PATH, "/Tickets")
 

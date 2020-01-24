@@ -1,5 +1,5 @@
 # test_files.py
-__version__ = "v20200111"
+__version__ = "v20200124"
 
 import unittest
 import os
@@ -7,6 +7,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import order as o
 import files
+import log
 
 
 class Testing(unittest.TestCase):

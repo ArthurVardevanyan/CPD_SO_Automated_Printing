@@ -1,5 +1,5 @@
 # test_Print.py
-__version__ = "v20200122"
+__version__ = "v20200124"
 import unittest
 from unittest import mock
 import os
@@ -13,7 +13,7 @@ import log
 class Testing(unittest.TestCase):
 
     def test_order_selection(self):
-        log.logInit("test")
+        log.logInit("test_order_selection", "tests/logs/")
         import files
         Folders = files.folder_list("tests/SO")
         Folders.pop()
@@ -49,6 +49,7 @@ class Testing(unittest.TestCase):
             self.assertEqual(Print.order_selection(
                 test, Folders, False), "Aborted @ INT: " + test)
         # Still need to test duplicate order numbers
+        
 
     def test_impression_counter(self):
         order = o.Order()
@@ -107,7 +108,7 @@ class Testing(unittest.TestCase):
         self.assertFalse(Print.can_run(order, 0, 0, 0))
 
     def test_printing(self):
-        log.logInit("test")
+        log.logInit("test_printing", "tests/logs/")
         self.assertEqual(Print.printing([], "11344", "tests/SO", 1, 0, [], True, False, 0, 0, 0),
                          "SUCCESS SPI! : 162 : 11344-2704 First Last - Test 1")
         self.assertEqual(Print.printing([], "11345", "tests/SO", 1, 0, [], True, False, 0, 0, 0),
@@ -116,6 +117,7 @@ class Testing(unittest.TestCase):
                          "SUCCESS SPI! : 162 : 11349-0311 First Last - Test 3")
 
     def test_main(self):
+        log.logInit("test_main", "tests/logs/")
         with mock.patch('builtins.input', side_effect=[0, "run", 0]):
             self.assertEqual(Print.main(False, 0, 0, 0, 0, 0, 0), 1)
         with mock.patch('builtins.input', side_effect=[0, "run", 0]):
