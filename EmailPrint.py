@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191113"
+__version__ = "v20191224"
 
 # Built-In Libraries
 import os
@@ -15,6 +15,7 @@ import colorama
 import files
 import PostScript
 import printer
+import log
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -23,9 +24,11 @@ colorama.init()
 
 
 def Email_Html(ORDER_NAME, PATH, NAME, Files):
+    F = "".join([PATH, "/Tickets"])
     try:
-        os.makedirs("".join([PATH, "/Tickets"]))
-        print("Successfully created the directory ", PATH, "/Tickets")
+        if not os.path.exists(F):
+            os.makedirs(F)
+            print("Successfully created the directory ", F)
     except OSError:
         print("Creation of the directory failed ", PATH, "/Tickets")
 
@@ -66,6 +69,7 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
         'margin-bottom': '0.2in',
         'margin-left': '0.2in',
     }
+    # Doesn't Output to Log
     if(os.name == "posix"):
         pdfkit.from_string(html, "".join([PATH, "/Tickets/",
                                           ORDER_NAME, '.pdf']), options=options,)
@@ -105,7 +109,7 @@ print_count = 0
 print_count_2 = 0
 
 
-def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, STACKER, D110_IP):
+def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
     if D110_IP == 1 or D110_IP == 0:
         D110_IP = "156" if D110_IP == 0 else "162"
     LPR = "".join(
@@ -122,11 +126,15 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, STACKER, D110_
         with open('PJL_Commands/BannerSheet.ps', 'rb') as f:
             pjl_lines = f.readlines()
 
-        if(AUTORUN and STACKER == "toptray"):
+        if(STACKER == "toptray"):
             for i in range(len(pjl_lines)):
                 if str('<output-bin syntax="keyword">') in str(pjl_lines[i]):
                     pjl_lines[i] = str.encode(
                         '@PJL XCPT 		<output-bin syntax="keyword">top</output-bin>\n')
+            for i in range(len(pjl_lines)):
+                if str('<value syntax="keyword">') in str(pjl_lines[i]):
+                    pjl_lines[i] = str.encode(
+                        '@PJL XCPT 	<value syntax="keyword">none</value>\n')
 
         with open('PJL_Commands/input.ps', 'wb') as f:
             for item in pjl_lines:
@@ -153,7 +161,6 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, AUTORUN, print_que, STACKER, D110_
 def main():
     OUTPUT_DIRECTORY = 'SO'
     print_que = []
-    AUTORUN = False
     count = 0
     while(True):
         try:
@@ -179,7 +186,7 @@ def main():
     try:
         for ORDER_NAME in ORDER_NAMES:
             count += Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
-                                 AUTORUN, print_que, "stacker", D110_IP)
+                                 print_que, "toptray", D110_IP)
         printer.print_processor(print_que)
     except:
         "I have Failed due to some Error"
@@ -190,7 +197,11 @@ def main():
 
 
 if __name__ == "__main__":
+    log.logInit("EmailPrint")
+    print = log.Print
+    input = log.Input
     print("\nTerminal Email Printing REV: ",
           colored(__version__, "magenta"))
-    print("Make Sure White and Blue Paper is loaded!")
+    print('Make Sure White and Bright Colored Paper is loaded!\nSet Colored Paper as ',
+          colored('"Other"', "magenta"))
     main()

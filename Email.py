@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20191108"
+__version__ = "v20200124"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -27,6 +27,9 @@ import EmailPrint
 import Print
 import printer
 import database
+import instructions
+import order as o
+import log
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -85,6 +88,7 @@ def subject_line(subject):
         "Subject: ", "").replace("Copy Job - ", "")
     subject = subject[2:-9].strip()
     subject = re.sub(r'[/\r\n\\:*?\"()<>|.;]', " ", subject)
+    subject = subject.replace("&", "and")
     # Keeps only the First 35 Characters of the subject.
     subject = subject[:35].rstrip()
     return subject
@@ -106,37 +110,13 @@ def order_number_extract(email_body, RANDOM):
         # Adds some randomness to the order number's using time
         return "".join([ORDER_NUMBER, RANDOM]), ""
     except:
+        logger.exception("")
         print("This Email is Not Standard, Will Still Attempt to Download Files.")
         error_state = "Error/"
         return "", error_state
 
 
-def duplex_state(JOB_INFO):
-    if(JOB_INFO.get('Duplex', False) == "Two-sided (back to back)"):
-        print('Double Sided')
-        return 2
-    else:
-        print('Single Sided')
-        return 1
-
-
-def merging(JOB_INFO, PAGE_COUNTS):
-
-    if JOB_INFO.get('Collation', False) == "Uncollated" and JOB_INFO.get('Stapling', False) != "Upper Left - portrait" and len(JOB_INFO.get('Files', False)) != 1:
-        if PAGE_COUNTS / len(JOB_INFO.get('Files', False)) / duplex_state(JOB_INFO) >= 10:
-            print("DUE TO PAGE COUNT, MERGED TURNED OFF")
-            return 0
-        else:
-            return 1
-    elif len(JOB_INFO.get('Files', False)) != 1 and PAGE_COUNTS == len(JOB_INFO.get('Files', False)):
-        return 1
-    else:
-        print("Not Merging")
-        return 0
-
-
 def process_mailbox(M, AUTORUN, D110_IP):
-    OUTPUT_DIRECTORY = 'SO/'
 
     # Gets all the UNSEEN emails from the INBOX
     rv, data = M.search(None, 'UNSEEN')
@@ -147,6 +127,9 @@ def process_mailbox(M, AUTORUN, D110_IP):
     emails_proccessed = 0
     for num in data[0].split():
 
+        order = o.Order()
+        order.OD = 'SO/'
+
         rv, data = M.fetch(num, '(UID BODY[TEXT])')  # Email Body
         # Email Subject
         subject = subject_line(
@@ -155,59 +138,81 @@ def process_mailbox(M, AUTORUN, D110_IP):
         email_body = data[0][1]
         ORDER_NUMBER, error_state, = order_number_extract(
             str(email_body), order_number_random())
-        print("Order: ", ORDER_NUMBER, " ", subject)
+        print("Order: ", ORDER_NUMBER + " ", subject)
         ORDER_NAME = "".join([ORDER_NUMBER, " ", subject])
+
+        order.NUMBER = ORDER_NUMBER
+        order.NAME = ORDER_NAME
+        order.SUBJECT = subject
+
         if rv != 'OK':
             print("ERROR getting message", num)
             return
-
+        F = "".join([order.OD,
+                     error_state, ORDER_NAME])
         try:
-            os.makedirs("".join([OUTPUT_DIRECTORY,
-                                 error_state, ORDER_NAME]))
+            if not os.path.exists(F):
+                os.makedirs(F)
         except OSError:
-            print("Creation of the directory %s failed" %
-                  OUTPUT_DIRECTORY, error_state, "/", subject)
-        print("Successfully created the directory %s " %
-              OUTPUT_DIRECTORY, error_state, "/", subject)
+            print("".join(["Creation of the directory failed" %
+                           order.OD, error_state, "/", subject]))
+        print("".join(["Successfully created the directory %s " %
+                       order.OD, error_state, "/", subject]))
         if("Re:" in subject):  # Ignore Replies
             print("This is a reply, skipping")
         else:
             # Calls Google Drive Link Extractor
             Drive_Downloader(str(email_body), ORDER_NUMBER,
-                             OUTPUT_DIRECTORY, subject, error_state)
+                             order.OD, subject, error_state)
             # Makes a file and Writes Email Contents to it.
-            f = open("".join([OUTPUT_DIRECTORY, error_state,
+            f = open("".join([order.OD, error_state,
                               ORDER_NAME, "/", ORDER_NAME, '.txt']), 'wb')
             f.write(email_body)
             f.close()
         try:
+
             # Create JSON file with Job Requirements
-            JOB_INFO = SchoolDataJson.school_data_json(
-                ORDER_NUMBER, subject, OUTPUT_DIRECTORY)
+            JOB_INFO = SchoolDataJson.school_data_json(order)
+            order = o.order_initialization(order, JOB_INFO)
         except:
+            logger.exception("")
             print("JSON File Failed")
-        try:
-            # Database Input
-            database.database_input(OUTPUT_DIRECTORY, JOB_INFO)
-        except:
-            print("Database Input Failed")
+        if(error_state == "Error/"):
+            order.OD = order.OD + "/Error/"
+       # try:
+       #     # Database Input
+       #     database.database_input(order.OD, JOB_INFO)
+       # except:
+       #     logger.exception("")
+       #     print("Database Input Failed")
         try:
             # Create PostScript File
-            PostScript.postscript_conversion(ORDER_NUMBER, OUTPUT_DIRECTORY)
+            PostScript.postscript_conversion(order)
         except:
+            logger.exception("")
             print("PostScript Conversion Failed")
         try:
             # Merge Uncollated Files
-            if(merging(JOB_INFO, files.page_counts(OUTPUT_DIRECTORY, ORDER_NAME))):
-                PostScript.file_merge(
-                    OUTPUT_DIRECTORY, ORDER_NAME, duplex_state(JOB_INFO))
-
+            if(instructions.merging(order)):
+                PostScript.file_merge(order, instructions.duplex_state(order))
         except:
+            logger.exception("")
             print("File Merge Failure")
         try:
-            # Create Email Html Pdf & PS
-            EmailPrint.Email_Printer(OUTPUT_DIRECTORY, ORDER_NAME, error_state)
+            if(Print.can_nup(order, False, 0)):
+                PostScript.pdf_conversion(order)
+                PostScript.nup(order)
+                if(instructions.merging(order)):
+                    PostScript.file_merge_n(
+                        order, instructions.duplex_state(order))
         except:
+            logger.exception("")
+            print("Multi-Up Failure")
+        try:
+            # Create Email Html Pdf & PS
+            EmailPrint.Email_Printer(order.OD, ORDER_NAME, error_state)
+        except:
+            logger.exception("")
             print("Email Conversion Failed")
         emails_proccessed += 1
 
@@ -216,9 +221,11 @@ def process_mailbox(M, AUTORUN, D110_IP):
             BOOKLETS = 0
             EMAILPRINT = True
             print_que = []
-            Print.printing(ORDER_NUMBER, "SO", D110_IP, COLOR,
-                           print_que, AUTORUN, EMAILPRINT, BOOKLETS)
+            Orders = []
+            Print.printing(Orders, ORDER_NUMBER, "SO", D110_IP, COLOR,
+                           print_que, AUTORUN, EMAILPRINT, BOOKLETS, 0, False)
             printer.print_processor(print_que)
+            files.file_cleanup(Orders, order.OD)
 
     return emails_proccessed
 
@@ -234,6 +241,7 @@ def main(AUTORUN, D110_IP):
         cred = [x.strip() for x in cred]
         EMAIL_ACCOUNT = "".join([str(cred[0]), EMAIL_ACCOUNT])
     except:
+        logger.exception("")
         print("Credential Failure")
     M = imaplib.IMAP4_SSL(IMAP_SERVER)
     M.login(EMAIL_ACCOUNT, PASSWORD)  # Credentials Info
@@ -262,6 +270,7 @@ def main(AUTORUN, D110_IP):
                     "ERROR: Unable to open mailbox ", rv)
                 time.sleep(250)
             except:
+                logger.exception("")
                 print("SOMETHING WENT HORRIBLY WRONG, Check Internet Connection")
                 time.sleep(30)
                 continue
@@ -273,8 +282,18 @@ def main(AUTORUN, D110_IP):
 
 
 if __name__ == "__main__":
-    print("\nSchool Order Downloader Revision: ",
+    log.logInit("Email")
+    from log import logger
+    print = log.Print
+    input = log.Input
+
+    print("\nSchool Order Downloader REV:",
           colored(__version__, "magenta"))
+    print("Terminal Auto Printing  REV:",
+          colored(Print.__version__, "magenta"))
+    print("Terminal Email Printing REV:",
+          colored(EmailPrint.__version__, "magenta"))
+    print("\n")
     D110_IP = 1
     while True:
         try:
@@ -290,8 +309,10 @@ if __name__ == "__main__":
                         else:
                             pass
                     except:
+                        logger.exception("")
                         pass
             break
         except:
+            logger.exception("")
             pass
     main(AUTORUN, D110_IP)

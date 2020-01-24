@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20191113"
+__version__ = "v20200123"
 
 # Built-In Libraries
 import json
@@ -12,22 +12,20 @@ import PyPDF2
 # Local Files
 import files
 import PostScript
+import order as o
+import log
 
 
-def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
+def school_data_json(order):
     school_data = {'Account ID': 'CHANGE ME'}
 
-    ORDER_NAME = " ".join([ORDER_NUMBER, subject])
+    school_data["Order Number"] = order.NUMBER
+    school_data["Order Subject"] = order.SUBJECT
 
-    # Calls a function in files.py, which gets all the pdf files within that order numbers folder.
-    FILES = files.file_list(OUTPUT_DIRECTORY, ORDER_NAME)
-
-    school_data["Order Number"] = ORDER_NUMBER
-    school_data["Order Subject"] = subject
-
+    FILES = files.file_list(order)
     # Imports the Email contents line by line.
     email = [line.rstrip('\n') for line in open(
-        "".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, ".txt"]), "r")]
+        "".join([order.OD, '/', order.NAME, '/', order.NAME, ".txt"]), "r")]
 
     school_data["Email ID"] = email[0][2:]
     school_data["Files"] = {}
@@ -36,12 +34,13 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
     for i in range(len(FILES)):
         try:
             pdf = PyPDF2.PdfFileReader(
-                open('/'.join([OUTPUT_DIRECTORY, ORDER_NAME, FILES[i]]), "rb"))
+                open('/'.join([order.OD, order.NAME, FILES[i]]), "rb"))
             school_data["Files"]["".join(["File ", str(
                 i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf.getNumPages())}
         except:
+            log.logger.exception("")
             pdf = files.page_count(
-                '/'.join([OUTPUT_DIRECTORY, ORDER_NAME, FILES[i]]))
+                '/'.join([order.OD, order.NAME, FILES[i]]))
             school_data["Files"]["".join(["File ", str(
                 i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf)}
 
@@ -155,7 +154,7 @@ def school_data_json(ORDER_NUMBER, subject, OUTPUT_DIRECTORY):
         school_data["Ran"] = "False"
 
         # Creates the JSON file
-    with open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, '.json']), 'w') as outfile:
+    with open("".join([order.OD, '/', order.NAME, '/', order.NAME, '.json']), 'w') as outfile:
         json.dump(school_data, outfile, indent=4, separators=(',', ': '))
     return school_data
 
@@ -173,7 +172,12 @@ def main(OUTPUT_DIRECTORY):
                 ORDER_NAMES.append(i)
     for ORDER_NAME in ORDER_NAMES:
         print(ORDER_NAME)
-        school_data_json(ORDER_NAME[:10], ORDER_NAME[11:], OUTPUT_DIRECTORY)
+        order = o.Order()
+        order.NAME = ORDER_NAME
+        order.NUMBER = ORDER_NAME[:10]
+        order.SUBJECT = ORDER_NAME[11:]
+        order.OD = OUTPUT_DIRECTORY
+        school_data_json(order)
 
 
 if __name__ == "__main__":

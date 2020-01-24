@@ -1,5 +1,5 @@
 # printer_processing
-__version__ = "v20191018"
+__version__ = "v20200123"
 
 # Built-In Libraries
 import os
@@ -8,7 +8,11 @@ import subprocess
 
 # Downloaded Libraries
 import termcolor
-import colorama 
+import colorama
+
+import log
+print = log.Print
+input = log.Input
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -41,7 +45,7 @@ def print_processor(print_que):
             else:
                 Q_Jobs = print_status("10.56.54.156")
         if Q_Jobs >= ID_LIMIT:
-            print("Printed so Far: " , str(jobs_ran))
+            print("Printed so Far: ", str(jobs_ran))
             print("Waiting For Jobs to Clear Up")
             # input(
             #    "Please Confirm Printers Will Support 40 More Job IDS before pressing enter: ")
