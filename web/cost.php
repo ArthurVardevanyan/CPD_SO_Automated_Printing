@@ -17,7 +17,7 @@ if(!$mysqli){
 }
 
 //query to get data from the table
-$query = sprintf("SELECT `date_ordered`, COUNT(*) as order_count FROM `order_data` GROUP BY `date_ordered` ORDER BY `date_ordered`");
+$query = sprintf("SELECT `order_number`, `cost` FROM `order_data` ORDER BY `order_number` ");
 
 //execute query
 $result = $mysqli->query($query);
