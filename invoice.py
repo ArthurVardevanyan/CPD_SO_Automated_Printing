@@ -1,11 +1,12 @@
 # Invoicing
-__version__ = "v20191119"
+__version__ = "20200124"
 
 import files
 import json
 import math
 import pandas
 import instructions
+import order as o
 
 invoice_headers = [
     "Order Number",
@@ -60,27 +61,18 @@ invoice_headers = [
     "Order Cost"
 
 ]
-invoice = []
-invoice.append(invoice_headers)
 
-OUTPUT_DIRECTORY = "SO/"
-with open('Credentials/pricing.json') as json_file:
-    PRICING = json.load(json_file)
 
-Start = str(input("Start #: "))
-End = str(input("End   #: "))
-folders = files.folder_list(OUTPUT_DIRECTORY)
-ORDER_NAMES = []
-for ORDER_NUMBER in range(int(Start), int(End)+1):
-
-    ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
-    for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
-        if ORDER_NUMBER in i:
-            ORDER_NAMES.append(i)
-for ORDER_NAME in ORDER_NAMES:
+def invoice(order, JOB_INFO):
+    ORDER_NAME = order.NAME
+    invoice = []
+    invoice.append(invoice_headers)
+    with open('Credentials/pricing.json') as json_file:
+        PRICING = json.load(json_file)
     try:
-        with open(OUTPUT_DIRECTORY+ORDER_NAME+"/"+ORDER_NAME+".json") as json_file:
-            JOB_INFO = json.load(json_file)
+        order = o.Order()
+
+        
         JOB_INFO_FILES = JOB_INFO.get('Files', False)
 
         TOTAL_PAGES = 0
@@ -95,7 +87,8 @@ for ORDER_NAME in ORDER_NAMES:
             job.append(JOB_INFO.get('First Name', "0") +
                        " " + JOB_INFO.get('Last Name', "0"))
             job.append(JOB_INFO.get('Email', "0"))
-            job.append(str(JOB_INFO.get('Order Subject', "0")).split(" - ")[1])
+            job.append(
+                str(JOB_INFO.get('Order Subject', "0")).split(" - ")[1])
             job.append((str(FILE_INFO.get('File Name')).split(
                 " ", 1)[1]).rsplit(" - ", 1)[0])
             job.append(FILE_INFO.get('Page Count', 0))
@@ -103,7 +96,8 @@ for ORDER_NAME in ORDER_NAMES:
             job.append(COPIES)
             IMP = int(FILE_INFO.get('Page Count', 0))*COPIES
             job.append(str(IMP))
-            job.append(JOB_INFO.get('Duplex', "0").split(" (back to back)")[0])
+            job.append(JOB_INFO.get('Duplex', "0").split(
+                " (back to back)")[0])
             if "color" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "color" in (JOB_INFO.get('Special Instructions', "0").lower()):
                 if(("different" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "different" in (JOB_INFO.get('Special Instructions', "0").lower())
                     or "color paper" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "color paper" in (JOB_INFO.get('Special Instructions', "0").lower())
@@ -299,7 +293,7 @@ for ORDER_NAME in ORDER_NAMES:
             SLIP_SHRINK = JOB_INFO.get(
                 'Slip Sheets / Shrink Wrap', "No")
             if "shrink wrap" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()):
-                SRC = instructions.Special_Instructions(JOB_INFO)
+                SRC = instructions.Special_Instructions(order)
                 SR = PRICING.get("ShrinkWrap", 0)
                 job.append(SRC[0])
                 job.append(SR)
@@ -335,15 +329,44 @@ for ORDER_NAME in ORDER_NAMES:
             pos -= 1
         pos = len(invoice) - 1
         while (pos >= end):
+            order.COST = total
             invoice[pos].append(total)
             pos -= 1
-    except:
+    except Exception as e:
+        print(e)
         job = []
         job.append(ORDER_NAME.split(" ", 1)[0])
         job.append(ORDER_NAME.split(" ", 1)[1])
         job.append("Error")
         invoice.append(job)
 
+    dataframe_array = pandas.DataFrame(invoice)
+    dataframe_array.to_csv("invoice.csv")
+    return total
 
-dataframe_array = pandas.DataFrame(invoice)
-dataframe_array.to_csv("invoice.csv")
+
+def main():
+
+    order = o.Order()
+    order.OD = "SO/"
+
+    Start = str(input("Start #: "))
+    End = str(input("End   #: "))
+    folders = files.folder_list(order.OD)
+    ORDER_NAMES = []
+    for ORDER_NUMBER in range(int(Start), int(End)+1):
+
+        ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
+        for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
+            if ORDER_NUMBER in i:
+                ORDER_NAMES.append(i)
+        for ORDER_NAME in ORDER_NAMES:
+            with open(order.OD+ORDER_NAME+"/"+ORDER_NAME+".json") as json_file:
+                JOB_INFO = json.load(json_file)
+            with open(order.OD+ORDER_NAME+"/"+ORDER_NAME+".json") as json_file_1:
+                order = o.order_initialization(order, json.load(json_file_1))
+            invoice(order, JOB_INFO)
+
+
+if __name__ == "__main__":
+    main()
