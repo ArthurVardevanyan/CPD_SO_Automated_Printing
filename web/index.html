@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Line Chart</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="node_modules/chart.js/dist/Chart.js"></script>
+    <script type="text/javascript" src="chart.js"></script>
+    <script type="text/javascript" src="js.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+
+    <style>
+        canvas {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div style="width: 35%; text-align: left; float: left;">
+
+        <table id="tblReportResultsDemographics" class="display" width="100%"></table>
+
+    </div>
+
+
+    <div style="width: 65%; text-align: right;float: right">
+        <canvas id="line-chart" width="800" height="450"></canvas>
+      <!--  <canvas id="Price-line-chart" width="800" height="450"></canvas>-->
+    </div>
+</body>
+
+</html>

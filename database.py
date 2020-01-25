@@ -36,15 +36,16 @@ def database_input(OUTPUT_DIRECTORY, JOB_INFO):
     )
 
     add_order = ("INSERT IGNORE INTO order_data"
-                 "( email_id,order_number,order_subject,date_ordered,cost,email,copies,duplex,collation,paper,stapling,\
+                 "( email_id,order_number,order_subject,date_ordered,status,cost,email,copies,duplex,collation,paper,stapling,\
                         drilling,folding,cutting,booklets,front_cover,back_cover,special_instructions,slip_shrink) "
-                 "VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                 "VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
     data_order = (
         JOB_INFO.get('Email ID', "0"),
         JOB_INFO.get('Order Number', "0"),
         JOB_INFO.get('Order Subject', "0"),
         datetime.strptime(JOB_INFO.get('Date Ordered', "0"),
                           '%b %d, %Y').strftime('%Y-%m-%d'),
+        JOB_INFO.get('Status', "0"),
         JOB_INFO.get('Cost', "0"),
         JOB_INFO.get('Email', "0"),
         JOB_INFO.get('Copies', "0"),
