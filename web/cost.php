@@ -5,8 +5,8 @@ header('Content-Type: application/json');
 
 //database
 define('DB_HOST', '127.0.0.1');
-define('DB_USERNAME', '');
-define('DB_PASSWORD', '');
+define('DB_USERNAME', 'CPD');
+define('DB_PASSWORD', 'CPD');
 define('DB_NAME', 'school_orders');
 
 //get connection

@@ -67,4 +67,35 @@ window.onload = function () {
       });
     }
   })
+  $.ajax({
+    url: "http://localhost/web/recent.php",
+    method: "GET",
+    success: function (data) {
+      console.log(data);
+      $(document).ready(function () {
+//https://datatables.net/forums/discussion/32107/how-to-load-an-array-of-json-objects-to-datatables
+        var aDemoItems = data;
+
+        //Load  datatable
+        var oTblReport = $("#tblReportResultsDemographics")
+
+        oTblReport.DataTable({
+          data: aDemoItems,
+          "columns": [
+            { "data": "order_number", "title": "Number" },
+            { "data": "status", "title": "Status" },
+            { "data": "cost", "title": "Cost" },
+          ]
+        });
+      });
+      //#var RecentOrders = "<tr><th>Order Number</th><th>Order Status</th><th>Order Cost</th></tr>";
+      //for (let i = data.length - 1; i >= 0; i--) {
+      //  RecentOrders = RecentOrders + "<tr><td>" + data[i].order_number + "</td><td>" + data[i].status + "</td><td>$" + data[i].cost.slice(0, 5) + "</td></tr>";
+      //}
+      //document.getElementById("RecentOrders").innerHTML = RecentOrders;
+
+
+
+    }
+  })
 };

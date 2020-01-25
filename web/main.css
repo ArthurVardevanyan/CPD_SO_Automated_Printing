@@ -1,4 +1,4 @@
-* {
+/** {
   box-sizing: border-box;
 }
 body {
@@ -6,6 +6,7 @@ body {
   color: #c3c3c3;
   font-family: Arial;
 }
+
 h2
 {
   color: #6d1db8;
@@ -35,7 +36,7 @@ input[type=text]:hover, input[type=number]:hover{
 
 input[type=checkbox],
 input[type=radio]{
-  /* Hide original inputs */
+  
 opacity: 0;
   position: absolute;
 }
@@ -91,4 +92,11 @@ input[type=submit]:hover {
    -webkit-transition: .5s;
 
 
+}
+*/table {
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 1px solid black;
 }
