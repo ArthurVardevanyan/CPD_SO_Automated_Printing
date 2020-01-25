@@ -100,6 +100,35 @@ def database_input(OUTPUT_DIRECTORY, JOB_INFO):
     return 1
 
 
+def status_change(order):
+
+    try:
+        with open("Credentials/db.txt") as f:
+            cred = f.readlines()
+        cred = [x.strip() for x in cred]
+    except:
+        print("Credential Failure")
+
+    db = mysql.connector.connect(
+        host="localhost",
+        user=cred[0],
+        passwd=cred[1],
+        database='school_orders',
+        auth_plugin='mysql_native_password'
+    )
+
+    cursor = db.cursor()
+    status = "UPDATE order_data SET status = '"+order.status + \
+        "' WHERE order_number = '"+order.NUMBER+"'"
+
+    cursor.execute(status)
+
+    db.commit()
+
+    db.close
+    return 1
+
+
 def main(OUTPUT_DIRECTORY):
     Start = str(input("Start #: "))
     End = str(input("End   #: "))
