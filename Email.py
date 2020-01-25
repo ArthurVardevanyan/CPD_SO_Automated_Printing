@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200124"
+__version__ = "v20200125"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -282,6 +282,9 @@ def main(AUTORUN, D110_IP):
 
 
 if __name__ == "__main__":
+    if (datetime.datetime.today().date() > datetime.datetime.strptime(log.license, "%Y%m%d").date()):
+        exit()
+
     log.logInit("Email")
     from log import logger
     print = log.Print
