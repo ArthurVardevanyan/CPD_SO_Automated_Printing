@@ -153,7 +153,7 @@ def school_data_json(order):
         if test_string in email[i]:
             line = email[i].split(test_string)
             school_data["Deliver To Address"] = line[1]
-        school_data["Status"] = "False"
+        school_data["Status"] = "Printed" #"NotStarted"
         school_data["Cost"] = str(invoice.invoice(order, school_data))
 
         # Creates the JSON file
