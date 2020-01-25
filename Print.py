@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200124"
+__version__ = "v20200125"
 
 # Local Files
 import files
@@ -17,7 +17,7 @@ import database
 import os
 import glob
 import json
-
+import datetime
 
 # Downloaded Libraries
 import PyPDF2
@@ -581,7 +581,8 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
 
 
 if __name__ == "__main__":
-
+    if (datetime.datetime.today().date() > datetime.datetime.strptime(log.license, "%Y%m%d").date()):
+        exit()
     log.logInit("Print")
     print = log.Print
     input = log.Input

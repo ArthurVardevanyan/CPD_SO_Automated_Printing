@@ -6,6 +6,7 @@ import os
 import logging
 from datetime import datetime
 
+license = "20200217"
 
 def logInit(fileName,  logFolder="logs/"):
     global logger
