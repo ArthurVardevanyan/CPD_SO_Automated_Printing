@@ -11,6 +11,7 @@ import PostScript
 import SchoolDataJson
 import order as o
 import log
+import database
 
 # Built-In Libraries
 import os
@@ -503,6 +504,11 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         print("\n")
     Orders.append(order.NAME)
     SchoolDataJson.orderStatusExport(order, "Printed")
+    try:
+        database.status_change(order)
+    except:
+        log.logger.exception("")
+        print("Database Update Failed")
     return "".join([order.RESULT, LPR[D110_IP][41:44], " : ", order.NAME])
 
 
