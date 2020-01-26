@@ -100,3 +100,24 @@ input[type=submit]:hover {
 table, th, td {
   border: 1px solid black;
 }
+
+ul.nav{
+  list-style-type: none;
+}
+
+li.nav {
+  float: left;
+}
+
+li.nav a {
+  display: block;
+  color: black;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.active {
+  background-color: #878787;
+  
+}

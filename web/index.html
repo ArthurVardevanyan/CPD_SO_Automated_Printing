@@ -31,8 +31,36 @@
 
 
     <div style="width: 65%; text-align: right;float: right">
+        <div id="nav-bar">
+            <ul class="nav">
+                <li class="nav">
+                    <a class="nav-link" id="orders_3">1W</a>
+                </li>
+                <li class="nav">
+                    <a class="nav-link" id="orders_2">1M</a>
+                </li>
+                <li class="nav">
+                    <a class="nav-link active" id="orders_1">1Y</a>
+                </li>
+            </ul>
+        </div>
+        <script>
+            var btnContainer = document.getElementById("nav-bar");
+
+            // Get all buttons with class="btn" inside the container
+            var btns = btnContainer.getElementsByClassName("nav-link");
+
+            // Loop through the buttons and add the active class to the current/clicked button
+            for (var i = 0; i < btns.length; i++) {
+                btns[i].addEventListener("click", function () {
+                    var current = document.getElementsByClassName("active");
+                    current[0].className = current[0].className.replace(" active", "");
+                    this.className += " active";
+                });
+            }
+        </script>
         <canvas id="line-chart" width="800" height="450"></canvas>
-      <!--  <canvas id="Price-line-chart" width="800" height="450"></canvas>-->
+        <!--  <canvas id="Price-line-chart" width="800" height="450"></canvas>-->
     </div>
 </body>
 
