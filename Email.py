@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200122"
+__version__ = "v20200125"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -148,12 +148,13 @@ def process_mailbox(M, AUTORUN, D110_IP):
         if rv != 'OK':
             print("ERROR getting message", num)
             return
-
+        F = "".join([order.OD,
+                     error_state, ORDER_NAME])
         try:
-            os.makedirs("".join([order.OD,
-                                 error_state, ORDER_NAME]))
+            if not os.path.exists(F):
+                os.makedirs(F)
         except OSError:
-            print("".join(["Creation of the directory %s failed" %
+            print("".join(["Creation of the directory failed" %
                            order.OD, error_state, "/", subject]))
         print("".join(["Successfully created the directory %s " %
                        order.OD, error_state, "/", subject]))
@@ -178,12 +179,12 @@ def process_mailbox(M, AUTORUN, D110_IP):
             print("JSON File Failed")
         if(error_state == "Error/"):
             order.OD = order.OD + "/Error/"
-       # try:
-       #     # Database Input
-       #     database.database_input(order.OD, JOB_INFO)
-       # except:
-       #     logger.exception("")
-       #     print("Database Input Failed")
+        try:
+            # Database Input
+            database.database_input(order.OD, JOB_INFO)
+        except:
+            logger.exception("")
+            print("Database Input Failed")
         try:
             # Create PostScript File
             PostScript.postscript_conversion(order)
@@ -281,6 +282,9 @@ def main(AUTORUN, D110_IP):
 
 
 if __name__ == "__main__":
+    if (datetime.datetime.today().date() > datetime.datetime.strptime(log.license, "%Y%m%d").date()):
+        exit()
+
     log.logInit("Email")
     from log import logger
     print = log.Print

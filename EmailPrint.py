@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191222"
+__version__ = "v20191224"
 
 # Built-In Libraries
 import os
@@ -16,6 +16,9 @@ import files
 import PostScript
 import printer
 import log
+import SchoolDataJson
+import order as o
+import database
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -24,9 +27,11 @@ colorama.init()
 
 
 def Email_Html(ORDER_NAME, PATH, NAME, Files):
+    F = "".join([PATH, "/Tickets"])
     try:
-        os.makedirs("".join([PATH, "/Tickets"]))
-        print("Successfully created the directory ", PATH, "/Tickets")
+        if not os.path.exists(F):
+            os.makedirs(F)
+            print("Successfully created the directory ", F)
     except OSError:
         print("Creation of the directory failed ", PATH, "/Tickets")
 
@@ -149,6 +154,19 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         print_que.append(
             "".join([LPR, '"', PATH[:-6], "pjl.ps", '" -J "', ORDER_NAME, '"']))
 
+        # TEMPORARY TILL WHOLE FILE GETS CONVERTED TO OOP
+        JSON_PATH = "".join(
+            [OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, '.json'])
+        order = o.Order()
+        order.OD = OUTPUT_DIRECTORY
+        order.NAME = ORDER_NAME
+        with open(JSON_PATH) as json_file:
+            order = o.order_initialization(order, json.load(json_file))
+        order.OD = OUTPUT_DIRECTORY
+        # Update Json File to Show the Email Ticket was Printing
+        SchoolDataJson.orderStatusExport(order, "Ticket")
+        database.status_change(order)
+
         try:
             os.remove("PJL_Commands/input.ps")  # remove temp file
         except:
@@ -187,7 +205,8 @@ def main():
                                  print_que, "toptray", D110_IP)
         printer.print_processor(print_que)
     except:
-        "I have Failed due to some Error"
+        print("I have Failed due to some Error")
+        log.logger.exception("")
 
     print(str(count), " Order(s) Ran")
     quit = str(input("Press Any Key To Exit"))

@@ -1,10 +1,11 @@
 # SchoolDataJson.py
-__version__ = "v20200122"
+__version__ = "v20200124"
 
 # Built-In Libraries
 import json
 import os
 import glob
+from datetime import datetime
 
 # Downloaded Libraries
 import PyPDF2
@@ -14,6 +15,7 @@ import files
 import PostScript
 import order as o
 import log
+import invoice
 
 
 def school_data_json(order):
@@ -34,7 +36,7 @@ def school_data_json(order):
     for i in range(len(FILES)):
         try:
             pdf = PyPDF2.PdfFileReader(
-                open('/'.join([order.OD, ORDER_order.NAME, NAME, FILES[i]]), "rb"))
+                open('/'.join([order.OD, order.NAME, FILES[i]]), "rb"))
             school_data["Files"]["".join(["File ", str(
                 i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf.getNumPages())}
         except:
@@ -151,7 +153,8 @@ def school_data_json(order):
         if test_string in email[i]:
             line = email[i].split(test_string)
             school_data["Deliver To Address"] = line[1]
-        school_data["Ran"] = "False"
+        school_data["Status"] = "NotStarted"
+        school_data["Cost"] = str(invoice.invoice(order, school_data))
 
         # Creates the JSON file
     with open("".join([order.OD, '/', order.NAME, '/', order.NAME, '.json']), 'w') as outfile:
@@ -159,7 +162,24 @@ def school_data_json(order):
     return school_data
 
 
+def orderStatusExport(order, STATUS):
+    JSON_PATH = "".join(
+        [order.OD, '/', order.NAME, '/', order.NAME, '.json'])
+    with open(JSON_PATH) as json_file:
+        JOB_INFO = json.load(json_file)
+    now = datetime.now()
+    current_time = now.strftime("%Y%m%d:%H%M")
+    order.status = STATUS + "_" + current_time
+    JOB_INFO["Status"] = order.status
+    with open(JSON_PATH, 'w') as outfile:
+        json.dump(JOB_INFO, outfile, indent=4, separators=(',', ': '))
+
+
 def main(OUTPUT_DIRECTORY):
+    log.logInit("Print")
+    print = log.Print
+    input = log.Input
+
     Start = str(input("Start #: "))
     End = str(input("End   #: "))
     folders = files.folder_list(OUTPUT_DIRECTORY)
