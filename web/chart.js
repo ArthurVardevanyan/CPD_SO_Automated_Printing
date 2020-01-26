@@ -1,6 +1,6 @@
 window.onload = function () {
   $.ajax({
-    url: "http://localhost/web/data.php",
+    url: "http://localhost/web/dataY.php",
     method: "GET",
     success: function (data) {
       var date = [];
@@ -11,7 +11,7 @@ window.onload = function () {
         orders.push(data[i].order_count);
       }
 
-      new Chart(document.getElementById("line-chart"), {
+      var lineChart = new Chart(document.getElementById("line-chart"), {
         type: 'line',
         data: {
           labels: date,
@@ -29,6 +29,52 @@ window.onload = function () {
             text: 'School Orders Per Day'
           }
         }
+      });
+      $("#orders_1").click(function () {
+        var data = lineChart.data;
+        data.labels = date;
+        data.datasets[0].data = orders;
+
+
+        lineChart.update();
+      });
+      $("#orders_2").click(function () {
+        $.ajax({
+          url: "http://localhost/web/dataM.php",
+          method: "GET",
+          success: function (data) {
+            var dateW = [];
+            var ordersW = [];
+
+            for (var i in data) {
+              dateW.push(data[i].date_ordered);
+              ordersW.push(data[i].order_count);
+            }
+            var data = lineChart.data;
+            data.labels = dateW;
+            data.datasets[0].data = ordersW;
+            lineChart.update();
+          }
+        })
+      });
+      $("#orders_3").click(function () {
+        $.ajax({
+          url: "http://localhost/web/dataW.php",
+          method: "GET",
+          success: function (data) {
+            var dateW = [];
+            var ordersW = [];
+
+            for (var i in data) {
+              dateW.push(data[i].date_ordered);
+              ordersW.push(data[i].order_count);
+            }
+            var data = lineChart.data;
+            data.labels = dateW;
+            data.datasets[0].data = ordersW;
+            lineChart.update();
+          }
+        })
       });
     }
   })

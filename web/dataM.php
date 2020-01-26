@@ -17,7 +17,7 @@ if(!$mysqli){
 }
 
 //query to get data from the table
-$query = sprintf("SELECT `date_ordered`, COUNT(*) as order_count FROM `order_data` GROUP BY `date_ordered` ORDER BY `date_ordered`");
+$query = sprintf("SELECT `date_ordered`, COUNT(*) as order_count FROM `order_data`  WHERE `date_ordered` >=DATE(NOW()) - INTERVAL 30 DAY GROUP BY `date_ordered` ORDER BY `date_ordered`");
 
 //execute query
 $result = $mysqli->query($query);
