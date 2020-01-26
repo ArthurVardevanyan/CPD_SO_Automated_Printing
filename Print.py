@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200122"
+__version__ = "v20200125"
 
 # Local Files
 import files
@@ -11,12 +11,13 @@ import PostScript
 import SchoolDataJson
 import order as o
 import log
+import database
 
 # Built-In Libraries
 import os
 import glob
 import json
-
+import datetime
 
 # Downloaded Libraries
 import PyPDF2
@@ -156,14 +157,13 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
 
 def pjl_merge(order, outFOLDER, MERGED, FILES):
     N = "n" if outFOLDER == "PSPn" else ""
+    F = order.OD + "/"+order.NAME + "/" + outFOLDER
     try:
-        os.makedirs(order.OD +
-                    "/"+order.NAME + "/" + outFOLDER)
-        print("Successfully created the directory ",
-              "/" + order.OD, "/" + order.NAME+"/" + outFOLDER)
+        if not os.path.exists(F):
+            os.makedirs(F)
+            print("Successfully created the directory ", F)
     except OSError:
-        print("Creation of the directory failed ",
-              "/" + order.OD, "/" + order.NAME + "/" + outFOLDER)
+        print("Creation of the directory failed ", F)
 
     if MERGED == True:
         # Add the PJL Commands to the merged file in preperation to print.
@@ -503,6 +503,12 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 print_que.append(lpr_path)
         print("\n")
     Orders.append(order.NAME)
+    SchoolDataJson.orderStatusExport(order, "Printed")
+    try:
+        database.status_change(order)
+    except:
+        log.logger.exception("")
+        print("Database Update Failed")
     return "".join([order.RESULT, LPR[D110_IP][41:44], " : ", order.NAME])
 
 
@@ -575,7 +581,8 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
 
 
 if __name__ == "__main__":
-
+    if (datetime.datetime.today().date() > datetime.datetime.strptime(log.license, "%Y%m%d").date()):
+        exit()
     log.logInit("Print")
     print = log.Print
     input = log.Input

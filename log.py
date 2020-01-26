@@ -1,28 +1,30 @@
 
 # log.py
-__version__ = "v20200122"
+__version__ = "v20200124"
 
 import os
 import logging
 from datetime import datetime
 
+license = "20200217"
 
-def logInit(fileName):
+def logInit(fileName,  logFolder="logs/"):
     global logger
-    logger = log(fileName)
+    logger = log(fileName, logFolder)
 
 
-def log(fileName):
+def log(fileName, logFolder):
     try:
         # Creates the Directory for Output
-        os.makedirs("log")
+        if not os.path.exists(logFolder):
+            os.makedirs(logFolder)
     except OSError:
         print("Creation of the log directory failed")
 
     now = datetime.now()
     current_time = now.strftime("%Y%m%d%H%M%S")
     # Create and configure logger
-    logging.basicConfig(filename="log/"+fileName + "_"+current_time+".log",
+    logging.basicConfig(filename=logFolder+fileName + "_"+current_time+".log",
                         format='%(asctime)s %(message)s',
                         filemode='w')
 
