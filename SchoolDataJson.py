@@ -176,7 +176,7 @@ def orderStatusExport(order, STATUS):
 
 
 def main(OUTPUT_DIRECTORY):
-    log.logInit("Print")
+    log.logInit("JSON")
     print = log.Print
     input = log.Input
 
