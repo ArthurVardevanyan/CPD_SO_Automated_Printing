@@ -1,5 +1,5 @@
 # Invoicing
-__version__ = "20200124"
+__version__ = "20200127"
 
 import files
 import json
@@ -65,6 +65,7 @@ invoice_headers = [
 
 def invoice(order, JOB_INFO):
     ORDER_NAME = order.NAME
+    total = 0
     invoice = []
     invoice.append(invoice_headers)
     with open('Credentials/pricing.json') as json_file:
@@ -72,7 +73,6 @@ def invoice(order, JOB_INFO):
     try:
         order = o.Order()
 
-        
         JOB_INFO_FILES = JOB_INFO.get('Files', False)
 
         TOTAL_PAGES = 0
@@ -240,6 +240,8 @@ def invoice(order, JOB_INFO):
             if FRONTCOVER != "No":
                 if FRONTCOVER == "8.5 x 11 Paper White":
                     FC = 0
+                    FRONTCOVER = 0
+                    # Doesn't Account for Cover Colors Currently
                     job.append("0")
                     job.append("0")
                 elif FRONTCOVER == "8.5 x 11 Card Stock White":
@@ -323,7 +325,7 @@ def invoice(order, JOB_INFO):
 
         pos = len(invoice) - 1
         end = len(invoice) - len(JOB_INFO_FILES)
-        total = 0
+
         while (pos >= end):
             total += invoice[pos][len(invoice[pos])-1]
             pos -= 1
@@ -365,6 +367,7 @@ def main():
                 JOB_INFO = json.load(json_file)
             with open(order.OD+ORDER_NAME+"/"+ORDER_NAME+".json") as json_file_1:
                 order = o.order_initialization(order, json.load(json_file_1))
+            order.NAME = JOB_INFO["Order Number"] + JOB_INFO["Order Subject"]
             invoice(order, JOB_INFO)
 
 

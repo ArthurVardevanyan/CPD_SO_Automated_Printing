@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200124"
+__version__ = "v20200127"
 
 # Built-In Libraries
 import files
@@ -79,7 +79,7 @@ def file_merge(order, DUPLEX_STATE):
         for i in range(len(order.FILE_NAMES)):
             try:
                 pdf = PyPDF2.PdfFileReader(
-                    open('/'.join([order.OD, order.NAME, FILES[i]]), "rb"))
+                    open('/'.join([order.OD, order.NAME, order.FILE_NAMES[i]]), "rb"))
                 pdf = pdf.getNumPages()
             except:
                 log.logger.exception("")
