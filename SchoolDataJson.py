@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20200124"
+__version__ = "v20200127"
 
 # Built-In Libraries
 import json
@@ -154,7 +154,11 @@ def school_data_json(order):
             line = email[i].split(test_string)
             school_data["Deliver To Address"] = line[1]
         school_data["Status"] = "NotStarted"
+    try:
         school_data["Cost"] = str(invoice.invoice(order, school_data))
+    except:
+        log.logging.exception("")
+        school_data["Cost"] = 0
 
         # Creates the JSON file
     with open("".join([order.OD, '/', order.NAME, '/', order.NAME, '.json']), 'w') as outfile:
