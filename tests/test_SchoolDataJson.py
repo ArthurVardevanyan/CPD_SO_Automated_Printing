@@ -1,5 +1,5 @@
 # test_SchoolDataJason.py
-__version__ = "v20200124"
+__version__ = "v20200128"
 
 import unittest
 import os
@@ -10,9 +10,8 @@ import order as o
 
 
 class Testing(unittest.TestCase):
-    print("Test Skipped")
-"""
     def test_school_data(self):
+        self.maxDiff = None
         order = o.Order()
         order.OD = "tests/SO"
         order.NUMBER = "11344-2704"
@@ -30,8 +29,8 @@ class Testing(unittest.TestCase):
                     "Page Count": "9"
                 }
             },
+            "Status":order.status,
             "Date Ordered": "Sep 28, 2019",
-            "Status": "False",
             "Email": "flast@domain.us",
             "Last Name": "Last",
             "First Name": "First",
@@ -44,9 +43,8 @@ class Testing(unittest.TestCase):
             "Stapling": "Upper Left - portrait",
             "Slip Sheets / Shrink Wrap": "Shrink wrap every 30 sets",
             "Deliver To Name": "First Last",
-            "Deliver To Address": " Address="
-
-
+            "Deliver To Address": " Address=",
+            "Cost": order.COST
         })
         order.OD = "tests/SO"
         order.NUMBER = "11345-3704"
@@ -64,8 +62,8 @@ class Testing(unittest.TestCase):
                     "Page Count": "9"
                 }
             },
+            "Status":order.status,
             "Date Ordered": "Sep 28, 2019",
-            "Ran": "False",
             "Email": "flast@domain.us",
             "Last Name": "Last",
             "First Name": "First",
@@ -77,7 +75,8 @@ class Testing(unittest.TestCase):
             "Paper": "8.5 x 11 Paper White",
             "Special Instructions": "Please make 25 copies of each page, UNCOLLATED. Please    separate the copied pages with a colored slip sheet. Please make 5 sets of the copied pages. Please separate the 5  sets with a different colored sheet of paper.",
             "Deliver To Name": "First Last",
-            "Deliver To Address": " Address="
+            "Deliver To Address": " Address=",
+            "Cost": order.COST
         })
         order.OD = "tests/SO"
         order.NUMBER = "11349-0311"
@@ -127,8 +126,8 @@ class Testing(unittest.TestCase):
                     "Page Count": "1"
                 }
             },
+            "Status":order.status,
             "Date Ordered": "Sep 28, 2019",
-            "Ran": "False",
             "Email": "flast@domain.us",
             "Last Name": "Last",
             "First Name": "First",
@@ -141,10 +140,10 @@ class Testing(unittest.TestCase):
             "Slip Sheets / Shrink Wrap": "between every 25",
             "Special Instructions": "Please make 4 complete class sets.",
             "Deliver To Name": "First Last",
-            "Deliver To Address": " Address="
-
+            "Deliver To Address": " Address=",
+            "Cost": order.COST
         })
 
-"""
+
 if __name__ == '__main__':
     unittest.main()
