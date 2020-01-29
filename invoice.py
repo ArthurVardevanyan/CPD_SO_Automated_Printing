@@ -1,5 +1,5 @@
 # Invoicing
-__version__ = "20200127"
+__version__ = "20200128"
 
 import files
 import json
@@ -61,13 +61,14 @@ invoice_headers = [
     "Order Cost"
 
 ]
+invoiceList = []
+invoiceList.append(invoice_headers)
 
 
 def invoice(order, JOB_INFO):
     ORDER_NAME = order.NAME
     total = 0
-    invoice = []
-    invoice.append(invoice_headers)
+
     with open('Credentials/pricing.json') as json_file:
         PRICING = json.load(json_file)
     try:
@@ -146,6 +147,7 @@ def invoice(order, JOB_INFO):
             job.append(PAPER)
             if PAPER == "8.5 x 11 Paper White":
                 PAPER = 0
+                CP = 0
                 job.append("0")
                 job.append("0")
             elif PAPER == "8.5 x 11 Card Stock White":
@@ -268,6 +270,7 @@ def invoice(order, JOB_INFO):
             if BACKCOVER != "No":
                 if BACKCOVER == "8.5 x 11 Paper White":
                     BC = 0
+                    BACKCOVER = 0
                     job.append("0")
                     job.append("0")
                 elif BACKCOVER == "8.5 x 11 Card Stock White":
@@ -321,18 +324,18 @@ def invoice(order, JOB_INFO):
             job.append(JOB_INFO.get('Deliver To Address', "0"))
             job.append(round(IMPS+PAPER+STAPLING+DRILLING +
                              FOLDING+CUTTING+BOOKLETS+LAMINATION+SLIP_SHRINK+FRONTCOVER+BACKCOVER, 2))
-            invoice.append(job)
+            invoiceList.append(job)
 
-        pos = len(invoice) - 1
-        end = len(invoice) - len(JOB_INFO_FILES)
+        pos = len(invoiceList) - 1
+        end = len(invoiceList) - len(JOB_INFO_FILES)
 
         while (pos >= end):
-            total += invoice[pos][len(invoice[pos])-1]
+            total += invoiceList[pos][len(invoiceList[pos])-1]
             pos -= 1
-        pos = len(invoice) - 1
+        pos = len(invoiceList) - 1
         while (pos >= end):
             order.COST = total
-            invoice[pos].append(total)
+            invoiceList[pos].append(total)
             pos -= 1
     except Exception as e:
         print(e)
@@ -340,10 +343,8 @@ def invoice(order, JOB_INFO):
         job.append(ORDER_NAME.split(" ", 1)[0])
         job.append(ORDER_NAME.split(" ", 1)[1])
         job.append("Error")
-        invoice.append(job)
+        invoiceList.append(job)
 
-    dataframe_array = pandas.DataFrame(invoice)
-    dataframe_array.to_csv("invoice.csv")
     return total
 
 
@@ -358,17 +359,19 @@ def main():
     ORDER_NAMES = []
     for ORDER_NUMBER in range(int(Start), int(End)+1):
 
-        ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
+        ORDER_NUMBER = str(ORDER_NUMBER)  # .zfill(5)
         for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
             if ORDER_NUMBER in i:
                 ORDER_NAMES.append(i)
-        for ORDER_NAME in ORDER_NAMES:
-            with open(order.OD+ORDER_NAME+"/"+ORDER_NAME+".json") as json_file:
-                JOB_INFO = json.load(json_file)
-            with open(order.OD+ORDER_NAME+"/"+ORDER_NAME+".json") as json_file_1:
-                order = o.order_initialization(order, json.load(json_file_1))
-            order.NAME = JOB_INFO["Order Number"] + JOB_INFO["Order Subject"]
-            invoice(order, JOB_INFO)
+    for ORDER_NAME in ORDER_NAMES:
+        with open(order.OD+ORDER_NAME+"/"+ORDER_NAME+".json") as json_file:
+            JOB_INFO = json.load(json_file)
+        with open(order.OD+ORDER_NAME+"/"+ORDER_NAME+".json") as json_file_1:
+            order = o.order_initialization(order, json.load(json_file_1))
+        order.NAME = JOB_INFO["Order Number"] + JOB_INFO["Order Subject"]
+        invoice(order, JOB_INFO)
+    dataframe_array = pandas.DataFrame(invoiceList)
+    dataframe_array.to_csv("invoice.csv")
 
 
 if __name__ == "__main__":
