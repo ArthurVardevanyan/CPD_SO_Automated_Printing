@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200125"
+__version__ = "v20200130"
 
 # Local Files
 import files
@@ -78,7 +78,7 @@ def can_run(order, COLOR, BOOKLETS, COVERS):
     return True
 
 
-def can_nup(order, Color, SETS):
+def can_nup(order, COLOR, SETS):
     if(order.STAPLING_BOOL):
         return False
     if(order.FRONT_COVER):
