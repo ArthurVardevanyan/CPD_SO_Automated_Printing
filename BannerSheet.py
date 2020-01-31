@@ -1,5 +1,5 @@
 # BannerSheet.py
-__version__ = "v20200111"
+__version__ = "v20200131"
 
 
 # Setups up BannerSheet Postscript File
@@ -97,7 +97,7 @@ def banner_sheet(order):
             vertical_position), ' moveto (', "Deliver To Name: ", order.DELIVER_TO_NAME, ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
         outfile.write(str.encode("".join(['75 ', str(
-            vertical_position), ' moveto (', "Deliver To Address: ", order.DELIVER_TO_ADDRESS, ' ) show\n'])))
+            vertical_position), ' moveto (', "Deliver To Address: ", str(order.DELIVER_TO_ADDRESS), ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
         vertical_position = int(vertical_position) - 20
         # Export Files & Page Counts
