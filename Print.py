@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200130"
+__version__ = "v20200131"
 
 # Local Files
 import files
@@ -307,7 +307,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     # Sets the correct PJL commands
     MERGED = instructions.pjl_insert(
         order, COPIES_PER_SET,  COVERS)
-    if(COVERS and "cover" in str.lower(order.SPECIAL_INSTRUCTIONS)):
+    if(COVERS and "cover" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
         MERGED = instructions.cover_manual(order)
 
    # Merge PostScript Header File to All Postscript Job Files
