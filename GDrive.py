@@ -9,7 +9,7 @@ from oauth2client import file, client, tools
 # Built-In Libraries
 import re
 import log
-__version__ = "v20200122"
+__version__ = "v20200127"
 
 # Source https://developers.google.com/drive/api/v3/quickstart/python
 # Source https://stackoverflow.com/questions/52211886/downloading-file-from-google-drive-using-api-nameerror-name-service-is-not-d
@@ -26,7 +26,7 @@ def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, c
         flow = client.flow_from_clientsecrets(
             'Credentials/credentials.json', SCOPES)
         creds = tools.run_flow(flow, store)
-    service = build('drive', 'v3', http=creds.authorize(Http()))
+    service = build('drive', 'v3', http=creds.authorize(Http()), cache_discovery=False)
 
     # Call the Drive v3 API
     try:
