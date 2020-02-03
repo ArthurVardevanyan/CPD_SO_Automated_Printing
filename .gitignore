@@ -15,3 +15,4 @@ __pycache__/
 /doc/CPD_SO_AP_Time.ods
 doc/.~lock.CPD_SO_AP_Time.ods#
 *.log
+*.json
