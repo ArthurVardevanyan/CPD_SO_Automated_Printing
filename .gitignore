@@ -16,3 +16,4 @@ __pycache__/
 doc/.~lock.CPD_SO_AP_Time.ods#
 *.log
 *.json
+pdfImposer/
