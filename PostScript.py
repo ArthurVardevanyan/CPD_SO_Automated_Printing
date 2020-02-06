@@ -2,6 +2,7 @@
 __version__ = "v20200127"
 
 # Built-In Libraries
+from pdfImposer import pdfImposer
 import files
 from PyPDF2.pdf import PageObject
 from PyPDF2 import PdfFileWriter, PdfFileReader
@@ -15,10 +16,6 @@ import subprocess
 import log
 print = log.Print
 input = log.Input
-
-# Downloaded Libraries
-
-# Local order.FILE_NAMES
 
 if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
@@ -206,41 +203,8 @@ def pdf_conversion(order):
 def nupConversion(inFile, outFile):
     # https://github.com/mstamy2/PyPDF2/blob/master/Scripts/2-up.py
     log.logger.debug("2-up input " + inFile)
-    inFile = open(inFile, "rb")
-    input1 = PdfFileReader(inFile)
-    output = PdfFileWriter()
-    output1 = PdfFileWriter()
-    scaled = PdfFileWriter()
-
-    for iter in range(0, input1.getNumPages()):
-        page = input1.getPage(iter)
-        doc = PageObject.createBlankPage(
-            page, page.mediaBox.getWidth(),  page.mediaBox.getHeight())
-        leftmargin = (page.mediaBox.getWidth() * .03 / 2)
-        bottommargin = (page.mediaBox.getHeight() * .03 / 2)
-        doc.mergeScaledTranslatedPage(page, .97, leftmargin, bottommargin)
-        sys.stdout.flush()
-        scaled.addPage(doc)
-    for iter in range(0, scaled.getNumPages()):
-        page = scaled.getPage(iter)
-        orientation = scaled.getPage(iter).mediaBox
-        if orientation.getUpperRight_x() - orientation.getUpperLeft_x() < orientation.getUpperRight_y() - orientation.getLowerRight_y():
-            # https://stackoverflow.com/a/46017058
-            page.rotateClockwise(90)
-        output.addPage(page)
-        sys.stdout.flush()
-    for iter in range(0, output.getNumPages()):
-        lhs = output.getPage(iter)
-        rhs = output.getPage(iter)
-        lhs.mergeTranslatedPage(rhs, lhs.mediaBox.getUpperRight_x(), 0, True)
-        output1.addPage(lhs)
-        log.logger.debug(str(iter) + " "),
-        sys.stdout.flush()
-
+    pdfImposer.ledgerSimplexTwoUp(inFile, outFile)
     log.logger.debug("writing " + outFile)
-    outputStream = open(outFile, "wb")
-    output1.write(outputStream)
-    inFile.close()
     log.logger.debug("done.")
 
 
