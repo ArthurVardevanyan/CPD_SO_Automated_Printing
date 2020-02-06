@@ -19,7 +19,7 @@
 
     if (isset($_POST['FI'])) {
         $ONumber = $_POST['OrderNumber'];
-        $cmd = 'python3 webPrint.py ' . $ONumber . " SO/ 1 False True False False False False";
+        $cmd = 'webPrint.exe ' . $ONumber . " SO/ 1 False True False False False False";
         $command = escapeshellcmd($cmd);
         $output = shell_exec($command);
         echo $output;
