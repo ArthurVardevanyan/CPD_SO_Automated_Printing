@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191224"
+__version__ = "v20200208"
 
 # Built-In Libraries
 import os
@@ -165,7 +165,10 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         order.OD = OUTPUT_DIRECTORY
         # Update Json File to Show the Email Ticket was Printing
         SchoolDataJson.orderStatusExport(order, "Ticket")
-        database.status_change(order)
+        try:
+            database.status_change(order)
+        except:
+            print("Database Update Failed")
 
         try:
             os.remove("PJL_Commands/input.ps")  # remove temp file
@@ -189,16 +192,21 @@ def main():
                 pass
         except:
             pass
+    unread = o.notStarted()
+    print("".join(["Thier are ", str(len(unread)),
+                   " unprinted orders, Enter 0, 0 to run "]))
     Start = str(input("Start #: "))
     End = str(input("End   #: "))
     folders = files.folder_list(OUTPUT_DIRECTORY)
     ORDER_NAMES = []
-    for ORDER_NUMBER in range(int(Start), int(End)+1):
-
-        ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
-        for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
-            if ORDER_NUMBER in i:
-                ORDER_NAMES.append(i)
+    if(Start == '0' and End == '0'):
+        ORDER_NAMES = unread
+    else:
+        for ORDER_NUMBER in range(int(Start), int(End)+1):
+            ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
+            for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
+                if ORDER_NUMBER in i:
+                    ORDER_NAMES.append(i)
     try:
         for ORDER_NAME in ORDER_NAMES:
             count += Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
