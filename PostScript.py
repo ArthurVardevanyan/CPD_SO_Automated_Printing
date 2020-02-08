@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200127"
+__version__ = "v20200208"
 
 # Built-In Libraries
 from pdfImposer import pdfImposer
@@ -22,9 +22,9 @@ if(os.name == "posix"):
 else:
     GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
 
-
 # Grayscale Ghostscript Parameter
 # https://gist.github.com/firstdoit/6390547
+
 
 def ghostscript(gsCMD):
     output = subprocess.Popen(gsCMD, stdout=subprocess.PIPE, shell=True)
@@ -89,7 +89,7 @@ def file_merge(order, DUPLEX_STATE):
                 src = "".join(['"', order.OD, '/',
                                order.NAME, '/', order.FILE_NAMES[i], '"'])
                 gsCMD = "".join(
-                    [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage   -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
+                    [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
                 ghostscript(gsCMD)
 
     # Merges order.FILE_NAMES for Uncollated Printing with SlipSheets
@@ -100,7 +100,7 @@ def file_merge(order, DUPLEX_STATE):
     output = "".join(
         [order.OD, '/', order.NAME, '/', order.NAME, '.ps'])
     gsCMD = "".join(
-        [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write  -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -sOutputFile="', output, '" ', FILES_path, '  -c quit'])
+        [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -sOutputFile="', output, '" ', FILES_path, '  -c quit'])
     # Processes the Conversion
     ghostscript(gsCMD)
     return True
@@ -126,7 +126,7 @@ def file_merge_manual(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE, FILES):
                 src = "".join(['"', OUTPUT_DIRECTORY, '/',
                                ORDER_NAME, '/', FILES[i], '"'])
                 gsCMD = "".join(
-                    [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage  -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
+                    [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
                 ghostscript(gsCMD)
 
     # Merges FILES for Uncollated Printing with SlipSheets
