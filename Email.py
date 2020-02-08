@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200125"
+__version__ = "v20200208"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -43,7 +43,7 @@ def link_cleanup(file_links):
             file_links[i] = file_links[i].replace("3D", "", 1).replace(
                 "https://drive.google.com/open?id", "").replace("\\r", "").replace("\\n", "")
             file_links[i] = re.sub(r'[\\\:*?\"<>|.;=\]\']', "", file_links[i])
-            print(file_links[i])
+            log.logger.debug(file_links[i])
         return file_links
     else:
         return []
@@ -69,7 +69,7 @@ def link_extractor(file_links):
 def Drive_Downloader(email_body, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
     file_links = link_extractor(email_body)
     file_links = link_cleanup(file_links)
-    if(len(file_links) != 0):
+    if(len(file_links)):
         # Calls the Google Drive Downloader Function in GDrive.py
         count = 0
         for ids in file_links:
@@ -132,41 +132,37 @@ def process_mailbox(M, AUTORUN, D110_IP):
 
         rv, data = M.fetch(num, '(UID BODY[TEXT])')  # Email Body
         # Email Subject
-        subject = subject_line(
+        order.SUBJECT = subject_line(
             M.fetch(num, '(UID BODY[HEADER.FIELDS (Subject)])'))
 
         email_body = data[0][1]
-        ORDER_NUMBER, error_state, = order_number_extract(
+        order.NUMBER, error_state, = order_number_extract(
             str(email_body), order_number_random())
-        print("Order: ", ORDER_NUMBER + " ", subject)
-        ORDER_NAME = "".join([ORDER_NUMBER, " ", subject])
-
-        order.NUMBER = ORDER_NUMBER
-        order.NAME = ORDER_NAME
-        order.SUBJECT = subject
+        print("Order: ", order.NUMBER + " ", order.SUBJECT)
+        order.NAME = "".join([order.NUMBER, " ", order.SUBJECT])
 
         if rv != 'OK':
             print("ERROR getting message", num)
             return
         F = "".join([order.OD,
-                     error_state, ORDER_NAME])
+                     error_state, order.NAME])
         try:
             if not os.path.exists(F):
                 os.makedirs(F)
         except OSError:
             print("".join(["Creation of the directory failed" %
-                           order.OD, error_state, "/", subject]))
+                           order.OD, error_state, "/", order.SUBJECT]))
         print("".join(["Successfully created the directory %s " %
-                       order.OD, error_state, "/", subject]))
-        if("Re:" in subject):  # Ignore Replies
+                       order.OD, error_state, "/", order.SUBJECT]))
+        if("Re:" in order.SUBJECT):  # Ignore Replies
             print("This is a reply, skipping")
         else:
             # Calls Google Drive Link Extractor
-            Drive_Downloader(str(email_body), ORDER_NUMBER,
-                             order.OD, subject, error_state)
+            Drive_Downloader(str(email_body), order.NUMBER,
+                             order.OD, order.SUBJECT, error_state)
             # Makes a file and Writes Email Contents to it.
             f = open("".join([order.OD, error_state,
-                              ORDER_NAME, "/", ORDER_NAME, '.txt']), 'wb')
+                              order.NAME, "/", order.NAME, '.txt']), 'wb')
             f.write(email_body)
             f.close()
         try:
@@ -222,7 +218,7 @@ def process_mailbox(M, AUTORUN, D110_IP):
             EMAILPRINT = True
             print_que = []
             Orders = []
-            Print.printing(Orders, ORDER_NUMBER, "SO", D110_IP, COLOR,
+            Print.printing(Orders, order.NUMBER, "SO", D110_IP, COLOR,
                            print_que, AUTORUN, EMAILPRINT, BOOKLETS, 0, False)
             printer.print_processor(print_que)
             files.file_cleanup(Orders, order.OD)
