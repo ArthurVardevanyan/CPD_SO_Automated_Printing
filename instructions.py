@@ -1,7 +1,8 @@
-__version__ = "v20200122"
+__version__ = "v20200208"
 
 import PostScript
 import log
+import re
 
 
 def duplex_state(order):
@@ -34,9 +35,9 @@ def Special_Instructions_Processing(QTY, str):
     if(str == False):
         return 0, 0
     # Remove Unwanted Characters
-    str = str.lower().replace('"', " ").replace('-', " ").replace('.',
-                                                                  " ").replace('th ', " ").replace(', ', " ").replace('2 sided', " ").replace('1 sided',
-                                                                                                                                              " ").replace('!', " ")
+    str = re.sub(r'[.\-!\",]', " ", str.lower())
+    str = str.replace('th ', " ").replace(
+        '2 sided', " ").replace('1 sided', " ")
     # https://stackoverflow.com/a/4289557
     # Separate Integers From Strings
     Numbers = [int(s) for s in str.split() if s.isdigit()]

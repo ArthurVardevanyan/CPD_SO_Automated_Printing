@@ -1,6 +1,8 @@
-__version__ = "v20200113"
+__version__ = "v20200208"
 
 import files
+import json
+import SchoolDataJson
 
 
 class Files:
@@ -47,7 +49,7 @@ class Order:
     DELIVER_TO_ADDRESS = ""
 
     PAGE_COUNTS = ""
-
+    PAGE_COUNTS_LIST = ""
     FILE_NAMES = []
 
     def __init__(self):
@@ -58,7 +60,7 @@ class Order:
 
 def order_initialization(order, JOB_INFO):
     order.UID = JOB_INFO.get('Email_ID', False)
-    order.status = JOB_INFO.get('Ran', False)
+    order.status = JOB_INFO.get('Status', False)
     order.NUMBER = JOB_INFO.get('Order Number', False)
     order.SUBJECT = JOB_INFO.get('Order Subject', False)
     order.COPIES = int(JOB_INFO.get('Copies', False))
@@ -90,9 +92,33 @@ def order_initialization(order, JOB_INFO):
         F.PAGE_COUNT = int(FILE_INFO.get('Page Count', 0))
         order.FILES.append(F)
     order.FILE_NAMES = [i.NAME for i in order.FILES]
-    order.PAGE_COUNTS = files.page_counts(order)
+    order.PAGE_COUNTS, order.PAGE_COUNTS_LIST = files.page_counts(order)
 
     if(any(s in str(order.STAPLING) for s in ("Upper Left - portrait",  "Upper Left - landscape",  "Double Left - portrait",  "None"))):
         order.STAPLING_BOOL = True
 
     return order
+
+
+def notStarted():
+    import sys
+    if not sys.warnoptions:
+        import warnings
+        warnings.simplefilter("ignore")
+
+    OD = "SO/"
+    folders = files.folder_list(OD)
+    orders = []
+    for folder in folders:
+        order = Order()
+        order.OD = OD
+        order.NAME = folder
+        order.NUMBER = folder.split(" ", 1)[0]
+        order.SUBJECT = folder.split(" ", 1)[1]
+        # Create JSON file with Job Requirements
+        JOB_INFO = SchoolDataJson.school_data_json(order)
+        order = order_initialization(order, JOB_INFO)
+        if(order.status == "NotStarted"):
+            orders.append(order.NAME)
+
+    return orders

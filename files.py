@@ -1,5 +1,5 @@
 # files.py
-__version__ = "v20200122"
+__version__ = "v20200208"
 
 # Built-In Libraries
 import os
@@ -27,7 +27,6 @@ colorama.init()
 
 def folder_list(folder):
     # Grabs the list of folders
-    # Gathers all the Folders
     fileList = sorted(glob.glob("".join([folder, "/*"])))
     # Strips the file path data to leave just the foldername
     Stripped_List = [os.path.basename(x) for x in fileList]
@@ -36,8 +35,8 @@ def folder_list(folder):
 
 def file_list(order):
     # Grabs the PDF's in the requested order
-    fileList = sorted(glob.glob("".join([order.OD, "/", order.NAME, "/*.pdf"]))
-                      )  # Gathers all the Files
+    fileList = sorted(
+        glob.glob("".join([order.OD, "/", order.NAME, "/*.pdf"])))
     # Strips the file path data to leave just the filename
     Stripped_List = [os.path.basename(x) for x in fileList]
     return Stripped_List  # Returns the Stripped List to Main Function
@@ -55,7 +54,7 @@ def page_counts(order):
     # Returns the total page counts for an Order
     files = file_list(order)
     counts = 0
-    print("\n")
+    orderCounts = []
     for i in range(len(files)):
         try:
             pdf = PyPDF2.PdfFileReader(
@@ -65,10 +64,10 @@ def page_counts(order):
             log.logger.exception("")
             pdf = page_count(
                 '/'.join([order.OD, '/', order.NAME, '/', files[i]]))
-        print("Page Count: ", colored(str(pdf),
-                                      "magenta"), " FileName: ", files[i])
+        orderCounts.append("".join(["Page Count: ", colored(str(pdf),
+                                                            "magenta"), " FileName: ", files[i]]))
         counts = counts + pdf
-    return counts
+    return counts, orderCounts
 
 
 def page_count(path):
@@ -87,35 +86,13 @@ def page_count(path):
 def file_cleanup(Orders, OUTPUT_DIRECTORY):
     try:
         for order in Orders:
-            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PostScript/"])
-            if os.path.exists(filePath):
-                shutil.rmtree(filePath)
-            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PSP/"])
-            if os.path.exists(filePath):
-                shutil.rmtree(filePath)
-            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/Tickets/"])
-            if os.path.exists(filePath):
-                shutil.rmtree(filePath)
-            filePath = "".join(
-                [OUTPUT_DIRECTORY, "/", order, "/", order, ".ps"])
-            if os.path.exists(filePath):
-                os.remove(filePath)
-            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PDF/"])
-            if os.path.exists(filePath):
-                shutil.rmtree(filePath)
-            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PDFn/"])
-            if os.path.exists(filePath):
-                shutil.rmtree(filePath)
-            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PostScriptn/"])
-            if os.path.exists(filePath):
-                shutil.rmtree(filePath)
-            filePath = "".join([OUTPUT_DIRECTORY, "/", order, "/PSPn/"])
-            if os.path.exists(filePath):
-                shutil.rmtree(filePath)
-            filePath = "".join(
-                [OUTPUT_DIRECTORY, "/", order, "/", order, "n.ps"])
-            if os.path.exists(filePath):
-                os.remove(filePath)
+            orderPath = "".join([OUTPUT_DIRECTORY, "/", order])
+            deleteList = ("/PostScript/", "/PSP/", "/Tickets/", "".join(
+                [order, ".ps"]), "/PDF/", "/PDFn/", "/PostScriptn/", "PSPn", "".join([order, "n.ps"]))
+            for item in deleteList:
+                filePath = "".join([orderPath, item])
+                if os.path.exists(filePath):
+                    shutil.rmtree(filePath)
         Orders = []
         return True
     except:
