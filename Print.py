@@ -234,8 +234,10 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 EmailPrint.Email_Print(order.OD,
                                        order.NAME, print_que, "toptray", D110_IP)
             return "".join(["Not Supported AutoS: ", order.NAME])
-
-    print("\nNumber of (Total) Copies Listed Per File: ",
+    print("\n")
+    for iter in order.PAGE_COUNTS_LIST:
+        print(iter)
+    print("Number of (Total) Copies Listed Per File: ",
           colored(order.COPIES, "magenta"))
     if(order.SPECIAL_INSTRUCTIONS):
         print("SPECIAL INSTRUCTIONS: ", order.SPECIAL_INSTRUCTIONS)

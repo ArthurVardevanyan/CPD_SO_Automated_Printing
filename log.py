@@ -1,12 +1,13 @@
 
 # log.py
-__version__ = "v20200124"
+__version__ = "v20200208"
 
 import os
 import logging
 from datetime import datetime
 
 license = "20200217"
+
 
 def logInit(fileName,  logFolder="logs/"):
     global logger
