@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200208"
+__version__ = "v20200210"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -206,10 +206,10 @@ def process_mailbox(M, AUTORUN, D110_IP):
             print("Multi-Up Failure")
         try:
             # Create Email Html Pdf & PS
-            EmailPrint.Email_Printer(order.OD, ORDER_NAME, error_state)
+            EmailPrint.Email_Printer(order.OD, order.NAME, error_state)
         except:
             logger.exception("")
-            print("Email Conversion Failed")
+            print("Ticket Conversion Failed")
         emails_proccessed += 1
 
         if(AUTORUN):

@@ -1,9 +1,9 @@
-__version__ = "v20200208"
+__version__ = "v20200209"
 
 import files
 import json
 import SchoolDataJson
-
+import os
 
 class Files:
 
@@ -116,7 +116,13 @@ def notStarted():
         order.NUMBER = folder.split(" ", 1)[0]
         order.SUBJECT = folder.split(" ", 1)[1]
         # Create JSON file with Job Requirements
-        JOB_INFO = SchoolDataJson.school_data_json(order)
+        JSON_PATH = "".join(
+        [order.OD, '/', order.NAME, '/', order.NAME, '.json'])
+        if (os.path.exists(JSON_PATH)):
+            with open(JSON_PATH) as json_file:
+                JOB_INFO = json.load(json_file)
+        else:
+            JOB_INFO = SchoolDataJson.school_data_json(order)
         order = order_initialization(order, JOB_INFO)
         if(order.status == "NotStarted"):
             orders.append(order.NAME)
