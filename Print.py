@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200131"
+__version__ = "v20200209"
 
 # Local Files
 import files
@@ -505,8 +505,8 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 print_que.append(lpr_path)
         print("\n")
     Orders.append(order.NAME)
-    SchoolDataJson.orderStatusExport(order, "Printed")
     try:
+        SchoolDataJson.orderStatusExport(order, "Printed")
         database.status_change(order)
     except:
         log.logger.exception("")
