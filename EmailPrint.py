@@ -193,7 +193,7 @@ def main():
         except:
             pass
     unread = o.notStarted()
-    print("".join(["Thier are ", str(len(unread)),
+    print("".join(["Their are ", str(len(unread)),
                    " unprinted orders, Enter 0, 0 to run "]))
     Start = str(input("Start #: "))
     End = str(input("End   #: "))

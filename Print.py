@@ -592,20 +592,23 @@ if __name__ == "__main__":
     print("Terminal Auto Printing  REV:", colored(__version__, "magenta"))
     print("Terminal Email Printing REV:",
           colored(EmailPrint.__version__, "magenta"))
-    print('Type Your Order Number and Hit Enter,\nType "', colored(
-        'run', 'green'), '" then hit enter when your all set. \n')
+    print('Type Your Order Number and Hit Enter,\nType ', colored(
+        '"run"', 'green'), ' then hit enter when your all set. \n')
     print("Compatible Jobs will AutoRun, jobs will pause for requested input if needed.")
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
     print(colored("Purple Paper", "magenta"),
-          " (Or any bright color) MUST BE loaded in bypass as gray plain paper.\n")
-    while True:
-        try:
-            SEQUENTIAL = True if int(
-                input(''.join(["Enable Sequential Printing  Paper?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
-            break
-        except:
-            log.logger.exception("")
-            pass
+          " (Or any bright color) should be loaded as gray plain paper.\n")
+    print("If Running " + colored("Multi-Up Jobs, Purple Paper", "magenta"),
+          "(Or any bright color) MUST BE loaded in Tray 2 as gray plain paper.\nIn addition Load " + colored("Colored 11 by 17", "magenta") + " in the bypass as gray paper.")
+    print("White 11 by 17 Paper should also be loaded in tray 3 and/or 4, and make sure the guides are tight.\n")
+   # while True:
+   #     try:
+   #         SEQUENTIAL = True if int(
+   #             input(''.join(["Enable Sequential Printing?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
+   #         break
+   #     except:
+   #         log.logger.exception("")
+   #         pass
     while True:
         try:
             EMAILPRINT = True if int(
@@ -646,7 +649,7 @@ if __name__ == "__main__":
         except:
             log.logger.exception("")
             pass
-    COVERS = 0
+#    COVERS = 0
 #    while True:
 #        try:
 #            COVERS = 1 if int(
@@ -655,4 +658,4 @@ if __name__ == "__main__":
 #        except:
 #            log.logger.exception("")
 #            pass
-    main(False, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup)
+    main(False, False, EMAILPRINT, COLOR, BOOKLETS, 0, nup)

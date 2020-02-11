@@ -6,7 +6,7 @@ import os
 import logging
 from datetime import datetime
 
-license = "20200217"
+license = "20200229"
 
 
 def logInit(fileName,  logFolder="logs/"):
