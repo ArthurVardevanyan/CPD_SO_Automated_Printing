@@ -1,17 +1,23 @@
 # test_SchoolDataJason.py
-__version__ = "v20191112"
+__version__ = "v20200128"
 
 import unittest
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import SchoolDataJson
+import order as o
 
 
 class Testing(unittest.TestCase):
-
     def test_school_data(self):
-        self.assertEqual(SchoolDataJson.school_data_json("11344-2704", "First Last - Test 1", "tests/SO"),
+        self.maxDiff = None
+        order = o.Order()
+        order.OD = "tests/SO"
+        order.NUMBER = "11344-2704"
+        order.SUBJECT = "First Last - Test 1"
+        order.NAME = "".join([ order.NUMBER, " ",  order.SUBJECT])
+        self.assertEqual(SchoolDataJson.school_data_json(order),
                          {
             "Account ID": "CHANGE ME",
             "Order Number": "11344-2704",
@@ -23,8 +29,8 @@ class Testing(unittest.TestCase):
                     "Page Count": "9"
                 }
             },
+            "Status":order.status,
             "Date Ordered": "Sep 28, 2019",
-            "Ran": "False",
             "Email": "flast@domain.us",
             "Last Name": "Last",
             "First Name": "First",
@@ -37,11 +43,14 @@ class Testing(unittest.TestCase):
             "Stapling": "Upper Left - portrait",
             "Slip Sheets / Shrink Wrap": "Shrink wrap every 30 sets",
             "Deliver To Name": "First Last",
-            "Deliver To Address": " Address="
-
-
+            "Deliver To Address": " Address=",
+            "Cost": order.COST
         })
-        self.assertEqual(SchoolDataJson.school_data_json("11345-3704", "First Last - Test 2", "tests/SO"),
+        order.OD = "tests/SO"
+        order.NUMBER = "11345-3704"
+        order.SUBJECT = "First Last - Test 2"
+        order.NAME = "".join([ order.NUMBER, " ",  order.SUBJECT])
+        self.assertEqual(SchoolDataJson.school_data_json(order),
                          {
             "Account ID": "CHANGE ME",
             "Order Number": "11345-3704",
@@ -53,8 +62,8 @@ class Testing(unittest.TestCase):
                     "Page Count": "9"
                 }
             },
+            "Status":order.status,
             "Date Ordered": "Sep 28, 2019",
-            "Ran": "False",
             "Email": "flast@domain.us",
             "Last Name": "Last",
             "First Name": "First",
@@ -66,9 +75,14 @@ class Testing(unittest.TestCase):
             "Paper": "8.5 x 11 Paper White",
             "Special Instructions": "Please make 25 copies of each page, UNCOLLATED. Please    separate the copied pages with a colored slip sheet. Please make 5 sets of the copied pages. Please separate the 5  sets with a different colored sheet of paper.",
             "Deliver To Name": "First Last",
-            "Deliver To Address": " Address="
+            "Deliver To Address": " Address=",
+            "Cost": order.COST
         })
-        self.assertEqual(SchoolDataJson.school_data_json("11349-0311", "First Last - Test 3", "tests/SO"),
+        order.OD = "tests/SO"
+        order.NUMBER = "11349-0311"
+        order.SUBJECT = "First Last - Test 3"
+        order.NAME = "".join([ order.NUMBER, " ",  order.SUBJECT])
+        self.assertEqual(SchoolDataJson.school_data_json(order),
                          {
             "Account ID": "CHANGE ME",
             "Order Number": "11349-0311",
@@ -112,8 +126,8 @@ class Testing(unittest.TestCase):
                     "Page Count": "1"
                 }
             },
+            "Status":order.status,
             "Date Ordered": "Sep 28, 2019",
-            "Ran": "False",
             "Email": "flast@domain.us",
             "Last Name": "Last",
             "First Name": "First",
@@ -126,8 +140,8 @@ class Testing(unittest.TestCase):
             "Slip Sheets / Shrink Wrap": "between every 25",
             "Special Instructions": "Please make 4 complete class sets.",
             "Deliver To Name": "First Last",
-            "Deliver To Address": " Address="
-
+            "Deliver To Address": " Address=",
+            "Cost": order.COST
         })
 
 

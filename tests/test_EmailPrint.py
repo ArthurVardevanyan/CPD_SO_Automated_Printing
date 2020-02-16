@@ -1,11 +1,13 @@
 # test_EmailPrint.py
-__version__ = "v20191210"
+__version__ = "v20191224"
 
 import unittest
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import EmailPrint
+import log
+log.logInit("test_main", "tests/logs/")
 
 
 class Testing(unittest.TestCase):

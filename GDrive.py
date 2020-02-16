@@ -8,7 +8,8 @@ from oauth2client import file, client, tools
 
 # Built-In Libraries
 import re
-__version__ = "v20191026"
+import log
+__version__ = "v20200127"
 
 # Source https://developers.google.com/drive/api/v3/quickstart/python
 # Source https://stackoverflow.com/questions/52211886/downloading-file-from-google-drive-using-api-nameerror-name-service-is-not-d
@@ -25,7 +26,7 @@ def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, c
         flow = client.flow_from_clientsecrets(
             'Credentials/credentials.json', SCOPES)
         creds = tools.run_flow(flow, store)
-    service = build('drive', 'v3', http=creds.authorize(Http()))
+    service = build('drive', 'v3', http=creds.authorize(Http()), cache_discovery=False)
 
     # Call the Drive v3 API
     try:
@@ -44,7 +45,9 @@ def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, c
 
         # Remove Unwanted Characters from file path
         file_name = re.sub(r'[\\/:;?\"<>*|]', "", file_name)
-        file_name = file_name.replace("Multifunction Printer", "")
+        file_name = file_name.replace(
+            "Multifunction Printer", "").replace("&", "and").replace("ñ", "n").replace("ó", "")
+
         if("pdf" in file_name):
             ext = ""
         else:
@@ -59,5 +62,6 @@ def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, c
         print("Finished writing ", file_name)
         return 1
     except:
+        log.logger.exception("")
         print("DRIVE FAILED: LINK (or path) PROBABLY DOES NOT EXIST: ", DRIVE_ID)
         return 0
