@@ -14,10 +14,16 @@ Stapling Portrait Top Left
 Stapling LandScape Top Left
 <value syntax="enum">21</value>
 Stapling Portrait Double Left
-<value syntax="enum">23</value>
-3 Hole Punch
+<value syntax="enum">28</value>
+3 Hole Punch Left Portrait
 <value syntax="enum">91</value>
 <value syntax="enum">93</value>
+3 Hole Punch Left Landscape
+<value syntax="enum">91</value>
+<value syntax="enum">96</value>
+3 Hole Punch Right LandScape
+<value syntax="enum">91</value>
+<value syntax="enum">94</value>
 Booklet
 <value syntax="enum">110</value>
 
@@ -28,11 +34,23 @@ SlipSheet
 <separator-sheets-type syntax="keyword">none</separator-sheets-type>
 </separator-sheets>
 
-
+Tray 8
 <separator-sheets syntax="collection">
 <media syntax="keyword">post-fuser-inserter</media>
 <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>
 </separator-sheets>
+
+Tray 5
+
+
+@PJL XCPT 		<separator-sheets syntax="collection">
+@PJL XCPT 			<media-col syntax="collection">
+@PJL XCPT 				<input-tray syntax="keyword">bypass-tray</input-tray>
+@PJL XCPT 				<tray-feed syntax="keyword">stack</tray-feed>
+@PJL XCPT 			</media-col>
+@PJL XCPT 			<separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>
+@PJL XCPT 		</separator-sheets>
+
 
 Media Weight
 <media-type syntax="keyword">use-ready</media-type>

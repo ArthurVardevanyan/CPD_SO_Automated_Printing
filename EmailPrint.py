@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20191211"
+__version__ = "v20200209"
 
 # Built-In Libraries
 import os
@@ -15,6 +15,10 @@ import colorama
 import files
 import PostScript
 import printer
+import log
+import SchoolDataJson
+import order as o
+import database
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -23,9 +27,11 @@ colorama.init()
 
 
 def Email_Html(ORDER_NAME, PATH, NAME, Files):
+    F = "".join([PATH, "/Tickets"])
     try:
-        os.makedirs("".join([PATH, "/Tickets"]))
-        print("Successfully created the directory ", PATH, "/Tickets")
+        if not os.path.exists(F):
+            os.makedirs(F)
+            print("Successfully created the directory ", F)
     except OSError:
         print("Creation of the directory failed ", PATH, "/Tickets")
 
@@ -66,6 +72,7 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
         'margin-bottom': '0.2in',
         'margin-left': '0.2in',
     }
+    # Doesn't Output to Log
     if(os.name == "posix"):
         pdfkit.from_string(html, "".join([PATH, "/Tickets/",
                                           ORDER_NAME, '.pdf']), options=options,)
@@ -130,7 +137,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
             for i in range(len(pjl_lines)):
                 if str('<value syntax="keyword">') in str(pjl_lines[i]):
                     pjl_lines[i] = str.encode(
-                            '@PJL XCPT 	<value syntax="keyword">none</value>\n')
+                        '@PJL XCPT 	<value syntax="keyword">none</value>\n')
 
         with open('PJL_Commands/input.ps', 'wb') as f:
             for item in pjl_lines:
@@ -147,6 +154,22 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         print_que.append(
             "".join([LPR, '"', PATH[:-6], "pjl.ps", '" -J "', ORDER_NAME, '"']))
 
+        # TEMPORARY TILL WHOLE FILE GETS CONVERTED TO OOP
+        JSON_PATH = "".join(
+            [OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, '.json'])
+        order = o.Order()
+        order.OD = OUTPUT_DIRECTORY
+        order.NAME = ORDER_NAME
+        with open(JSON_PATH) as json_file:
+            order = o.order_initialization(order, json.load(json_file))
+        order.OD = OUTPUT_DIRECTORY
+        # Update Json File to Show the Email Ticket was Printing
+        try:
+            SchoolDataJson.orderStatusExport(order, "Ticket")
+            database.status_change(order)
+        except:
+            log.logger.exception("")
+            print("Database Update Failed")
         try:
             os.remove("PJL_Commands/input.ps")  # remove temp file
         except:
@@ -169,23 +192,29 @@ def main():
                 pass
         except:
             pass
+    unread = o.notStarted()
+    print("".join(["Their are ", str(len(unread)),
+                   " unprinted orders, Enter 0, 0 to run "]))
     Start = str(input("Start #: "))
     End = str(input("End   #: "))
     folders = files.folder_list(OUTPUT_DIRECTORY)
     ORDER_NAMES = []
-    for ORDER_NUMBER in range(int(Start), int(End)+1):
-
-        ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
-        for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
-            if ORDER_NUMBER in i:
-                ORDER_NAMES.append(i)
+    if(Start == '0' and End == '0'):
+        ORDER_NAMES = unread
+    else:
+        for ORDER_NUMBER in range(int(Start), int(End)+1):
+            ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
+            for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
+                if ORDER_NUMBER in i:
+                    ORDER_NAMES.append(i)
     try:
         for ORDER_NAME in ORDER_NAMES:
             count += Email_Print(OUTPUT_DIRECTORY, ORDER_NAME,
                                  print_que, "toptray", D110_IP)
         printer.print_processor(print_que)
     except:
-        "I have Failed due to some Error"
+        print("I have Failed due to some Error")
+        log.logger.exception("")
 
     print(str(count), " Order(s) Ran")
     quit = str(input("Press Any Key To Exit"))
@@ -193,6 +222,9 @@ def main():
 
 
 if __name__ == "__main__":
+    log.logInit("EmailPrint")
+    print = log.Print
+    input = log.Input
     print("\nTerminal Email Printing REV: ",
           colored(__version__, "magenta"))
     print('Make Sure White and Bright Colored Paper is loaded!\nSet Colored Paper as ',
