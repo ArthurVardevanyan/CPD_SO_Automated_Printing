@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200209"
+__version__ = "v20200215"
 
 # Local Files
 import files
@@ -155,7 +155,7 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
             return "".join(["Order DNE: ", ORDER_NAME])
 
 
-def pjl_merge(order, outFOLDER, MERGED, FILES):
+def pjl_merge(order, outFOLDER, MERGED, COVERS, FILES):
     N = "n" if outFOLDER == "PSPn" else ""
     F = order.OD + "/"+order.NAME + "/" + outFOLDER
     try:
@@ -165,7 +165,26 @@ def pjl_merge(order, outFOLDER, MERGED, FILES):
     except OSError:
         print("Creation of the directory failed ", F)
 
-    if MERGED == True:
+    if COVERS == True:
+        # Add the PJL Commands to the merged file in preperation to print.
+        for i in range(len(FILES)):
+            file_names = ['PJL_Commands/input.ps',  'PJL_Commands/FrontCover.ps', order.OD+"/"+order.NAME +
+                          "/PostScript"+N+"/"+FILES[i]+".ps", 'PJL_Commands/End.ps']
+            with open(order.OD+"/"+order.NAME + "/" + outFOLDER + "/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
+                for fname in file_names:
+                    with open(fname, 'rb') as infile:
+                        if fname == file_names[0] or fname == file_names[1] or fname == file_names[len(file_names)-1] :
+                            for line in infile:
+                                outfile.write(line)
+                        else:
+                            BeginProlog = False
+                            for line in infile:
+                                if(BeginProlog):
+                                    outfile.write(line)
+                                if ("BeginProlog" in str(line)):
+                                    BeginProlog = True
+        return 1
+    elif MERGED == True:
         # Add the PJL Commands to the merged file in preperation to print.
         file_names = ['PJL_Commands/input.ps', order.OD+"/" +
                       order.NAME + "/"+order.NAME+N+".ps", 'PJL_Commands/End.ps']
@@ -313,7 +332,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         MERGED = instructions.cover_manual(order)
 
    # Merge PostScript Header File to All Postscript Job Files
-    pjl_merge(order, "PSP", MERGED, order.FILE_NAMES)
+    pjl_merge(order, "PSP", MERGED, COVERS, order.FILE_NAMES)
     try:
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:
@@ -345,7 +364,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
             order.DUPLEX = "two-sided-short-edge"
         MERGED = instructions.pjl_insert(
             order, COPIES_PER_SET,  COVERS)
-        pjl_merge(order, "PSPn", MERGED, order.FILE_NAMES)
+        pjl_merge(order, "PSPn", MERGED, COVERS, order.FILE_NAMES)
         try:
             os.remove("PJL_Commands/input.ps")  # remove temp file
         except:
@@ -412,7 +431,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                     instructions.pjl_insert(
                         order, COPIES_PER_SET,  COVERS)
                     pjl_merge(order,
-                              "PSP", MERGED, order.FILE_NAMES)
+                              "PSP", MERGED, COVERS, order.FILE_NAMES)
                 else:
                     for j in range(len(Print_Files)):
                         order.DUPLEX = "two-sided-short-edge" if flip[j] else "Two-sided (back to back)"
@@ -420,12 +439,12 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                             order, COPIES_PER_SET,  COVERS)
                         flip_file = [order.FILE_NAMES[j]]
                         pjl_merge(order, "PSP",
-                                  MERGED, flip_file)
+                                  MERGED, COVERS, flip_file)
             elif(approved == 2):
                 order.DUPLEX = "two-sided-short-edge"
                 instructions.pjl_insert(
                     order, COPIES_PER_SET,  COVERS)
-                pjl_merge(order, "PSP", MERGED, order.FILE_NAMES)
+                pjl_merge(order, "PSP", MERGED, COVERS, order.FILE_NAMES)
                 for i in range(SETS):
                     for j in range(len(Print_Files)):
                         lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
@@ -464,7 +483,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                             order, COPIES_PER_SET,  COVERS)
                         flip_file = [order.FILE_NAMES[j]]
                         pjl_merge(order,
-                                  "PSP", MERGED, flip_file)
+                                  "PSP", MERGED, COVERS, flip_file)
                         lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                         lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                             Print_Files[j] + '" -J "' + Print_Files[j] + '"'
@@ -649,13 +668,13 @@ if __name__ == "__main__":
         except:
             log.logger.exception("")
             pass
-#    COVERS = 0
-#    while True:
-#        try:
-#            COVERS = 1 if int(
-#                input(''.join(["Enable Covers?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
-#            break
-#        except:
-#            log.logger.exception("")
-#            pass
-    main(False, False, EMAILPRINT, COLOR, BOOKLETS, 0, nup)
+    COVERS = False
+    while True:
+        try:
+            COVERS = True if int(
+                input(''.join(["Enable Covers?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
+            break
+        except:
+            log.logger.exception("")
+            pass
+    main(False, False, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup)
