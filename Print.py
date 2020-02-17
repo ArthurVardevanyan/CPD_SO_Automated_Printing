@@ -617,9 +617,9 @@ if __name__ == "__main__":
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
     print(colored("Purple Paper", "magenta"),
           " (Or any bright color) should be loaded as gray plain paper.\n")
-    print("If Running " + colored("Multi-Up Jobs, Purple Paper", "magenta"),
-          "(Or any bright color) MUST BE loaded in Tray 2 as gray plain paper.\nIn addition Load " + colored("Colored 11 by 17", "magenta") + " in the bypass as gray paper.")
-    print("White 11 by 17 Paper should also be loaded in tray 3 and/or 4, and make sure the guides are tight.\n")
+   # print("If Running " + colored("Multi-Up Jobs, Purple Paper", "magenta"),
+   #       "(Or any bright color) MUST BE loaded in Tray 2 as gray plain paper.\nIn addition Load " + colored("Colored 11 by 17", "magenta") + " in the bypass as gray paper.")
+   # print("White 11 by 17 Paper should also be loaded in tray 3 and/or 4, and make sure the guides are tight.\n")
    # while True:
    #     try:
    #         SEQUENTIAL = True if int(
@@ -660,21 +660,21 @@ if __name__ == "__main__":
         except:
             log.logger.exception("")
             pass
-    while True:
-        try:
-            nup = 1 if int(
-                input(''.join(["Enable Multi Up Printing?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
-            break
-        except:
-            log.logger.exception("")
-            pass
-    COVERS = False
-    while True:
-        try:
-            COVERS = True if int(
-                input(''.join(["Enable Covers?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
-            break
-        except:
-            log.logger.exception("")
-            pass
-    main(False, False, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup)
+    #COVERS = False
+    #while True:
+    #    try:
+    #        COVERS = True if int(
+    #            input(''.join(["Enable Covers?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
+    #        break
+    #    except:
+    #        log.logger.exception("")
+    #        pass
+    #while True:
+    #    try:
+    #        nup = 1 if int(
+    #            input(''.join(["Enable Multi Up Printing?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
+    #        break
+    #    except:
+    #        log.logger.exception("")
+    #        pass
+    main(False, False, EMAILPRINT, COLOR, BOOKLETS, False, False)
