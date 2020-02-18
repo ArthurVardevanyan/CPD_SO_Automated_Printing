@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200215"
+__version__ = "v20200218"
 
 # Local Files
 import files
@@ -69,9 +69,9 @@ def can_run(order, COLOR, BOOKLETS, COVERS):
         return False
     if(order.PAPER != "8.5 x 11 Paper White" and COLOR == 0):
         return False
-    if("color" in str.lower(str(order.SLIPSHEETS)) and "print" in str.lower(str(order.SLIPSHEETS))):
+    if("color" in str.lower(str(order.SLIPSHEETS)) and ("print" in str.lower(str(order.SLIPSHEETS)) or "copy" in str.lower(str(order.SLIPSHEETS)))):
         return False
-    if("color" in str.lower(str(order.SPECIAL_INSTRUCTIONS)) and "print" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
+    if("color" in str.lower(str(order.SPECIAL_INSTRUCTIONS)) and ("print" in str.lower(str(order.SPECIAL_INSTRUCTIONS)) or "copy" in str.lower(str(order.SPECIAL_INSTRUCTIONS)))):
         return False
     if(not COVERS and "cover" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
         return False
@@ -173,7 +173,7 @@ def pjl_merge(order, outFOLDER, MERGED, COVERS, FILES):
             with open(order.OD+"/"+order.NAME + "/" + outFOLDER + "/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
                 for fname in file_names:
                     with open(fname, 'rb') as infile:
-                        if fname == file_names[0] or fname == file_names[1] or fname == file_names[len(file_names)-1] :
+                        if fname == file_names[0] or fname == file_names[1] or fname == file_names[len(file_names)-1]:
                             for line in infile:
                                 outfile.write(line)
                         else:
@@ -660,8 +660,8 @@ if __name__ == "__main__":
         except:
             log.logger.exception("")
             pass
-    #COVERS = False
-    #while True:
+    # COVERS = False
+    # while True:
     #    try:
     #        COVERS = True if int(
     #            input(''.join(["Enable Covers?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
@@ -669,7 +669,7 @@ if __name__ == "__main__":
     #    except:
     #        log.logger.exception("")
     #        pass
-    #while True:
+    # while True:
     #    try:
     #        nup = 1 if int(
     #            input(''.join(["Enable Multi Up Printing?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0

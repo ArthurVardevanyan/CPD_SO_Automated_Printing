@@ -1,5 +1,5 @@
 # test_Print.py
-__version__ = "v20200124"
+__version__ = "v20200218"
 import unittest
 from unittest import mock
 import os
@@ -102,9 +102,19 @@ class Testing(unittest.TestCase):
         self.assertFalse(Print.can_run(order, 0, 0, 0))
         order.BOOKLET = "Yes"
         self.assertTrue(Print.can_run(order, 1, 1, 0))
+        order.BOOKLET = ""
         order.SPECIAL_INSTRUCTIONS = "please print each file on a different color- the  specific color "
         self.assertFalse(Print.can_run(order, 0, 0, 0))
         order.SPECIAL_INSTRUCTIONS = "Please print in color."
+        self.assertFalse(Print.can_run(order, 0, 0, 0))
+        order.SPECIAL_INSTRUCTIONS = "please copy in color."
+        self.assertFalse(Print.can_run(order, 0, 0, 0))
+        order.SPECIAL_INSTRUCTIONS = ""
+        order.SLIPSHEETS = "please print each file on a different color- the  specific color "
+        self.assertFalse(Print.can_run(order, 0, 0, 0))
+        order.SLIPSHEETS = "Please print in color."
+        self.assertFalse(Print.can_run(order, 0, 0, 0))
+        order.SLIPSHEETS = "please copy in color."
         self.assertFalse(Print.can_run(order, 0, 0, 0))
 
     def test_printing(self):
