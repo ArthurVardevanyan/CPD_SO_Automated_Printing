@@ -1,4 +1,4 @@
-__version__ = "v20200209"
+__version__ = "v20200225"
 
 import files
 import json
@@ -109,6 +109,9 @@ def notStarted():
     OD = "SO/"
     folders = files.folder_list(OD)
     orders = []
+    for i in range(len(folders)):
+        if ("Error" in folders[i] or "Archive" in folders[i]):
+            folders.pop(i)
     for folder in folders:
         order = Order()
         order.OD = OD
