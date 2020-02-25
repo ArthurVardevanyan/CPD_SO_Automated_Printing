@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20200209"
+__version__ = "v20200225"
 
 # Built-In Libraries
 import os
@@ -192,9 +192,13 @@ def main():
                 pass
         except:
             pass
-    unread = o.notStarted()
-    print("".join(["Their are ", str(len(unread)),
+    try:
+        unread = o.notStarted()
+        print("".join(["Their are ", str(len(unread)),
                    " unprinted orders, Enter 0, 0 to run "]))
+    except:
+        unread = None
+        log.logger.exception("")
     Start = str(input("Start #: "))
     End = str(input("End   #: "))
     folders = files.folder_list(OUTPUT_DIRECTORY)
