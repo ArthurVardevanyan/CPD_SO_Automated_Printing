@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200210"
+__version__ = "v20200225"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -194,16 +194,16 @@ def process_mailbox(M, AUTORUN, D110_IP):
         except:
             logger.exception("")
             print("File Merge Failure")
-        try:
-            if(Print.can_nup(order, False, 0)):
-                PostScript.pdf_conversion(order)
-                PostScript.nup(order)
-                if(instructions.merging(order)):
-                    PostScript.file_merge_n(
-                        order, instructions.duplex_state(order))
-        except:
-            logger.exception("")
-            print("Multi-Up Failure")
+       # try:
+       #     if(Print.can_nup(order, False, 0)):
+       #         PostScript.pdf_conversion(order)
+       #         PostScript.nup(order)
+       #         if(instructions.merging(order)):
+       #             PostScript.file_merge_n(
+       #                 order, instructions.duplex_state(order))
+       # except:
+       #     logger.exception("")
+       #     print("Multi-Up Failure")
         try:
             # Create Email Html Pdf & PS
             EmailPrint.Email_Printer(order.OD, order.NAME, error_state)
