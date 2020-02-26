@@ -17,7 +17,7 @@ def duplex_state(order):
 def merging(order):
 
     if order.COLLATION == "Uncollated" and order.STAPLING != "Upper Left - portrait" and len(order.FILES) != 1:
-        if order.PAGE_COUNTS / len(order.FILES) / duplex_state(order) >= 10:
+        if order.PAGE_COUNTS / len(order.FILES) / duplex_state(order) >= 5:
             print("DUE TO PAGE COUNT, MERGED TURNED OFF")
             return 0
         else:
