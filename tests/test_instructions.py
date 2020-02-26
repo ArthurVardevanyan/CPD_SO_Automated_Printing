@@ -1,5 +1,5 @@
 # test_instructions.py
-__version__ = "v2020011"
+__version__ = "v20200225"
 
 import unittest
 import os
@@ -35,10 +35,10 @@ class Testing(unittest.TestCase):
         order.STAPLING = ""
         order.COLLATION = "Uncollated"
         order.PAGE_COUNTS = 11
-        self.assertEqual(instructions.merging(order), 1)
+        self.assertEqual(instructions.merging(order), 0)
         order.DUPLEX = "Two-sided (back to back)"
         order.PAGE_COUNTS = 20
-        self.assertEqual(instructions.merging(order), 1)
+        self.assertEqual(instructions.merging(order), 0)
         order.DUPLEX = "One-sided"
         order.COLLATION = "Uncollated"
         order.PAGE_COUNTS = 20
