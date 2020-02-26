@@ -120,6 +120,8 @@ def process_mailbox(M, AUTORUN, D110_IP):
 
     # Gets all the UNSEEN emails from the INBOX
     rv, data = M.search(None, 'UNSEEN')
+    # '(SINCE "01-Jan-2012" BEFORE "02-Jan-2012")',  'UNSEEN'
+    # https://stackoverflow.com/questions/5621341/search-before-after-with-pythons-imaplib
     if rv != 'OK':
         print("No messages found!")
         return
