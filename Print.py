@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200218"
+__version__ = "v20200227"
 
 # Local Files
 import files
@@ -221,8 +221,13 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     if(any(str in order.NAME for str in ("Order DNE", "Aborted @ CO#", "ON Not Valid", "Aborted @ INT: "))):
         return order.NAME
     try:
-        with open(order.OD+'/'+order.NAME+'/'+order.NAME+'.json') as json_file:
-            order = o.order_initialization(order, json.load(json_file))
+        path = order.OD+'/'+order.NAME+'/'+order.NAME+'.json'
+        if os.path.exists(path):
+            with open(path) as json_file:
+                order = o.order_initialization(order, json.load(json_file))
+        else:
+            order = o.order_initialization(
+                order, SchoolDataJson.school_data_json(order))
     except:
         log.logger.exception("")
         if(not AUTORUN):
@@ -233,6 +238,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 EmailPrint.Email_Print(order.OD,
                                        order.NAME, print_que, "toptray", D110_IP)
                 return "".join(["Not Supported S:  ", order.NAME])
+            return "".join(["Not Supported S:  ", order.NAME])
 
     # Keeps track of how much each printer has printed for load balancing
     D110_IP = impression_counter(order, PRINTER)
