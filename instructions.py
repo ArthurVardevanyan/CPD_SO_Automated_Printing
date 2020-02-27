@@ -354,7 +354,7 @@ def pjl_insert(order, COPIES_PER_SET, COVERS):
 
     # If it makes sense to use merged files, it uses them.
     if str('<sheet-collate syntax="keyword">uncollated') in str(COLLATION) and len(order.FILES) != 1:
-        if order.PAGE_COUNTS / len(order.FILES) / duplex_state >= 10:
+        if order.PAGE_COUNTS / len(order.FILES) / duplex_state >= 5:
             print("DUE TO PAGE COUNT, MERGED TURNED OFF")
             return False
         else:
