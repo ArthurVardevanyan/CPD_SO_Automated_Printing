@@ -17,7 +17,7 @@ if (!$mysqli) {
 }
 
 //query to get data from the table
-$query = sprintf("SELECT * FROM `order_data` where `status` = 'NotStarted' ORDER BY `order_number` ");
+$query = sprintf("SELECT * FROM `order_data` where `status` = 'NotStarted' HAVING `sheets` > 0  ORDER BY `order_number` ");
 
 //execute query
 $result = $mysqli->query($query);
