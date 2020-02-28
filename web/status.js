@@ -26,6 +26,7 @@ window.onload = function () {
                                 return data;
                             }
                         },
+                        { "data": "date_ordered", "title": "Date Ordered" },
                         { "data": "order_subject", "title": "Order Subject" },
                         { "data": "sheets", "title": "Sheets" },
 
