@@ -15,8 +15,8 @@ function curPageURL()
   }
   return $pageURL;
 }
-
-$url_components = parse_url(curPageURL());
+$url = curPageURL();
+$url_components = parse_url($url);
 parse_str($url_components['query'], $params);
 
 //https://www.dyclassroom.com/chartjs/chartjs-how-to-draw-bar-graph-using-data-from-mysql-table-and-php
@@ -34,6 +34,19 @@ $mysqli = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
 if (!$mysqli) {
   die("Connection failed: " . $mysqli->error);
 }
+
+if (isset($_POST['submit'])) {
+  $newStatus = strval($_POST['status']);
+
+  if (strcmp($newStatus, "NotStarted") != 0) {
+    $DT =  Date("Ymd:Hi", time());
+    $newStatus = $newStatus . "_" . $DT;
+  }
+  $query = sprintf('UPDATE `order_data` SET `status`= "' . $newStatus . '" WHERE `order_number` ="' . $params['on'] . '"');
+  $result = $mysqli->query($query);
+  echo "<p>Status Change Successful</p>";
+}
+
 
 //query to get data from the table
 $query = sprintf('SELECT * FROM `order_data` where `email_id` = "' . $params['id'] . '"');
@@ -76,8 +89,17 @@ foreach ($resultD as $row) {
 
 $resultD->close();
 $mysqli->close();
+echo
+  '
+<form action="' . $url . '"  method="post">
+<p>Order Status Change: 
+<input type="radio" name="status" value="NotStarted" required> NotStarted
+<input type="radio" name="status" value="TicketPrinted" required> TicketPrinted
+<input type="radio" name="status" value="Printed" required> Printed  
+<input type="submit" name="submit" value="Submit"></p>
+</form>
 
-
+';
 
 $columns = array();
 //https://stackoverflow.com/questions/4353505/php-create-dynamic-html-table

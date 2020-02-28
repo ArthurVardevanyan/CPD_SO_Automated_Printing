@@ -17,7 +17,9 @@ if (!$mysqli) {
 }
 
 //query to get data from the table
-$query = sprintf("SELECT sum(order_data.sheets) as sheets, deliver.name FROM `order_data` INNER JOIN deliver ON order_data.order_number=deliver.order_number GROUP BY deliver.name");
+$query = sprintf("SELECT sum(order_data.sheets) as sheets, deliver.name FROM `order_data` 
+INNER JOIN deliver ON order_data.order_number=deliver.order_number 
+GROUP BY deliver.name HAVING sum(order_data.sheets) > 0");
 
 //execute query
 $result = $mysqli->query($query);

@@ -20,7 +20,7 @@ window.onload = function () {
                             "data": "order_number", "title": "Order Number",
                             "render": function (data, type, row, meta) {
                                 if (type === 'display') {
-                                    data = '<a href=/web/order.php?id=' + aDemoItems[0].email_id + '&on=' + data + '>' + data + '</a>';
+                                    data = '<a href=/web/order.php?id=' + aDemoItems[meta.row].email_id + '&on=' + data + '>' + data + '</a>';
                                 }
 
                                 return data;
