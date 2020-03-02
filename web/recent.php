@@ -4,20 +4,10 @@
 header('Content-Type: application/json');
 
 //database
-define('DB_HOST', '127.0.0.1');
-define('DB_USERNAME', 'CPD');
-define('DB_PASSWORD', 'CPD');
-define('DB_NAME', 'school_orders');
-
-//get connection
-$mysqli = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
-
-if(!$mysqli){
-  die("Connection failed: " . $mysqli->error);
-}
+include 'credentials.php';
 
 //query to get data from the table
-$query = sprintf("SELECT `order_number`, `status`, `cost` FROM `order_data` ORDER BY `order_number` ");
+$query = sprintf("SELECT `email_id`, `order_number`, `status`, `order_subject` FROM `order_data` ORDER BY `order_number` ");
 
 //execute query
 $result = $mysqli->query($query);

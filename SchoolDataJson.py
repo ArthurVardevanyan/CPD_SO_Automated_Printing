@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20200226"
+__version__ = "v20200302"
 
 # Built-In Libraries
 import json
@@ -170,14 +170,16 @@ def school_data_json(order):
     return school_data
 
 
-def orderStatusExport(order, STATUS):
+def orderStatusExport(order, STATUS, DATE):
     JSON_PATH = "".join(
         [order.OD, '/', order.NAME, '/', order.NAME, '.json'])
     with open(JSON_PATH) as json_file:
         JOB_INFO = json.load(json_file)
     now = datetime.now()
-    current_time = now.strftime("%Y%m%d:%H%M")
-    order.status = STATUS + "_" + current_time
+    current_time = ""
+    if(DATE):
+        current_time = "_" + now.strftime("%Y%m%d:%H%M")
+    order.status = STATUS + current_time
     JOB_INFO["Status"] = order.status
     with open(JSON_PATH, 'w') as outfile:
         json.dump(JOB_INFO, outfile, indent=4, separators=(',', ': '))

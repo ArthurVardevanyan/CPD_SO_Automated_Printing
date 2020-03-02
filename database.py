@@ -1,4 +1,4 @@
-__version__ = "v20200228"
+__version__ = "v20200302"
 
 import mysql.connector
 import files
@@ -141,6 +141,35 @@ def status_change(order):
     return 1
 
 
+def print_status(order, status):
+
+    try:
+        with open("Credentials/db.txt") as f:
+            cred = f.readlines()
+        cred = [x.strip() for x in cred]
+    except:
+        print("Credential Failure")
+
+    db = mysql.connector.connect(
+        host="localhost",
+        user=cred[0],
+        passwd=cred[1],
+        database='school_orders',
+        auth_plugin='mysql_native_password'
+    )
+
+    cursor = db.cursor()
+    status = "UPDATE order_data SET status = '"+status + \
+        "' WHERE order_number = '"+order+"'"
+
+    cursor.execute(status)
+
+    db.commit()
+
+    db.close
+    return 1
+
+
 def status_change_all():
     try:
         with open("Credentials/db.txt") as f:
@@ -194,7 +223,40 @@ def status_change_some(orders):
     return 1
 
 
+def printingOrders():
+    try:
+        with open("Credentials/db.txt") as f:
+            cred = f.readlines()
+        cred = [x.strip() for x in cred]
+    except:
+        print("Credential Failure")
+
+    db = mysql.connector.connect(
+        host="localhost",
+        user=cred[0],
+        passwd=cred[1],
+        database='school_orders',
+        auth_plugin='mysql_native_password'
+    )
+
+    cursor = db.cursor()
+    query = ("SELECT `order_number`, `status` FROM `order_data` WHERE `status` LIKE '%%P1%%'")
+    cursor.execute(query)
+
+    orders = []
+    for (order_number , status) in cursor:
+        order = (str(order_number).replace("(", "").replace(
+            ")", "").replace(",", "").replace("'", ""), str(status).replace("(", "").replace(
+            ")", "").replace(",", "").replace("'", "").replace("P", ""))
+            
+        orders.append(order)
+
+    db.close
+    return orders
+
+
 def main(OUTPUT_DIRECTORY):
+    printingOrders()
     option = str(
         input("1 To Add Orders, 2 to Mark Some Printed, 3 to Mark All Orders Printed: "))
     if (int(option) == 1):

@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200227"
+__version__ = "v20200302"
 
 # Local Files
 import files
@@ -348,8 +348,8 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     # Gets list of Files in the Postscript Print Ready Folder
     Print_Files = files.postscript_list(order.OD, order.NAME, "PSP")
 
-    LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
-           "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
+    LPR = ["C:/Windows/system32/lpr.exe -S 10.56.54.156 -P PS ",
+           "C:/Windows/system32/lpr.exe -S 10.56.54.162 -P PS "]
 
     print("\n")
     if(EMAILPRINT):
@@ -393,7 +393,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSPn/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                 log.logger.debug((lpr_path.replace(
-                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                    "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
         print("\n")
@@ -403,7 +403,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                 log.logger.debug((lpr_path.replace(
-                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                    "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
 
@@ -416,7 +416,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                     lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                         Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                     log.logger.debug((lpr_path.replace(
-                        "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                        "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                         '-P PS "C:/S/SO/', "").split("-J")[0]))
                     print_que.append(lpr_path)
             printer.print_processor(print_que)  # Does the printing
@@ -457,7 +457,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                         lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                             Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                         log.logger.debug((lpr_path.replace(
-                            "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                            "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                             '-P PS "C:/S/SO/', "").split("-J")[0]))
                         print_que.append(lpr_path)
                 printer.print_processor(print_que)  # Does the printing
@@ -525,18 +525,19 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                 log.logger.debug((lpr_path.replace(
-                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                    "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
         print("\n")
     Orders.append(order.NAME)
     try:
-        SchoolDataJson.orderStatusExport(order, "Printed")
+        IP = ["P156", "P162"]
+        SchoolDataJson.orderStatusExport(order, str(IP[D110_IP]), False)
         database.status_change(order)
     except:
         log.logger.exception("")
         print("Database Update Failed")
-    return "".join([order.RESULT, LPR[D110_IP][41:44], " : ", order.NAME])
+    return "".join([order.RESULT, LPR[D110_IP][40:43], " : ", order.NAME])
 
 
 def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
@@ -592,6 +593,7 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
                 files.file_cleanup(Orders, OUTPUT_DIRECTORY)
                 print("\n")
                 print('\n'.join(map(str, printed)))
+                printer.order_status()
                 while True:
                     try:
                         loop = True if int(

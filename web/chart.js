@@ -1,6 +1,6 @@
 window.onload = function () {
   $.ajax({
-    url: "http://localhost/web/dataY.php",
+    url: "/web/dataY.php",
     method: "GET",
     success: function (data) {
       var date = [];
@@ -40,7 +40,7 @@ window.onload = function () {
       });
       $("#orders_2").click(function () {
         $.ajax({
-          url: "http://localhost/web/dataM.php",
+          url: "/web/dataM.php",
           method: "GET",
           success: function (data) {
             var dateW = [];
@@ -59,7 +59,7 @@ window.onload = function () {
       });
       $("#orders_3").click(function () {
         $.ajax({
-          url: "http://localhost/web/dataW.php",
+          url: "/web/dataW.php",
           method: "GET",
           success: function (data) {
             var dateW = [];
@@ -79,7 +79,7 @@ window.onload = function () {
     }
   })
   $.ajax({
-    url: "http://localhost/web/cost.php",
+    url: "/web/cost.php",
     method: "GET",
     success: function (data) {
       var order = [];
@@ -112,7 +112,7 @@ window.onload = function () {
     }
   })
   $.ajax({
-    url: "http://localhost/web/recent.php",
+    url: "/web/recent.php",
     method: "GET",
     success: function (data) {
       $(document).ready(function () {
@@ -125,10 +125,20 @@ window.onload = function () {
         oTblReport.DataTable({
           data: aDemoItems,
           "order": [[0, "desc"]],
+          "pageLength": 20,
           "columns": [
-            { "data": "order_number", "title": "Number" },
+            {
+              "data": "order_number", "title": "Order Number",
+              "render": function (data, type, row, meta) {
+                if (type === 'display') {
+                  data = '<a href=/web/order.php?id=' + aDemoItems[meta.row].email_id + '&on=' + data + '>' + data + '</a>';
+                }
+
+                return data;
+              }
+            },
+            { "data": "order_subject", "title": "Subject" },
             { "data": "status", "title": "Status" },
-            { "data": "cost", "title": "Cost" },
           ]
         });
       });

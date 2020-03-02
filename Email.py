@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200225"
+__version__ = "v20200302"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -251,6 +251,7 @@ def main(AUTORUN, D110_IP):
         while(True):  # Infinite Loop for checking emails
             try:
                 time.sleep(25)
+                printer.order_status()
                 print("Running Loop")
                 M = imaplib.IMAP4_SSL(IMAP_SERVER)
                 M.login(EMAIL_ACCOUNT, PASSWORD)
