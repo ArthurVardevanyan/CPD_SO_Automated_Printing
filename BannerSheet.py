@@ -1,5 +1,5 @@
 # BannerSheet.py
-__version__ = "v20200225"
+__version__ = "v20200302"
 
 
 # Setups up BannerSheet Postscript File
@@ -12,7 +12,7 @@ def banner_sheet(order):
         with open("Credentials/creds.txt") as f:
             cred = f.readlines()
         cred = [x.strip() for x in cred]
-        NAME =( str(cred[1]), str(cred[2]))
+        NAME = (str(cred[1]), str(cred[2]))
         LOC = str(cred[3])
     except:
         print("Credential Failure")
@@ -39,16 +39,16 @@ def banner_sheet(order):
 
     # Template Postscript information
     POSTSCRIPT = (
-        "".join(['\n%!PS\n', '/Tahoma-Bold findfont 75 scalefont setfont\n', '95 725 moveto (',
+        "".join(['\n%!PS\n', '/Arial-Bold findfont 75 scalefont setfont\n', '95 725 moveto (',
                  NAME[0], ') show\n']),
-        "".join(['\n%!PS\n', '/Tahoma-Bold findfont 74 scalefont setfont\n', '85 650 moveto (',
+        "".join(['\n%!PS\n', '/Arial-Bold findfont 74 scalefont setfont\n', '85 650 moveto (',
                  NAME[1], ') show\n']),
-        "".join(['/Tahoma-Bold findfont 45 scalefont setfont\n']),
+        "".join(['/Arial-Bold findfont 45 scalefont setfont\n']),
         "".join(['20 595 moveto (Order Number: ',
                  order.NUMBER, ' ) show\n']),
-        "".join(['/Tahoma-Bold findfont 25 scalefont setfont\n']),
+        "".join(['/Arial-Bold findfont 25 scalefont setfont\n']),
         "".join(['20 565 moveto (', LOC, ' - School Order Banner Sheet) show\n']),
-        "".join(['/Tahoma findfont 12 scalefont setfont\n']),
+        "".join(['/Arial findfont 12 scalefont setfont\n']),
     )
     vertical_position = int(545)
     # Create Banner Sheet file with Order Number and Teacher Name
@@ -102,7 +102,7 @@ def banner_sheet(order):
         outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Deliver To Address: ", str(order.DELIVER_TO_ADDRESS), ' ) show\n'])))
         vertical_position = int(vertical_position) - 25
-        
+
         # Export Files & Page Counts
         for items in files_list:
             outfile.write(str.encode("".join(['20 ', str(vertical_position),

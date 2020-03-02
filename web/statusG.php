@@ -4,22 +4,12 @@
 header('Content-Type: application/json');
 
 //database
-define('DB_HOST', '127.0.0.1');
-define('DB_USERNAME', 'CPD');
-define('DB_PASSWORD', 'CPD');
-define('DB_NAME', 'school_orders');
-
-//get connection
-$mysqli = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
-
-if (!$mysqli) {
-  die("Connection failed: " . $mysqli->error);
-}
+include 'credentials.php';
 
 //query to get data from the table
 $query = sprintf("SELECT sum(order_data.sheets) as sheets, deliver.name FROM `order_data` 
 INNER JOIN deliver ON order_data.order_number=deliver.order_number 
-WHERE  order_data.status = 'NotStarted' OR  order_data.status LIKE '%%Ticket%%'
+WHERE  order_data.status = 'NotStarted' OR  order_data.status LIKE '%%Ticket%%' OR  order_data.status LIKE '%%P1%%'
 GROUP BY deliver.name HAVING sum(order_data.sheets) > 0");
 
 //execute query

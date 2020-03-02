@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20200226"
+__version__ = "v20200302"
 
 # Built-In Libraries
 import os
@@ -117,7 +117,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
     if D110_IP == 1 or D110_IP == 0:
         D110_IP = "156" if D110_IP == 0 else "162"
     LPR = "".join(
-        ["C:/Windows/SysNative/lpr.exe -S 10.56.54.", str(D110_IP), " -P PS "])
+        ["C:/Windows/system32/lpr.exe -S 10.56.54.", str(D110_IP), " -P PS "])
     PATH = "".join([OUTPUT_DIRECTORY, "/", ORDER_NAME,
                     "/Tickets/", ORDER_NAME, ".pdf.ps"])
     if os.path.exists(PATH) == False:
@@ -166,7 +166,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         order.OD = OUTPUT_DIRECTORY
         # Update Json File to Show the Email Ticket was Printing
         try:
-            SchoolDataJson.orderStatusExport(order, "Ticket")
+            SchoolDataJson.orderStatusExport(order, "Ticket", True)
             database.status_change(order)
         except:
             log.logger.exception("")
