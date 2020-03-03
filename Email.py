@@ -12,6 +12,7 @@ import shutil
 import re
 import getpass
 import datetime
+import _thread
 
 # Downloaded Libraries
 import termcolor
@@ -228,11 +229,22 @@ def process_mailbox(M, AUTORUN, D110_IP):
     return emails_proccessed
 
 
+def order_Status():
+    while(True):
+        print("Printer Status Check")
+        printer.order_status()
+        time.sleep(30)
+
+
 def main(AUTORUN, D110_IP):
     IMAP_SERVER = 'imap.gmail.com'
     EMAIL_FOLDER = "Inbox"
     PASSWORD = getpass.getpass()
     EMAIL_ACCOUNT = "@gmail.com"
+    try:
+        _thread.start_new_thread(order_Status)
+    except:
+        print("Error: unable to start thread")
     try:
         with open("Credentials/creds.txt") as f:
             cred = f.readlines()
@@ -251,7 +263,6 @@ def main(AUTORUN, D110_IP):
         while(True):  # Infinite Loop for checking emails
             try:
                 time.sleep(25)
-                printer.order_status()
                 print("Running Loop")
                 M = imaplib.IMAP4_SSL(IMAP_SERVER)
                 M.login(EMAIL_ACCOUNT, PASSWORD)

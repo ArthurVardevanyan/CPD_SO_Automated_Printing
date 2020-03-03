@@ -66,8 +66,8 @@ def order_status():
 
     try:
         for order in finishedOrders:
-            database.print_status(order, "Printed_" +
-                                  datetime.now().strftime("%Y%m%d:%H%M"))
+            change =  "Printed_" + str(datetime.now().strftime("%Y%m%d:%H%M"))
+            database.print_status(order[0],change)
     except:
         log.logger.exception("")
         print("Database Update Failed")
