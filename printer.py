@@ -46,14 +46,24 @@ def order_status():
                 P156 = True
 
         orderStatus = ""
-        if(P162):
+        if(P162 and P156):
             status = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
-                                       "162", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
+                                       "10.56.54.162", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
+            (orderStatus1, err) = status.communicate(
+            )  # pylint: disable=unused-variable
+            status1 = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
+                                        "10.56.54.156", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
+            (orderStatus2, err) = status1.communicate(
+            )  # pylint: disable=unused-variable
+            orderStatus = str(orderStatus1) + str(orderStatus2)
+        elif(P162):
+            status = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
+                                       "10.56.54.162", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
             (orderStatus, err) = status.communicate(
             )  # pylint: disable=unused-variable
-        if(P156):
+        elif(P156):
             status = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
-                                       "156", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
+                                       "10.56.54.156", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
             (orderStatus, err) = status.communicate(
             )  # pylint: disable=unused-variable
 
@@ -66,14 +76,14 @@ def order_status():
 
     try:
         for order in finishedOrders:
-            change =  "Printed_" + str(datetime.now().strftime("%Y%m%d:%H%M"))
-            database.print_status(order[0],change)
+            change = "Printed_" + str(datetime.now().strftime("%Y%m%d:%H%M"))
+            database.print_status(order[0], change)
     except:
         log.logger.exception("")
         print("Database Update Failed")
 
 
-def print_processor(print_que):
+def print_processor(print_que, orders=[]):
     # Runs through the list of files to send to the printers, pausing for input as needed.
     print(termcolor.colored("!--DO NOT CLOSE--!", "red"))
     print(len(print_que))
@@ -101,6 +111,10 @@ def print_processor(print_que):
                 print((str(print_que[0]).replace(
                     "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
+                for q in print_que:
+                    for order in orders:
+                        if order[0] in q:
+                            database.print_status(order[0], str(order[1]))
                 print_que.pop(0)
                 jobs_ran += 1
         else:
@@ -110,6 +124,10 @@ def print_processor(print_que):
 
 
 def main():
+    log.logInit("Status")
+    from log import logger
+    print = log.Print
+    input = log.Input
     order_status()
 
 
