@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200302"
+__version__ = "v20200303"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -242,10 +242,6 @@ def main(AUTORUN, D110_IP):
     PASSWORD = getpass.getpass()
     EMAIL_ACCOUNT = "@gmail.com"
     try:
-        _thread.start_new_thread(order_Status)
-    except:
-        print("Error: unable to start thread")
-    try:
         with open("Credentials/creds.txt") as f:
             cred = f.readlines()
         cred = [x.strip() for x in cred]
@@ -256,6 +252,10 @@ def main(AUTORUN, D110_IP):
     M = imaplib.IMAP4_SSL(IMAP_SERVER)
     M.login(EMAIL_ACCOUNT, PASSWORD)  # Credentials Info
     rv, data = M.select(EMAIL_FOLDER)  # pylint: disable=unused-variable
+    try:
+        _thread.start_new_thread(order_Status, ())
+    except:
+        print("Print Status Failure")
 
     if rv == 'OK':
         print("Processing mailbox: ", EMAIL_FOLDER)

@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200302"
+__version__ = "v20200303"
 
 # Local Files
 import files
@@ -530,14 +530,14 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 print_que.append(lpr_path)
         print("\n")
     Orders.append(order.NAME)
+    IP = ["P156", "P162"]
     try:
-        IP = ["P156", "P162"]
         SchoolDataJson.orderStatusExport(order, str(IP[D110_IP]), False)
         database.status_change(order)
     except:
         log.logger.exception("")
         print("Database Update Failed")
-    return "".join([order.RESULT, LPR[D110_IP][40:43], " : ", order.NAME])
+    return "".join([order.RESULT, LPR[D110_IP][40:43], " : ", order.NAME]), order.NUMBER,  str(IP[D110_IP])
 
 
 def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
@@ -564,6 +564,7 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
         ORDER_NUMBER = []  # The List of order numbers to validate and run
         # Contains the list of orders that were processed and also displays the state of them. ex, ran automatically, with manual input, invalid, aborted, etc.
         printed = []
+        printQ = []
         temp = ""
         while(True):
             if(temp != "run" and SEQUENTIAL == False):
@@ -584,12 +585,15 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
                 print("\nI am Going to Run:")
                 print('\n'.join(map(str, ORDER_NUMBER)))
                 for orders in ORDER_NUMBER:
+                    printOrder = printing(Orders, str(
+                        orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS, nup)
+                    # Does all the processing for the orders
+                    printed.append(printOrder[0])
 
-                    printed.append(
-                        printing(Orders, str(orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS, nup))  # Does all the processing for the orders
+                    printQ.append([printOrder[1], printOrder[2]])
                 print("\n")
                 print('\n'.join(map(str, printed)))
-                printer.print_processor(print_que)  # Does the printing
+                printer.print_processor(print_que, printQ)  # Does the printing
                 files.file_cleanup(Orders, OUTPUT_DIRECTORY)
                 print("\n")
                 print('\n'.join(map(str, printed)))
