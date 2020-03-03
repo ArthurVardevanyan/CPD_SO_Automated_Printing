@@ -7,13 +7,11 @@ header('Content-Type: application/json');
 include 'credentials.php';
 
 //query to get data from the table
-$query = sprintf("SELECT `email_id`, `order_number`, `status`, `order_subject` FROM `order_data` ORDER BY `order_number` ");
-
+$query = sprintf("SELECT * FROM `order_data` WHERE `status` LIKE '%%P1%%' HAVING `sheets` > 0  ORDER BY `order_number`");
 //execute query
 $result = $mysqli->query($query);
 
 //loop through the returned data
-$data = array();
 foreach ($result as $row) {
   $data[] = $row;
 }
@@ -25,4 +23,5 @@ $result->close();
 $mysqli->close();
 
 //now print the data
+
 print json_encode($data);

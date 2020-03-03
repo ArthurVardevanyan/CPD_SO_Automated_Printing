@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200218"
+__version__ = "v20200303"
 
 # Local Files
 import files
@@ -221,8 +221,13 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     if(any(str in order.NAME for str in ("Order DNE", "Aborted @ CO#", "ON Not Valid", "Aborted @ INT: "))):
         return order.NAME
     try:
-        with open(order.OD+'/'+order.NAME+'/'+order.NAME+'.json') as json_file:
-            order = o.order_initialization(order, json.load(json_file))
+        path = order.OD+'/'+order.NAME+'/'+order.NAME+'.json'
+        if os.path.exists(path):
+            with open(path) as json_file:
+                order = o.order_initialization(order, json.load(json_file))
+        else:
+            order = o.order_initialization(
+                order, SchoolDataJson.school_data_json(order))
     except:
         log.logger.exception("")
         if(not AUTORUN):
@@ -233,6 +238,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 EmailPrint.Email_Print(order.OD,
                                        order.NAME, print_que, "toptray", D110_IP)
                 return "".join(["Not Supported S:  ", order.NAME])
+            return "".join(["Not Supported S:  ", order.NAME])
 
     # Keeps track of how much each printer has printed for load balancing
     D110_IP = impression_counter(order, PRINTER)
@@ -342,8 +348,8 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     # Gets list of Files in the Postscript Print Ready Folder
     Print_Files = files.postscript_list(order.OD, order.NAME, "PSP")
 
-    LPR = ["C:/Windows/SysNative/lpr.exe -S 10.56.54.156 -P PS ",
-           "C:/Windows/SysNative/lpr.exe -S 10.56.54.162 -P PS "]
+    LPR = ["C:/Windows/system32/lpr.exe -S 10.56.54.156 -P PS ",
+           "C:/Windows/system32/lpr.exe -S 10.56.54.162 -P PS "]
 
     print("\n")
     if(EMAILPRINT):
@@ -387,7 +393,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSPn/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                 log.logger.debug((lpr_path.replace(
-                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                    "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
         print("\n")
@@ -397,7 +403,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                 log.logger.debug((lpr_path.replace(
-                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                    "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
 
@@ -410,7 +416,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                     lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                         Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                     log.logger.debug((lpr_path.replace(
-                        "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                        "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                         '-P PS "C:/S/SO/', "").split("-J")[0]))
                     print_que.append(lpr_path)
             printer.print_processor(print_que)  # Does the printing
@@ -451,7 +457,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                         lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                             Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                         log.logger.debug((lpr_path.replace(
-                            "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                            "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                             '-P PS "C:/S/SO/', "").split("-J")[0]))
                         print_que.append(lpr_path)
                 printer.print_processor(print_que)  # Does the printing
@@ -519,18 +525,19 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                 log.logger.debug((lpr_path.replace(
-                    "C:/Windows/SysNative/lpr.exe -S 10.56.54.", "").replace(
+                    "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
         print("\n")
     Orders.append(order.NAME)
+    IP = ["P156", "P162"]
     try:
-        SchoolDataJson.orderStatusExport(order, "Printed")
+        SchoolDataJson.orderStatusExport(order, str(IP[D110_IP]), False)
         database.status_change(order)
     except:
         log.logger.exception("")
         print("Database Update Failed")
-    return "".join([order.RESULT, LPR[D110_IP][41:44], " : ", order.NAME])
+    return "".join([order.RESULT, LPR[D110_IP][40:43], " : ", order.NAME]), order.NUMBER,  str(IP[D110_IP])
 
 
 def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
@@ -557,6 +564,7 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
         ORDER_NUMBER = []  # The List of order numbers to validate and run
         # Contains the list of orders that were processed and also displays the state of them. ex, ran automatically, with manual input, invalid, aborted, etc.
         printed = []
+        printQ = []
         temp = ""
         while(True):
             if(temp != "run" and SEQUENTIAL == False):
@@ -577,15 +585,19 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
                 print("\nI am Going to Run:")
                 print('\n'.join(map(str, ORDER_NUMBER)))
                 for orders in ORDER_NUMBER:
+                    printOrder = printing(Orders, str(
+                        orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS, nup)
+                    # Does all the processing for the orders
+                    printed.append(printOrder[0])
 
-                    printed.append(
-                        printing(Orders, str(orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS, nup))  # Does all the processing for the orders
+                    printQ.append([printOrder[1], printOrder[2]])
                 print("\n")
                 print('\n'.join(map(str, printed)))
-                printer.print_processor(print_que)  # Does the printing
+                printer.print_processor(print_que, printQ)  # Does the printing
                 files.file_cleanup(Orders, OUTPUT_DIRECTORY)
                 print("\n")
                 print('\n'.join(map(str, printed)))
+                printer.order_status()
                 while True:
                     try:
                         loop = True if int(

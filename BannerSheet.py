@@ -1,5 +1,5 @@
 # BannerSheet.py
-__version__ = "v20200131"
+__version__ = "v20200302"
 
 
 # Setups up BannerSheet Postscript File
@@ -12,8 +12,8 @@ def banner_sheet(order):
         with open("Credentials/creds.txt") as f:
             cred = f.readlines()
         cred = [x.strip() for x in cred]
-        NAME = str(cred[1])
-        LOC = str(cred[2])
+        NAME = (str(cred[1]), str(cred[2]))
+        LOC = str(cred[3])
     except:
         print("Credential Failure")
 
@@ -39,15 +39,18 @@ def banner_sheet(order):
 
     # Template Postscript information
     POSTSCRIPT = (
-        "".join(['\n%!PS\n', '/Times-Bold findfont 70 scalefont setfont\n', '28 684 moveto (',
-                 NAME, ') show\n']),
-        "".join(['/Times-Bold findfont 25 scalefont setfont\n']),
-        "".join(['75 650 moveto (', LOC, ' - School Order Banner Sheet) show\n']),
-        "".join(['75 620 moveto (Order Number: ',
+        "".join(['\n%!PS\n', '/Arial-Bold findfont 75 scalefont setfont\n', '95 725 moveto (',
+                 NAME[0], ') show\n']),
+        "".join(['\n%!PS\n', '/Arial-Bold findfont 74 scalefont setfont\n', '85 650 moveto (',
+                 NAME[1], ') show\n']),
+        "".join(['/Arial-Bold findfont 45 scalefont setfont\n']),
+        "".join(['20 595 moveto (Order Number: ',
                  order.NUMBER, ' ) show\n']),
-        "".join(['/Times findfont 12 scalefont setfont\n']),
+        "".join(['/Arial-Bold findfont 25 scalefont setfont\n']),
+        "".join(['20 565 moveto (', LOC, ' - School Order Banner Sheet) show\n']),
+        "".join(['/Arial findfont 12 scalefont setfont\n']),
     )
-    vertical_position = int(600)
+    vertical_position = int(545)
     # Create Banner Sheet file with Order Number and Teacher Name
     with open("".join([OUTPUT_PATH,  order.NUMBER, ' Banner ',  order.FIRST_NAME, ' ', order.LAST_NAME, '.ps']), 'wb') as outfile:
         # Export PJL Lines
@@ -57,55 +60,55 @@ def banner_sheet(order):
         for line in POSTSCRIPT:
             outfile.write(str.encode(line))
 
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Order Subject: ", order.SUBJECT, ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Date Ordered: ", order.DATE, ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Email: ", order.EMAIL, ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Last Name: ", order.LAST_NAME, ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "First Name: ", order.FIRST_NAME, ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Phone Number: ", order.PHONE, ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Copies: ", str(order.COPIES), ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Duplex: ", order.DUPLEX, ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Collation: ", order.COLLATION, ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Paper: ", order.PAPER, ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Special Instructions: ", str(order.SPECIAL_INSTRUCTIONS), ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Slip Sheets / Shrink Wrap: ", str(order.SLIPSHEETS), ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Deliver To Name: ", order.DELIVER_TO_NAME, ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
-        outfile.write(str.encode("".join(['75 ', str(
+        outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Deliver To Address: ", str(order.DELIVER_TO_ADDRESS), ' ) show\n'])))
-        vertical_position = int(vertical_position) - 17
-        vertical_position = int(vertical_position) - 20
+        vertical_position = int(vertical_position) - 25
+
         # Export Files & Page Counts
         for items in files_list:
-            outfile.write(str.encode("".join(['25 ', str(vertical_position),
+            outfile.write(str.encode("".join(['20 ', str(vertical_position),
                                               ' moveto (', str(items[0]).replace("(", " ").replace(")", " ").split("', '")[0], ' ) show\n'])))
-            vertical_position = int(vertical_position) - 17
-            outfile.write(str.encode("".join(['25 ', str(vertical_position),
+            vertical_position = int(vertical_position) - 15
+            outfile.write(str.encode("".join(['20 ', str(vertical_position),
                                               ' moveto (', str(items[1]).replace("(", " ").replace(")", " ").split("', '")[0], ' ) show\n'])))
 
             vertical_position = int(vertical_position) - 17

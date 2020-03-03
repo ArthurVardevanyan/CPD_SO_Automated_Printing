@@ -1,5 +1,5 @@
 # files.py
-__version__ = "v20200208"
+__version__ = "v20200226"
 
 # Built-In Libraries
 import os
@@ -57,9 +57,10 @@ def page_counts(order):
     orderCounts = []
     for i in range(len(files)):
         try:
-            pdf = PyPDF2.PdfFileReader(
-                open("".join([order.OD, '/', order.NAME, '/', files[i]]), "rb"))
+            f = open("".join([order.OD, '/', order.NAME, '/', files[i]]), "rb")
+            pdf = PyPDF2.PdfFileReader(f)
             pdf = pdf.getNumPages()
+            f.close()
         except:
             log.logger.exception("")
             pdf = page_count(

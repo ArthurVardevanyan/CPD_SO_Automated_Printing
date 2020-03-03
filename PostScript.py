@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200208"
+__version__ = "v2020026"
 
 # Built-In Libraries
 from pdfImposer import pdfImposer
@@ -75,9 +75,11 @@ def file_merge(order, DUPLEX_STATE):
     if DUPLEX_STATE == 2:  # Adds blanks for doublesided uncollated printing
         for i in range(len(order.FILE_NAMES)):
             try:
-                pdf = PyPDF2.PdfFileReader(
-                    open('/'.join([order.OD, order.NAME, order.FILE_NAMES[i]]), "rb"))
+                f = open(
+                    '/'.join([order.OD, order.NAME, order.FILE_NAMES[i]]), "rb")
+                pdf = PyPDF2.PdfFileReader(f)
                 pdf = pdf.getNumPages()
+                f.close()
             except:
                 log.logger.exception("")
                 pdf = order.PAGE_COUNTS
@@ -111,9 +113,11 @@ def file_merge_manual(OUTPUT_DIRECTORY, ORDER_NAME, DUPLEX_STATE, FILES):
     if DUPLEX_STATE == 2:  # Adds blanks for doublesided uncollated printing
         for i in range(len(FILES)):
             try:
-                pdf = PyPDF2.PdfFileReader(
-                    open("".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', FILES[i]]), "rb"))
+                f = open(
+                    "".join([OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', FILES[i]]), "rb")
+                pdf = PyPDF2.PdfFileReader(f)
                 pdf = pdf.getNumPages()
+                f.close()
             except:
                 log.logger.exception("")
                 pdf = FILES.page_count(
@@ -148,9 +152,11 @@ def file_merge_n(order, DUPLEX_STATE):
     if DUPLEX_STATE == 2:  # Adds blanks for doublesided uncollated printing
         for i in range(len(order.FILE_NAMES)):
             try:
-                pdf = PyPDF2.PdfFileReader(
-                    open("".join([order.OD, '/',  order.NAME, '/PDF/', order.FILE_NAMES[i]]), "rb"))
+                f = open("".join([order.OD, '/',  order.NAME,
+                                  '/PDF/', order.FILE_NAMES[i]]), "rb")
+                pdf = PyPDF2.PdfFileReader(f)
                 pdf = pdf.getNumPages()
+                f.close()
             except:
                 log.logger.exception("")
                 pdf = order.FILE_NAMES.page_count(
