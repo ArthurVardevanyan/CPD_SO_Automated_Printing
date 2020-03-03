@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20200209"
+__version__ = "v20200302"
 
 # Built-In Libraries
 import json
@@ -26,8 +26,10 @@ def school_data_json(order):
 
     FILES = files.file_list(order)
     # Imports the Email contents line by line.
-    email = [line.rstrip('\n') for line in open(
-        "".join([order.OD, '/', order.NAME, '/', order.NAME, ".txt"]), "r")]
+    email = []
+    with open("".join([order.OD, '/', order.NAME, '/', order.NAME, ".txt"]), "r") as f:
+        for line in f.readlines():
+            email.append(line.rstrip('\n'))
 
     school_data["Email ID"] = email[0][2:]
     school_data["Files"] = {}
@@ -35,10 +37,11 @@ def school_data_json(order):
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(FILES)):
         try:
-            pdf = PyPDF2.PdfFileReader(
-                open('/'.join([order.OD, order.NAME, FILES[i]]), "rb"))
+            f = open('/'.join([order.OD, order.NAME, FILES[i]]), "rb")
+            pdf = PyPDF2.PdfFileReader(f)
             school_data["Files"]["".join(["File ", str(
                 i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf.getNumPages())}
+            f.close()
         except:
             log.logger.exception("")
             pdf = files.page_count(
@@ -167,14 +170,16 @@ def school_data_json(order):
     return school_data
 
 
-def orderStatusExport(order, STATUS):
+def orderStatusExport(order, STATUS, DATE):
     JSON_PATH = "".join(
         [order.OD, '/', order.NAME, '/', order.NAME, '.json'])
     with open(JSON_PATH) as json_file:
         JOB_INFO = json.load(json_file)
     now = datetime.now()
-    current_time = now.strftime("%Y%m%d:%H%M")
-    order.status = STATUS + "_" + current_time
+    current_time = ""
+    if(DATE):
+        current_time = "_" + now.strftime("%Y%m%d:%H%M")
+    order.status = STATUS + current_time
     JOB_INFO["Status"] = order.status
     with open(JSON_PATH, 'w') as outfile:
         json.dump(JOB_INFO, outfile, indent=4, separators=(',', ': '))

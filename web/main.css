@@ -74,7 +74,7 @@ input[type=radio]+ label:before{
 
 }
 
-input[type=buttton],
+input[type=button],
 input[type=submit] {
   background-color: #6d1db8;
   color: white;
@@ -86,22 +86,17 @@ input[type=submit] {
   float: left;
 }
 
-input[type=buttton],
+input[type=button],
 input[type=submit]:hover {
    background-color: #2f5a80;
    -webkit-transition: .5s;
 
 
 }
-*/table {
-  border-collapse: collapse;
-}
+*/
 
-table, th, td {
-  border: 1px solid black;
-}
 
-ul.nav{
+ul.nav {
   list-style-type: none;
 }
 
@@ -119,5 +114,57 @@ li.nav a {
 
 .active {
   background-color: #878787;
-  
+
+}
+
+/* unvisited link */
+a:link {
+  color: #6b6b6b;
+}
+
+/* visited link */
+a:visited {
+  color: #454545;
+}
+
+/* mouse over link */
+a:hover {
+  color: #adadad;
+}
+
+/* selected link */
+a:active {
+  color: black;
+}
+
+
+.dataTables_wrapper {
+  font-family: roboto;
+
+}
+
+table {
+  width: 100%;
+  font-family: Roboto;
+}
+
+table,
+th,
+td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: left;
+}
+
+table#t01 tr:nth-child(even) {
+  background-color: white;
+}
+
+table#t01 tr:nth-child(odd) {
+  background-color: #ececec;
 }

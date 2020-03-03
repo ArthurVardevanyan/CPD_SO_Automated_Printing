@@ -7,7 +7,10 @@ header('Content-Type: application/json');
 include 'credentials.php';
 
 //query to get data from the table
-$query = sprintf("SELECT `email_id`, `order_number`, `status`, `order_subject` FROM `order_data` ORDER BY `order_number` ");
+$query = sprintf("SELECT sum(order_data.sheets) as sheets, deliver.name FROM `order_data` 
+INNER JOIN deliver ON order_data.order_number=deliver.order_number 
+WHERE  order_data.status = 'NotStarted' OR  order_data.status LIKE '%%Ticket%%' OR  order_data.status LIKE '%%P1%%'
+GROUP BY deliver.name HAVING sum(order_data.sheets) > 0");
 
 //execute query
 $result = $mysqli->query($query);
@@ -25,4 +28,5 @@ $result->close();
 $mysqli->close();
 
 //now print the data
+
 print json_encode($data);

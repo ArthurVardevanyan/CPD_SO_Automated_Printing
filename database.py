@@ -1,12 +1,23 @@
-__version__ = "v20200124"
+__version__ = "v20200302"
 
 import mysql.connector
 import files
 import json
 from datetime import datetime
+import order as o
+import instructions
 
 
 def database_input(OUTPUT_DIRECTORY, JOB_INFO):
+    order = o.Order()
+
+    try:
+        order.OD = OUTPUT_DIRECTORY
+        order.NAME = JOB_INFO.get('Order Number', "0") + \
+            " " + JOB_INFO.get('Order Subject', "0")
+        order = o.order_initialization(order, JOB_INFO)
+    except:
+        print("Order Initialization Failure")
 
     try:
         with open("Credentials/db.txt") as f:
@@ -37,8 +48,8 @@ def database_input(OUTPUT_DIRECTORY, JOB_INFO):
 
     add_order = ("INSERT IGNORE INTO order_data"
                  "( email_id,order_number,order_subject,date_ordered,status,cost,email,copies,duplex,collation,paper,stapling,\
-                        drilling,folding,cutting,booklets,front_cover,back_cover,special_instructions,slip_shrink) "
-                 "VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                        drilling,folding,cutting,booklets,front_cover,back_cover,special_instructions,slip_shrink,sheets) "
+                 "VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
     data_order = (
         JOB_INFO.get('Email ID', "0"),
         JOB_INFO.get('Order Number', "0"),
@@ -61,6 +72,7 @@ def database_input(OUTPUT_DIRECTORY, JOB_INFO):
         JOB_INFO.get('Back Cover', "None"),
         JOB_INFO.get('Special Instructions', "None"),
         JOB_INFO.get('Slip Sheets / Shrink Wrap', "None"),
+        order.PAGE_COUNTS * order.COPIES / instructions.duplex_state(order),
     )
 
     add_deliver = ("INSERT IGNORE INTO deliver "
@@ -129,22 +141,150 @@ def status_change(order):
     return 1
 
 
-def main(OUTPUT_DIRECTORY):
-    Start = str(input("Start #: "))
-    End = str(input("End   #: "))
-    folders = files.folder_list(OUTPUT_DIRECTORY)
-    ORDER_NAMES = []
-    for ORDER_NUMBER in range(int(Start), int(End)+1):
+def print_status(order, status):
 
-        ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
-        for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
-            if ORDER_NUMBER in i:
-                ORDER_NAMES.append(i)
-    for ORDER_NAME in ORDER_NAMES:
-        with open(OUTPUT_DIRECTORY+ORDER_NAME+"/"+ORDER_NAME+".json") as json_file:
-            JOB_INFO = json.load(json_file)
-            database_input(OUTPUT_DIRECTORY, JOB_INFO)
-            # print(ORDER_NAME)
+    try:
+        with open("Credentials/db.txt") as f:
+            cred = f.readlines()
+        cred = [x.strip() for x in cred]
+    except:
+        print("Credential Failure")
+
+    db = mysql.connector.connect(
+        host="localhost",
+        user=cred[0],
+        passwd=cred[1],
+        database='school_orders',
+        auth_plugin='mysql_native_password'
+    )
+
+    cursor = db.cursor()
+    status = "UPDATE order_data SET status = '"+status + \
+        "' WHERE order_number = '"+order+"'"
+
+    cursor.execute(status)
+
+    db.commit()
+
+    db.close
+    return 1
+
+
+def status_change_all():
+    try:
+        with open("Credentials/db.txt") as f:
+            cred = f.readlines()
+        cred = [x.strip() for x in cred]
+    except:
+        print("Credential Failure")
+
+    db = mysql.connector.connect(
+        host="localhost",
+        user=cred[0],
+        passwd=cred[1],
+        database='school_orders',
+        auth_plugin='mysql_native_password'
+    )
+
+    cursor = db.cursor()
+    status = "UPDATE order_data SET status = 'Printed' WHERE status  = 'NotStarted'"
+
+    cursor.execute(status)
+
+    db.commit()
+
+    db.close
+    return 1
+
+
+def status_change_some(orders):
+    try:
+        with open("Credentials/db.txt") as f:
+            cred = f.readlines()
+        cred = [x.strip() for x in cred]
+    except:
+        print("Credential Failure")
+
+    db = mysql.connector.connect(
+        host="localhost",
+        user=cred[0],
+        passwd=cred[1],
+        database='school_orders',
+        auth_plugin='mysql_native_password'
+    )
+
+    cursor = db.cursor()
+    for order in orders:
+        status = "UPDATE order_data SET status = 'Printed' WHERE `order_number`  like '%" + order + "%'"
+        cursor.execute(status)
+        db.commit()
+
+    db.close
+    return 1
+
+
+def printingOrders():
+    try:
+        with open("Credentials/db.txt") as f:
+            cred = f.readlines()
+        cred = [x.strip() for x in cred]
+    except:
+        print("Credential Failure")
+
+    db = mysql.connector.connect(
+        host="localhost",
+        user=cred[0],
+        passwd=cred[1],
+        database='school_orders',
+        auth_plugin='mysql_native_password'
+    )
+
+    cursor = db.cursor()
+    query = ("SELECT `order_number`, `status` FROM `order_data` WHERE `status` LIKE '%%P1%%'")
+    cursor.execute(query)
+
+    orders = []
+    for (order_number , status) in cursor:
+        order = (str(order_number).replace("(", "").replace(
+            ")", "").replace(",", "").replace("'", ""), str(status).replace("(", "").replace(
+            ")", "").replace(",", "").replace("'", "").replace("P", ""))
+            
+        orders.append(order)
+
+    db.close
+    return orders
+
+
+def main(OUTPUT_DIRECTORY):
+    printingOrders()
+    option = str(
+        input("1 To Add Orders, 2 to Mark Some Printed, 3 to Mark All Orders Printed: "))
+    if (int(option) == 1):
+        Start = str(input("Start #: "))
+        End = str(input("End   #: "))
+        folders = files.folder_list(OUTPUT_DIRECTORY)
+        ORDER_NAMES = []
+        for ORDER_NUMBER in range(int(Start), int(End)+1):
+
+            ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
+            for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
+                if ORDER_NUMBER in i:
+                    ORDER_NAMES.append(i)
+        for ORDER_NAME in ORDER_NAMES:
+            with open(OUTPUT_DIRECTORY+ORDER_NAME+"/"+ORDER_NAME+".json") as json_file:
+                JOB_INFO = json.load(json_file)
+                database_input(OUTPUT_DIRECTORY, JOB_INFO)
+                # print(ORDER_NAME)
+    elif(int(option) == 2):
+        ORDER_NUMBER = []  # The List of order numbers to validate and run
+        # Contains the list of orders that were processed and also displays the state of them. ex, ran automatically, with manual input, invalid, aborted, etc.
+        temp = ""
+        while(temp != "run"):
+            temp = str(input("Type In an Order Number: "))
+            ORDER_NUMBER.append(temp)
+        status_change_some(ORDER_NUMBER)
+    elif(int(option) == 3):
+        status_change_all()
 
 
 if __name__ == "__main__":

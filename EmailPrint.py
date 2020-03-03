@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20200225"
+__version__ = "v20200302"
 
 # Built-In Libraries
 import os
@@ -34,9 +34,10 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
             print("Successfully created the directory ", F)
     except OSError:
         print("Creation of the directory failed ", PATH, "/Tickets")
-
-    email = [line.rstrip('\n') for line in open("".join([
-        PATH, '/', ORDER_NAME, ".txt"]), "r")]
+    email = []
+    with open("".join([PATH, '/', ORDER_NAME, ".txt"]), "r") as f:
+        for line in f.readlines():
+            email.append(line.rstrip('\n'))
     for i in range(len(email)):
         if "<p>Your copy job has been submitted as shown below:</p>" in email[i]:
             start_line = i
@@ -116,7 +117,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
     if D110_IP == 1 or D110_IP == 0:
         D110_IP = "156" if D110_IP == 0 else "162"
     LPR = "".join(
-        ["C:/Windows/SysNative/lpr.exe -S 10.56.54.", str(D110_IP), " -P PS "])
+        ["C:/Windows/system32/lpr.exe -S 10.56.54.", str(D110_IP), " -P PS "])
     PATH = "".join([OUTPUT_DIRECTORY, "/", ORDER_NAME,
                     "/Tickets/", ORDER_NAME, ".pdf.ps"])
     if os.path.exists(PATH) == False:
@@ -165,7 +166,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         order.OD = OUTPUT_DIRECTORY
         # Update Json File to Show the Email Ticket was Printing
         try:
-            SchoolDataJson.orderStatusExport(order, "Ticket")
+            SchoolDataJson.orderStatusExport(order, "Ticket", True)
             database.status_change(order)
         except:
             log.logger.exception("")
@@ -195,7 +196,7 @@ def main():
     try:
         unread = o.notStarted()
         print("".join(["Their are ", str(len(unread)),
-                   " unprinted orders, Enter 0, 0 to run "]))
+                       " unprinted orders, Enter 0, 0 to run "]))
     except:
         unread = None
         log.logger.exception("")
@@ -218,6 +219,7 @@ def main():
         printer.print_processor(print_que)
     except:
         print("I have Failed due to some Error")
+        print("Try Deleting the Last Order Displayed")
         log.logger.exception("")
 
     print(str(count), " Order(s) Ran")
