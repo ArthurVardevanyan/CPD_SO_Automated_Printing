@@ -11,7 +11,7 @@ window.onload = function () {
                 var oTblReport = $("#LeftToPrint")
 
                 oTblReport.DataTable({
-                    "pageLength": 20,
+                    "pageLength": 10,
                     data: aDemoItems,
                     "order": [[0, "desc"]],
 
@@ -48,7 +48,7 @@ window.onload = function () {
                 var oTblReport = $("#Printing")
 
                 oTblReport.DataTable({
-                    "pageLength": 20,
+                    "pageLength": 10,
                     data: aDemoItems,
                     "order": [[0, "desc"]],
 
@@ -85,7 +85,7 @@ window.onload = function () {
                 var oTblReport = $("#LeftToPrintSum")
 
                 oTblReport.DataTable({
-                    "pageLength": 20,
+                    "pageLength": 10,
                     data: aDemoItems,
                     "columns": [
                         { "data": "name", "title": "Deliver To:" },
