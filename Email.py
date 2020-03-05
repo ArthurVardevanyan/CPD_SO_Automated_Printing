@@ -231,7 +231,6 @@ def process_mailbox(M, AUTORUN, D110_IP):
 
 def order_Status():
     while(True):
-        print("Printer Status Check")
         printer.order_status()
         time.sleep(30)
 
