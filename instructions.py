@@ -1,8 +1,9 @@
-__version__ = "v20200208"
+__version__ = "v20200304"
 
 import PostScript
 import log
 import re
+import os
 
 
 def duplex_state(order):
@@ -283,6 +284,59 @@ def covers(order, COVERS):
 @PJL XCPT 		</page-overrides>\n'])
         return ("".join([Back, Front]))
     return ""
+
+
+def pjl_merge(order, outFOLDER, MERGED, COVERS, FILES):
+    N = "n" if outFOLDER == "PSPn" else ""
+    F = order.OD + "/"+order.NAME + "/" + outFOLDER
+    try:
+        if not os.path.exists(F):
+            os.makedirs(F)
+            print("Successfully created the directory ", F)
+    except OSError:
+        print("Creation of the directory failed ", F)
+
+    if COVERS == True:
+        # Add the PJL Commands to the merged file in preperation to print.
+        for i in range(len(FILES)):
+            file_names = ['PJL_Commands/input.ps',  'PJL_Commands/FrontCover.ps', order.OD+"/"+order.NAME +
+                          "/PostScript"+N+"/"+FILES[i]+".ps", 'PJL_Commands/End.ps']
+            with open(order.OD+"/"+order.NAME + "/" + outFOLDER + "/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
+                for fname in file_names:
+                    with open(fname, 'rb') as infile:
+                        if fname == file_names[0] or fname == file_names[1] or fname == file_names[len(file_names)-1]:
+                            for line in infile:
+                                outfile.write(line)
+                        else:
+                            BeginProlog = False
+                            for line in infile:
+                                if(BeginProlog):
+                                    outfile.write(line)
+                                if ("BeginProlog" in str(line)):
+                                    BeginProlog = True
+        return 1
+    elif MERGED == True:
+        # Add the PJL Commands to the merged file in preperation to print.
+        file_names = ['PJL_Commands/input.ps', order.OD+"/" +
+                      order.NAME + "/"+order.NAME+N+".ps", 'PJL_Commands/End.ps']
+        with open(order.OD+"/"+order.NAME + "/"+outFOLDER + "/"+order.NAME+".ps", 'wb') as outfile:
+            for fname in file_names:
+                with open(fname, 'rb') as infile:
+                    for line in infile:
+                        outfile.write(line)
+        return 1
+    elif MERGED == False:
+        # Add the PJL Commands to the files in preperation to print.
+        for i in range(len(FILES)):
+            file_names = ['PJL_Commands/input.ps', order.OD+"/"+order.NAME +
+                          "/PostScript"+N+"/"+FILES[i]+".ps", 'PJL_Commands/End.ps']
+            with open(order.OD+"/"+order.NAME + "/" + outFOLDER + "/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
+                for fname in file_names:
+                    with open(fname, 'rb') as infile:
+                        for line in infile:
+                            outfile.write(line)
+        return 1
+    return 0
 
 
 def pjl_insert(order, COPIES_PER_SET, COVERS):

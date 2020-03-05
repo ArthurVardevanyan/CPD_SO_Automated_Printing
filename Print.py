@@ -12,6 +12,7 @@ import SchoolDataJson
 import order as o
 import log
 import database
+import booklet
 
 # Built-In Libraries
 import os
@@ -155,59 +156,6 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
             return "".join(["Order DNE: ", ORDER_NAME])
 
 
-def pjl_merge(order, outFOLDER, MERGED, COVERS, FILES):
-    N = "n" if outFOLDER == "PSPn" else ""
-    F = order.OD + "/"+order.NAME + "/" + outFOLDER
-    try:
-        if not os.path.exists(F):
-            os.makedirs(F)
-            print("Successfully created the directory ", F)
-    except OSError:
-        print("Creation of the directory failed ", F)
-
-    if COVERS == True:
-        # Add the PJL Commands to the merged file in preperation to print.
-        for i in range(len(FILES)):
-            file_names = ['PJL_Commands/input.ps',  'PJL_Commands/FrontCover.ps', order.OD+"/"+order.NAME +
-                          "/PostScript"+N+"/"+FILES[i]+".ps", 'PJL_Commands/End.ps']
-            with open(order.OD+"/"+order.NAME + "/" + outFOLDER + "/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
-                for fname in file_names:
-                    with open(fname, 'rb') as infile:
-                        if fname == file_names[0] or fname == file_names[1] or fname == file_names[len(file_names)-1]:
-                            for line in infile:
-                                outfile.write(line)
-                        else:
-                            BeginProlog = False
-                            for line in infile:
-                                if(BeginProlog):
-                                    outfile.write(line)
-                                if ("BeginProlog" in str(line)):
-                                    BeginProlog = True
-        return 1
-    elif MERGED == True:
-        # Add the PJL Commands to the merged file in preperation to print.
-        file_names = ['PJL_Commands/input.ps', order.OD+"/" +
-                      order.NAME + "/"+order.NAME+N+".ps", 'PJL_Commands/End.ps']
-        with open(order.OD+"/"+order.NAME + "/"+outFOLDER + "/"+order.NAME+".ps", 'wb') as outfile:
-            for fname in file_names:
-                with open(fname, 'rb') as infile:
-                    for line in infile:
-                        outfile.write(line)
-        return 1
-    elif MERGED == False:
-        # Add the PJL Commands to the files in preperation to print.
-        for i in range(len(FILES)):
-            file_names = ['PJL_Commands/input.ps', order.OD+"/"+order.NAME +
-                          "/PostScript"+N+"/"+FILES[i]+".ps", 'PJL_Commands/End.ps']
-            with open(order.OD+"/"+order.NAME + "/" + outFOLDER + "/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
-                for fname in file_names:
-                    with open(fname, 'rb') as infile:
-                        for line in infile:
-                            outfile.write(line)
-        return 1
-    return 0
-
-
 def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS, nup):
     # Runs the bulk of code
     order = o.Order()
@@ -338,7 +286,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         MERGED = instructions.cover_manual(order)
 
    # Merge PostScript Header File to All Postscript Job Files
-    pjl_merge(order, "PSP", MERGED, COVERS, order.FILE_NAMES)
+    instructions.pjl_merge(order, "PSP", MERGED, COVERS, order.FILE_NAMES)
     try:
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:
@@ -370,7 +318,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
             order.DUPLEX = "two-sided-short-edge"
         MERGED = instructions.pjl_insert(
             order, COPIES_PER_SET,  COVERS)
-        pjl_merge(order, "PSPn", MERGED, COVERS, order.FILE_NAMES)
+        instructions.pjl_merge(order, "PSPn", MERGED, COVERS, order.FILE_NAMES)
         try:
             os.remove("PJL_Commands/input.ps")  # remove temp file
         except:
@@ -409,7 +357,21 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
 
     else:
         if(order.BOOKLET == "Yes"):
-            approved = 0
+            booklet.bookletPrint(
+                log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED, COVERS)
+        else:
+            lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
+            print_que.append(lpr_path)
+
+            print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
+            i = 0
+            while i < SETS:
+                i += 1
+                for j in range(len(Print_Files)):
+                    print("File Name: ", Print_Files[j])
+            print("\n")
+            print(lpr_path)
+            # Change Path so only File Name Shows up on Printer per File Banner Sheet
             for i in range(SETS):
                 for j in range(len(Print_Files)):
                     lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
@@ -419,116 +381,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                         "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                         '-P PS "C:/S/SO/', "").split("-J")[0]))
                     print_que.append(lpr_path)
-            printer.print_processor(print_que)  # Does the printing
-            print("PLEASE CHECK PROOF, if any files look incorrect, please cancel order")
-            while True:
-                try:
-                    approved = int(input(''.join(["Approved?  Yes: ", colored("1", "cyan"), " | Flip All & Proof?: ", colored(
-                        "2", "cyan"),  " | Flip Individually & Proof?: ", colored(
-                        "3", "cyan"), " | No: ", colored("0", "cyan"), " :"])))
-                    break
-                except:
-                    log.logger.exception("")
-                    pass
-            flip = []
-            if(approved == 1):
-                if (len(flip) == 0):
-                    COPIES_PER_SET = order.COPIES
-                    instructions.pjl_insert(
-                        order, COPIES_PER_SET,  COVERS)
-                    pjl_merge(order,
-                              "PSP", MERGED, COVERS, order.FILE_NAMES)
-                else:
-                    for j in range(len(Print_Files)):
-                        order.DUPLEX = "two-sided-short-edge" if flip[j] else "Two-sided (back to back)"
-                        instructions.pjl_insert(
-                            order, COPIES_PER_SET,  COVERS)
-                        flip_file = [order.FILE_NAMES[j]]
-                        pjl_merge(order, "PSP",
-                                  MERGED, COVERS, flip_file)
-            elif(approved == 2):
-                order.DUPLEX = "two-sided-short-edge"
-                instructions.pjl_insert(
-                    order, COPIES_PER_SET,  COVERS)
-                pjl_merge(order, "PSP", MERGED, COVERS, order.FILE_NAMES)
-                for i in range(SETS):
-                    for j in range(len(Print_Files)):
-                        lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-                        lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
-                            Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                        log.logger.debug((lpr_path.replace(
-                            "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
-                            '-P PS "C:/S/SO/', "").split("-J")[0]))
-                        print_que.append(lpr_path)
-                printer.print_processor(print_que)  # Does the printing
-                while True:
-                    try:
-                        approved = 1 if int(
-                            input(''.join(["Approved?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " "]))) == 1 else 0
-                        break
-                    except:
-                        log.logger.exception("")
-                        pass
-            elif(approved == 3):
-                for i in range(SETS):
-                    for j in range(len(Print_Files)):
-                        while True:
-                            try:
-                                flipT = int(input(''.join(["File: ", str(j), ": Flip?  Yes: ", colored(
-                                    "1", "cyan"), " No: ", colored("0", "cyan"), " : "])))
-                                if(flipT == 1 or flipT == 0):
-                                    flip.append(flipT)
-                                    break
-                                else:
-                                    pass
-                            except:
-                                log.logger.exception("")
-                                pass
-                        order.DUPLEX = "two-sided-short-edge" if flip[-1] else "Two-sided (back to back)"
-                        instructions.pjl_insert(
-                            order, COPIES_PER_SET,  COVERS)
-                        flip_file = [order.FILE_NAMES[j]]
-                        pjl_merge(order,
-                                  "PSP", MERGED, COVERS, flip_file)
-                        lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-                        lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
-                            Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                        print_que.append(lpr_path)
-                printer.print_processor(print_que)  # Does the printing
-                print(
-                    "PLEASE CHECK PROOF, if any files look incorrect, please cancel order")
-                while True:
-                    try:
-                        approved = int(input(''.join(["Approved?  Yes: ", colored("1", "cyan"), " | Flip All & Proof?: ", colored(
-                            "2", "cyan"),  " | Flip Individually & Proof?: ", colored(
-                            "3", "cyan"), " | No: ", colored("0", "cyan"), " :"])))
-                        break
-                    except:
-                        log.logger.exception("")
-                        pass
-        else:
-            lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
-            print_que.append(lpr_path)
-
-        print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
-        i = 0
-        while i < SETS:
-            i += 1
-            for j in range(len(Print_Files)):
-                print("File Name: ", Print_Files[j])
-        print("\n")
-        print(lpr_path)
-        # Change Path so only File Name Shows up on Printer per File Banner Sheet
-        for i in range(SETS):
-            for j in range(len(Print_Files)):
-                lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-                lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
-                    Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                log.logger.debug((lpr_path.replace(
-                    "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
-                    '-P PS "C:/S/SO/', "").split("-J")[0]))
-                print_que.append(lpr_path)
-        print("\n")
+            print("\n")
     Orders.append(order.NAME)
     IP = ["P156", "P162"]
     try:

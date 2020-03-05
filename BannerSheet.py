@@ -1,5 +1,5 @@
 # BannerSheet.py
-__version__ = "v20200302"
+__version__ = "v20200303"
 
 
 # Setups up BannerSheet Postscript File
@@ -39,16 +39,16 @@ def banner_sheet(order):
 
     # Template Postscript information
     POSTSCRIPT = (
-        "".join(['\n%!PS\n', '/Arial-Bold findfont 75 scalefont setfont\n', '95 725 moveto (',
+        "".join(['\n%!PS\n', '/Arial-BoldMT findfont 75 scalefont setfont\n', '95 725 moveto (',
                  NAME[0], ') show\n']),
-        "".join(['\n%!PS\n', '/Arial-Bold findfont 74 scalefont setfont\n', '85 650 moveto (',
+        "".join(['\n%!PS\n', '/Arial-BoldMT findfont 74 scalefont setfont\n', '85 650 moveto (',
                  NAME[1], ') show\n']),
-        "".join(['/Arial-Bold findfont 45 scalefont setfont\n']),
+        "".join(['/Arial-BoldMT findfont 45 scalefont setfont\n']),
         "".join(['20 595 moveto (Order Number: ',
                  order.NUMBER, ' ) show\n']),
-        "".join(['/Arial-Bold findfont 25 scalefont setfont\n']),
+        "".join(['/Arial-BoldMT findfont 25 scalefont setfont\n']),
         "".join(['20 565 moveto (', LOC, ' - School Order Banner Sheet) show\n']),
-        "".join(['/Arial findfont 12 scalefont setfont\n']),
+        "".join(['/ArialMT findfont 12 scalefont setfont\n']),
     )
     vertical_position = int(545)
     # Create Banner Sheet file with Order Number and Teacher Name
