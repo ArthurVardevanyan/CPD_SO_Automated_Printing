@@ -9,7 +9,7 @@ from oauth2client import file, client, tools
 # Built-In Libraries
 import re
 import log
-__version__ = "v20200127"
+__version__ = "v20200310"
 
 # Source https://developers.google.com/drive/api/v3/quickstart/python
 # Source https://stackoverflow.com/questions/52211886/downloading-file-from-google-drive-using-api-nameerror-name-service-is-not-d
@@ -19,6 +19,53 @@ __version__ = "v20200127"
 SCOPES = 'https://www.googleapis.com/auth/drive.readonly'
 
 
+def link_cleanup(file_links):
+ # Removing Unwanted Characters
+    if(len(file_links) != 0):
+        for i in range(len(file_links)):
+            file_links[i] = file_links[i][2:].strip()
+            file_links[i] = file_links[i].replace("3D", "", 1).replace(
+                "https://drive.google.com/open?id", "").replace("\\r", "").replace("\\n", "")
+            file_links[i] = re.sub(r'[\\\:*?\"<>|.;=\]\']', "", file_links[i])
+            log.logger.debug(file_links[i])
+        return file_links
+    else:
+        return []
+
+
+def link_extractor(file_links):
+    # This Function extracts the Google Drive FileIDs from the contents of the Email
+    # Checks if the email is indeed a School Order and not something else.
+    if ("Attach your file(s) in PDF format." in file_links):
+        file_links = file_links.split("Number of Copies Needed per File", 1)
+        file_links.pop(1)
+        file_links = str(file_links)
+        file_links = file_links.split("Attach your file(s) in PDF format.", 1)
+        file_links.pop(0)
+        file_links = str(file_links)
+        file_links = file_links.split("File ")
+        file_links.pop(0)
+        return file_links
+    else:
+        return []
+
+
+def Drive_Downloader(email_body, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
+    file_links = link_extractor(email_body)
+    file_links = link_cleanup(file_links)
+    if(len(file_links)):
+        # Calls the Google Drive Downloader Function in GDrive.py
+        count = 0
+        for ids in file_links:
+            count += 1
+            Google_Drive_Downloader(
+                ids, OrderNumber, OUTPUT_DIRECTORY, Subject, count, Error)
+        return 1
+    else:
+        print("This Isn't A School Order")
+        return 0
+
+
 def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, count, ERROR_STATE):
     store = file.Storage('Credentials/token.json')
     creds = store.get()
@@ -26,7 +73,8 @@ def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, c
         flow = client.flow_from_clientsecrets(
             'Credentials/credentials.json', SCOPES)
         creds = tools.run_flow(flow, store)
-    service = build('drive', 'v3', http=creds.authorize(Http()), cache_discovery=False)
+    service = build('drive', 'v3', http=creds.authorize(
+        Http()), cache_discovery=False)
 
     # Call the Drive v3 API
     try:
