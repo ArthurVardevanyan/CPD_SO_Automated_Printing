@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200303"
+__version__ = "v20200310"
 
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 
@@ -20,67 +20,15 @@ from termcolor import colored
 import colorama
 
 # Local Files
-import GDrive
-import SchoolDataJson
-import PostScript
 import files
-import EmailPrint
 import Print
+import EmailPrint
 import printer
-import database
-import instructions
 import order as o
 import log
 
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
-
-
-def link_cleanup(file_links):
- # Removing Unwanted Characters
-    if(len(file_links) != 0):
-        for i in range(len(file_links)):
-            file_links[i] = file_links[i][2:].strip()
-            file_links[i] = file_links[i].replace("3D", "", 1).replace(
-                "https://drive.google.com/open?id", "").replace("\\r", "").replace("\\n", "")
-            file_links[i] = re.sub(r'[\\\:*?\"<>|.;=\]\']', "", file_links[i])
-            log.logger.debug(file_links[i])
-        return file_links
-    else:
-        return []
-
-
-def link_extractor(file_links):
-    # This Function extracts the Google Drive FileIDs from the contents of the Email
-    # Checks if the email is indeed a School Order and not something else.
-    if ("Attach your file(s) in PDF format." in file_links):
-        file_links = file_links.split("Number of Copies Needed per File", 1)
-        file_links.pop(1)
-        file_links = str(file_links)
-        file_links = file_links.split("Attach your file(s) in PDF format.", 1)
-        file_links.pop(0)
-        file_links = str(file_links)
-        file_links = file_links.split("File ")
-        file_links.pop(0)
-        return file_links
-    else:
-        return []
-
-
-def Drive_Downloader(email_body, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
-    file_links = link_extractor(email_body)
-    file_links = link_cleanup(file_links)
-    if(len(file_links)):
-        # Calls the Google Drive Downloader Function in GDrive.py
-        count = 0
-        for ids in file_links:
-            count += 1
-            GDrive.Google_Drive_Downloader(
-                ids, OrderNumber, OUTPUT_DIRECTORY, Subject, count, Error)
-        return 1
-    else:
-        print("This Isn't A School Order")
-        return 0
 
 
 def subject_line(subject):
@@ -160,59 +108,14 @@ def process_mailbox(M, AUTORUN, D110_IP):
         if("Re:" in order.SUBJECT):  # Ignore Replies
             print("This is a reply, skipping")
         else:
-            # Calls Google Drive Link Extractor
-            Drive_Downloader(str(email_body), order.NUMBER,
-                             order.OD, order.SUBJECT, error_state)
             # Makes a file and Writes Email Contents to it.
             f = open("".join([order.OD, error_state,
                               order.NAME, "/", order.NAME, '.txt']), 'wb')
             f.write(email_body)
             f.close()
-        try:
+            # Calls Google Drive Link Extractor
 
-            # Create JSON file with Job Requirements
-            JOB_INFO = SchoolDataJson.school_data_json(order)
-            order = o.order_initialization(order, JOB_INFO)
-        except:
-            logger.exception("")
-            print("JSON File Failed")
-        if(error_state == "Error/"):
-            order.OD = order.OD + "/Error/"
-        try:
-            # Database Input
-            database.database_input(order.OD, JOB_INFO)
-        except:
-            logger.exception("")
-            print("Database Input Failed")
-        try:
-            # Create PostScript File
-            PostScript.postscript_conversion(order)
-        except:
-            logger.exception("")
-            print("PostScript Conversion Failed")
-        try:
-            # Merge Uncollated Files
-            if(instructions.merging(order)):
-                PostScript.file_merge(order, instructions.duplex_state(order))
-        except:
-            logger.exception("")
-            print("File Merge Failure")
-       # try:
-       #     if(Print.can_nup(order, False, 0)):
-       #         PostScript.pdf_conversion(order)
-       #         PostScript.nup(order)
-       #         if(instructions.merging(order)):
-       #             PostScript.file_merge_n(
-       #                 order, instructions.duplex_state(order))
-       # except:
-       #     logger.exception("")
-       #     print("Multi-Up Failure")
-        try:
-            # Create Email Html Pdf & PS
-            EmailPrint.Email_Printer(order.OD, order.NAME, error_state)
-        except:
-            logger.exception("")
-            print("Ticket Conversion Failed")
+        order = o.process_Email(order, email_body, error_state)
         emails_proccessed += 1
 
         if(AUTORUN):

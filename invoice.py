@@ -1,5 +1,5 @@
 # Invoicing
-__version__ = "20200128"
+__version__ = "20200305"
 
 import files
 import json
@@ -99,15 +99,11 @@ def invoice(order, JOB_INFO):
             job.append(str(IMP))
             job.append(JOB_INFO.get('Duplex', "0").split(
                 " (back to back)")[0])
-            if "color" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "color" in (JOB_INFO.get('Special Instructions', "0").lower()):
-                if(("different" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "different" in (JOB_INFO.get('Special Instructions', "0").lower())
-                    or "color paper" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "color paper" in (JOB_INFO.get('Special Instructions', "0").lower())
-                    or "colored" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "colored" in (JOB_INFO.get('Special Instructions', "0").lower())
-                    or "first page in color" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "first page in color" in (JOB_INFO.get('Special Instructions', "0").lower())
-                    or "colorful" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "colorful" in (JOB_INFO.get('Special Instructions', "0").lower())
-
-                        or "color slip" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "color slip" in (JOB_INFO.get('Special Instructions', "0").lower()))
-                        and not ("print in color" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "print in color" in (JOB_INFO.get('Special Instructions', "0").lower()))):
+            SPECIAL = (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) + " " + "color" in (JOB_INFO.get('Special Instructions', "0").lower())
+            if ("color" in SPECIAL):
+                if("different" in SPECIAL or "color paper" in SPECIAL or "colored" in SPECIAL
+                    or "first page in color" in SPECIAL or "colorful" in SPECIAL
+                        or "color slip" in SPECIAL  or "color sheet" in SPECIAL and not "print in color" in SPECIAL):
                     job.append("BW")
                     COLOR = False
                 else:
