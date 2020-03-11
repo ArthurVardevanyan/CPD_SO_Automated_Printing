@@ -1,5 +1,5 @@
 # test_Email.py
-__version__ = "v20200104"
+__version__ = "v20200310"
 
 import unittest
 import os
@@ -22,18 +22,6 @@ class Testing(unittest.TestCase):
             data = file.read()
         self.assertEqual(Email.order_number_extract(
             data, "-0351"), ('11344-0351', ""))
-
-    def test_link_extractor(self):
-        with open('Credentials/11349-0311.txt', 'r') as file:
-            data = file.read()
-        email_body = Email.link_extractor(str(data))
-        self.assertEqual(len(email_body), 9)
-
-    def test_link_cleanup(self):
-        with open('Credentials/11349-0311.txt', 'r') as file:
-            data = file.read()
-        email_body = Email.link_extractor(str(data))
-        self.assertEqual(len(Email.link_cleanup(email_body)), 9)
 
     def test_order_number_random(self):
         self.assertIn("-", Email.order_number_random())
