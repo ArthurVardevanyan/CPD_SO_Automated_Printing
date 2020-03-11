@@ -1,9 +1,21 @@
 __version__ = "v20200226"
 
+import colorama
+from termcolor import colored
+import termcolor
 import files
 import json
 import SchoolDataJson
 import os
+import log
+import GDrive
+import EmailPrint
+import database
+import instructions
+import PostScript
+print = log.Print
+input = log.Input
+# Downloaded Libraries
 
 
 class Files:
@@ -101,6 +113,62 @@ def order_initialization(order, JOB_INFO):
     return order
 
 
+def process_Email(order, email_body, error_state=""):
+
+    try:
+        GDrive.Drive_Downloader(str(email_body), order.NUMBER,
+                                order.OD, order.SUBJECT, error_state)
+    except:
+        log.logger.exception("")
+        print("Drive Download Failed")
+        return
+    try:
+        # Create JSON file with Job Requirements
+        JOB_INFO = SchoolDataJson.school_data_json(order)
+        order = order_initialization(order, JOB_INFO)
+    except:
+        log.logger.exception("")
+        print("JSON File Failed")
+    if(error_state == "Error/"):
+        order.OD = order.OD + "/Error/"
+    try:
+        # Database Input
+        database.database_input(order.OD, JOB_INFO)
+    except:
+        log.logger.exception("")
+        print("Database Input Failed")
+    try:
+        # Create PostScript File
+        PostScript.postscript_conversion(order)
+    except:
+        log.logger.exception("")
+        print("PostScript Conversion Failed")
+    try:
+        # Merge Uncollated Files
+        if(instructions.merging(order)):
+            PostScript.file_merge(order, instructions.duplex_state(order))
+    except:
+        log.logger.exception("")
+        print("File Merge Failure")
+    # try:
+    #     if(Print.can_nup(order, False, 0)):
+    #         PostScript.pdf_conversion(order)
+    #         PostScript.nup(order)
+    #         if(instructions.merging(order)):
+    #             PostScript.file_merge_n(
+    #                 order, instructions.duplex_state(order))
+    # except:
+    #     log.logger.exception("")
+    #     print("Multi-Up Failure")
+    try:
+        # Create Email Html Pdf & PS
+        EmailPrint.Email_Printer(order.OD, order.NAME, error_state)
+    except:
+        log.logger.exception("")
+        print("Ticket Conversion Failed")
+    return order
+
+
 def notStarted():
     import sys
     if not sys.warnoptions:
@@ -133,3 +201,67 @@ def notStarted():
             orders.append(order.NAME)
 
     return orders
+
+
+def integrityCheckCheck(OUTPUT_DIRECTORY, folders):
+    orders = []
+    for folder in folders:
+        filePath = "".join(
+            [OUTPUT_DIRECTORY, "/", folder, "/",  folder, ".json"])
+        if(not os.path.exists(filePath)):
+            orders.append(folder)
+    return orders
+
+
+def integrityCheck(OUTPUT_DIRECTORY):
+
+    folders = files.folder_list(OUTPUT_DIRECTORY)
+    for i in range(len(folders)):
+        if ("Error" in folders[i] or "Archive" in folders[i]):
+            folders.pop(i)
+    orders = integrityCheckCheck(OUTPUT_DIRECTORY, folders)
+    if(len(orders) > 0):
+        print(colored("The Following Orders Failed Their Integrity Check:", "yellow"))
+        for o in orders:
+            print(o)
+        while True:
+            try:
+                fix = int(
+                    input(''.join(["Attempt Fix: (", colored("1", "cyan"), "), Ignore (", colored("0", "cyan"), "): "])))
+                if fix == 1 or fix == 0:
+                    if fix == 0:
+                        return
+                    break
+                else:
+                    pass
+            except:
+                log.logger.exception("")
+                pass
+        for folder in folders:
+            order = Order()
+            order.OD = OUTPUT_DIRECTORY
+            filePath = "".join(
+                [OUTPUT_DIRECTORY, "/", folder, "/",  folder, ".json"])
+            if(not os.path.exists(filePath)):
+                files.file_cleanup([folder], OUTPUT_DIRECTORY)
+                order.NAME = folder
+                folder = folder.split(" ", 1)
+                order.NUMBER, order.SUBJECT = folder
+                with open("".join([order.OD, '/', order.NAME, '/', order.NAME, ".txt"]), "r") as f:
+                    email_body = f.read()
+                process_Email(order, email_body)
+        orders = integrityCheckCheck(OUTPUT_DIRECTORY, folders)
+        if(len(orders) > 0):
+            print(colored(
+                "Please make note of the following orders below that failed thier recovery attempt:", "red"))
+            for o in orders:
+                print(o)
+        else:
+            print(colored("Orders Fixed Successfully", "green"))
+    else:
+        print(colored("Order Integrity Check Successful", "green"))
+
+
+if __name__ == "__main__":
+    log.logInit("Order")
+    integrityCheck("SO/")

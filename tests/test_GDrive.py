@@ -1,5 +1,5 @@
 # test_GDrive.py
-__version__ = "v20191005"
+__version__ = "v20200310"
 
 import unittest
 import os
@@ -10,6 +10,18 @@ import GDrive
 
 
 class Testing(unittest.TestCase):
+    
+    def test_link_extractor(self):
+        with open('Credentials/11349-0311.txt', 'r') as file:
+            data = file.read()
+        email_body = GDrive.link_extractor(str(data))
+        self.assertEqual(len(email_body), 9)
+
+    def test_link_cleanup(self):
+        with open('Credentials/11349-0311.txt', 'r') as file:
+            data = file.read()
+        email_body = GDrive.link_extractor(str(data))
+        self.assertEqual(len(GDrive.link_cleanup(email_body)), 9)
 
     # This Test May Fail if environment is not setup to run as in production.
     def test_GDrive(self):

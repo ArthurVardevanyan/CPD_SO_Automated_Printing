@@ -235,4 +235,5 @@ if __name__ == "__main__":
           colored(__version__, "magenta"))
     print('Make Sure White and Bright Colored Paper is loaded!\nSet Colored Paper as ',
           colored('"Other"', "magenta"))
+    o.integrityCheck("SO/")
     main()
