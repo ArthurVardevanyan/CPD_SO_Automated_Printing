@@ -1,5 +1,5 @@
 # booklet.py
-__version__ = "v20200304"
+__version__ = "v20200316"
 
 from termcolor import colored
 import colorama
@@ -48,7 +48,6 @@ def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED,
         flip = []
         if(approved == 3):
             if (len(flip) == 0):
-                COPIES_PER_SET = order.COPIES
                 instructions.pjl_insert(
                     order, COPIES_PER_SET,  COVERS)
                 instructions.pjl_merge(order,
@@ -79,9 +78,8 @@ def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED,
             loop = False
         elif(approved == 1):
             order.DUPLEX = "two-sided-short-edge"
-            COPIES_PER_SET = order.COPIES
             instructions.pjl_insert(
-                order, COPIES_PER_SET,  COVERS)
+                order, 1,  COVERS)
             instructions.pjl_merge(order, "PSP", MERGED,
                                    COVERS, order.FILE_NAMES)
             for j in range(len(Print_Files)):
@@ -118,3 +116,6 @@ def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED,
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                 print_que.append(lpr_path)
             printer.print_processor(print_que)  # Does the printing
+        elif(approved == 0):
+            loop = False
+
