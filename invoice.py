@@ -1,10 +1,9 @@
 # Invoicing
-__version__ = "20200305"
+__version__ = "20200310"
 
 import files
 import json
 import math
-import pandas
 import instructions
 import order as o
 
@@ -99,11 +98,13 @@ def invoice(order, JOB_INFO):
             job.append(str(IMP))
             job.append(JOB_INFO.get('Duplex', "0").split(
                 " (back to back)")[0])
-            SPECIAL = (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) + " " + "color" in (JOB_INFO.get('Special Instructions', "0").lower())
+            SPECIAL = (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) + \
+                " " + \
+                "color" in (JOB_INFO.get('Special Instructions', "0").lower())
             if ("color" in SPECIAL):
                 if("different" in SPECIAL or "color paper" in SPECIAL or "colored" in SPECIAL
                     or "first page in color" in SPECIAL or "colorful" in SPECIAL
-                        or "color slip" in SPECIAL  or "color sheet" in SPECIAL and not "print in color" in SPECIAL):
+                        or "color slip" in SPECIAL or "color sheet" in SPECIAL and not "print in color" in SPECIAL):
                     job.append("BW")
                     COLOR = False
                 else:
@@ -366,6 +367,7 @@ def main():
             order = o.order_initialization(order, json.load(json_file_1))
         order.NAME = JOB_INFO["Order Number"] + JOB_INFO["Order Subject"]
         invoice(order, JOB_INFO)
+    import pandas
     dataframe_array = pandas.DataFrame(invoiceList)
     dataframe_array.to_csv("invoice.csv")
 
