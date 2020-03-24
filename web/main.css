@@ -6,7 +6,6 @@ body {
   color: #c3c3c3;
   font-family: Arial;
 }
-
 h2
 {
   color: #6d1db8;
@@ -27,21 +26,16 @@ input[type=text], input[type=number]{
 }
 input[type=text]:focus, input[type=number]:focus{
   background-color:#b5b5b5;
-
 }
 input[type=text]:hover, input[type=number]:hover{
   background-color:#b5b5b5;
-
 }
-
 input[type=checkbox],
 input[type=radio]{
   
 opacity: 0;
   position: absolute;
 }
-
-
 input[type=checkbox]+ label:before,
 input[type=radio]+ label:before{
     height:17px;
@@ -71,9 +65,7 @@ input[type=checkbox]+ label:before,
 input[type=radio]+ label:before{
   border-radius:3px;
   width:17px;
-
 }
-
 input[type=button],
 input[type=submit] {
   background-color: #6d1db8;
@@ -85,17 +77,12 @@ input[type=submit] {
   margin: 5px;
   float: left;
 }
-
 input[type=button],
 input[type=submit]:hover {
    background-color: #2f5a80;
    -webkit-transition: .5s;
-
-
 }
 */
-
-
 ul.nav {
   list-style-type: none;
 }
@@ -114,7 +101,6 @@ li.nav a {
 
 .active {
   background-color: #878787;
-
 }
 
 /* unvisited link */
@@ -137,10 +123,8 @@ a:active {
   color: black;
 }
 
-
 .dataTables_wrapper {
   font-family: roboto;
-
 }
 
 table {

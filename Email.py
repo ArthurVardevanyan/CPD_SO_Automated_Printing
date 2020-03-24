@@ -1,8 +1,6 @@
 # Email.py
 __version__ = "v20200310"
-
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
-
 # Built-In Libraries
 import sys
 import imaplib
@@ -13,12 +11,10 @@ import re
 import getpass
 import datetime
 import _thread
-
 # Downloaded Libraries
 import termcolor
 from termcolor import colored
 import colorama
-
 # Local Files
 import files
 import Print
@@ -26,7 +22,6 @@ import EmailPrint
 import printer
 import order as o
 import log
-
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
 
@@ -49,7 +44,6 @@ def order_number_random():
 
 
 def order_number_extract(email_body, RANDOM):
-
     try:  # Checks if Email is Indeed A School Order, Strips Unwanted Information
         email_body = email_body.split("Order Number:", 1)
         ORDER_NUMBER = str(email_body[1])
@@ -66,7 +60,6 @@ def order_number_extract(email_body, RANDOM):
 
 
 def process_mailbox(M, AUTORUN, D110_IP):
-
     # Gets all the UNSEEN emails from the INBOX
     rv, data = M.search(None, 'UNSEEN')
     # '(SINCE "01-Jan-2012" BEFORE "02-Jan-2012")',  'UNSEEN'
@@ -74,24 +67,19 @@ def process_mailbox(M, AUTORUN, D110_IP):
     if rv != 'OK':
         print("No messages found!")
         return
-
     emails_proccessed = 0
     for num in data[0].split():
-
         order = o.Order()
         order.OD = 'SO/'
-
         rv, data = M.fetch(num, '(UID BODY[TEXT])')  # Email Body
         # Email Subject
         order.SUBJECT = subject_line(
             M.fetch(num, '(UID BODY[HEADER.FIELDS (Subject)])'))
-
         email_body = data[0][1]
         order.NUMBER, error_state, = order_number_extract(
             str(email_body), order_number_random())
         print("Order: ", order.NUMBER + " ", order.SUBJECT)
         order.NAME = "".join([order.NUMBER, " ", order.SUBJECT])
-
         if rv != 'OK':
             print("ERROR getting message", num)
             return
@@ -114,10 +102,8 @@ def process_mailbox(M, AUTORUN, D110_IP):
             f.write(email_body)
             f.close()
             # Calls Google Drive Link Extractor
-
         order = o.process_Email(order, email_body, error_state)
         emails_proccessed += 1
-
         if(AUTORUN):
             COLOR = 0
             BOOKLETS = 0
@@ -128,7 +114,6 @@ def process_mailbox(M, AUTORUN, D110_IP):
                            print_que, AUTORUN, EMAILPRINT, BOOKLETS, 0, False)
             printer.print_processor(print_que)
             files.file_cleanup(Orders, order.OD)
-
     return emails_proccessed
 
 
@@ -158,7 +143,6 @@ def main(AUTORUN, D110_IP):
         _thread.start_new_thread(order_Status, ())
     except:
         print("Print Status Failure")
-
     if rv == 'OK':
         print("Processing mailbox: ", EMAIL_FOLDER)
         print("Im Resting, Check Back Later:")
@@ -196,12 +180,10 @@ def main(AUTORUN, D110_IP):
 if __name__ == "__main__":
     if (datetime.datetime.today().date() > datetime.datetime.strptime(log.license, "%Y%m%d").date()):
         exit()
-
     log.logInit("Email")
     from log import logger
     print = log.Print
     input = log.Input
-
     print("\nSchool Order Downloader REV:",
           colored(__version__, "magenta"))
     print("Terminal Auto Printing  REV:",

@@ -1,5 +1,4 @@
 __version__ = "v20200304"
-
 import PostScript
 import log
 import re
@@ -16,7 +15,6 @@ def duplex_state(order):
 
 
 def merging(order):
-
     if order.COLLATION == "Uncollated" and order.STAPLING != "Upper Left - portrait" and len(order.FILES) != 1:
         if order.PAGE_COUNTS / len(order.FILES) / duplex_state(order) >= 5:
             print("DUE TO PAGE COUNT, MERGED TURNED OFF")
@@ -42,7 +40,6 @@ def Special_Instructions_Processing(QTY, str):
     # https://stackoverflow.com/a/4289557
     # Separate Integers From Strings
     Numbers = [int(s) for s in str.split() if s.isdigit()]
-
     # Determine Correct Output for QTY and CPS
     if(len(Numbers) != 0):
         if(QTY == min(Numbers) * max(Numbers)):
@@ -65,7 +62,6 @@ def Special_Instructions_Processing(QTY, str):
             if(QTY == min(Numbers) * max(Numbers)):
                 return min(Numbers), max(Numbers)
             return 0, 1
-
         if(any(s in str for s in ("set", "slip", "page", "sort", "group", "into"))):
             return 0, 1
         if((QTY * 2) == min(Numbers) * max(Numbers)):
@@ -81,7 +77,6 @@ def Special_Instructions(order):
     QTY = order.COPIES
     SPIO = Special_Instructions_Processing(QTY, order.SPECIAL_INSTRUCTIONS)
     SLIO = Special_Instructions_Processing(QTY, order.SLIPSHEETS)
-
     # Output States
     if(SPIO == (0, 1)):
         return 0, 0
@@ -101,7 +96,6 @@ def Special_Instructions(order):
     if(SPIO[0] == 0):
         if(int(SLIO[0]) == SPIO[1]):
             return SLIO
-
     return 0, 0
 
 
@@ -295,7 +289,6 @@ def pjl_merge(order, outFOLDER, MERGED, COVERS, FILES):
             print("Successfully created the directory ", F)
     except OSError:
         print("Creation of the directory failed ", F)
-
     if COVERS == True:
         # Add the PJL Commands to the merged file in preperation to print.
         for i in range(len(FILES)):
@@ -341,7 +334,6 @@ def pjl_merge(order, outFOLDER, MERGED, COVERS, FILES):
 
 def pjl_insert(order, COPIES_PER_SET, COVERS):
     print('\nChosen Options:')
-
     COLLATION = collation(order)
     DUPLEX, duplex_state = duplex(order)
     STAPLING, COLLATION = stapling(order, COLLATION)
@@ -378,7 +370,6 @@ def pjl_insert(order, COPIES_PER_SET, COVERS):
         if str('<sides syntax="keyword">one-sided</sides>') in str(lines[i]):
             lines[i] = DUPLEX
         if str('<sheet-collate syntax="keyword">uncollated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]):
-
             if("11 x 17" in str(order.PAPER).lower()):
                 lines[i] = str.encode(
                     '@PJL XCPT <media-col syntax="collection">\n@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n@PJL XCPT </media-col>\n@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
@@ -389,7 +380,6 @@ def pjl_insert(order, COPIES_PER_SET, COVERS):
         # Add SlipSheets to Large Collated Sets
         if (order.PAGE_COUNTS / len(order.FILES) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and
                 order.STAPLING_BOOL == False):
-
             if("11 x 17" in str(order.PAPER).lower()):
                 lines[i] = str.encode(
                     '@PJL XCPT<media-col syntax="collection">\n@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n@PJL XCPT </media-col>\n@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
@@ -400,12 +390,10 @@ def pjl_insert(order, COPIES_PER_SET, COVERS):
         if str('<output-bin syntax="keyword">') in str(lines[i]) and booklet != "":
             lines[i] = str.encode(
                 '@PJL XCPT 		<output-bin syntax="keyword">automatic</output-bin>\n')
-
     # The Postscript/PJL commands file that gets inserted before the file.
     with open('PJL_Commands/input.ps', 'wb') as f:
         for item in lines:
             f.write(item)
-
     # If it makes sense to use merged files, it uses them.
     if str('<sheet-collate syntax="keyword">uncollated') in str(COLLATION) and len(order.FILES) != 1:
         if order.PAGE_COUNTS / len(order.FILES) / duplex_state >= 5:

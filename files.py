@@ -1,26 +1,20 @@
 # files.py
 __version__ = "v20200226"
-
 # Built-In Libraries
 import os
 import glob
-
 # Downloaded Libraries
 import PyPDF2
 from termcolor import colored
 import colorama
 import subprocess
 import shutil
-
-
 # Local Files
 import log
-
 if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
 else:
     GHOSTSCRIPT_PATH = 'C:/Program Files (x86)/gs/gs9.27/bin/gswin32c.exe'
-
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
 

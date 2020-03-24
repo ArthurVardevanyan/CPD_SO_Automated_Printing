@@ -5,12 +5,10 @@ window.onload = function () {
     success: function (data) {
       var date = [];
       var orders = [];
-
       for (var i in data) {
         date.push(data[i].date_ordered);
         orders.push(data[i].order_count);
       }
-
       var lineChart = new Chart(document.getElementById("line-chart"), {
         type: 'line',
         data: {
@@ -34,8 +32,6 @@ window.onload = function () {
         var data = lineChart.data;
         data.labels = date;
         data.datasets[0].data = orders;
-
-
         lineChart.update();
       });
       $("#orders_2").click(function () {
@@ -45,7 +41,6 @@ window.onload = function () {
           success: function (data) {
             var dateW = [];
             var ordersW = [];
-
             for (var i in data) {
               dateW.push(data[i].date_ordered);
               ordersW.push(data[i].order_count);
@@ -64,7 +59,6 @@ window.onload = function () {
           success: function (data) {
             var dateW = [];
             var ordersW = [];
-
             for (var i in data) {
               dateW.push(data[i].date_ordered);
               ordersW.push(data[i].order_count);
@@ -84,12 +78,10 @@ window.onload = function () {
     success: function (data) {
       var order = [];
       var cost = [];
-
       for (var i in data) {
         order.push(data[i].order_number);
         cost.push(data[i].cost);
       }
-
       new Chart(document.getElementById("Price-line-chart"), {
         type: 'line',
         data: {
@@ -118,10 +110,8 @@ window.onload = function () {
       $(document).ready(function () {
         //https://datatables.net/forums/discussion/32107/how-to-load-an-array-of-json-objects-to-datatables
         var aDemoItems = data;
-
         //Load  data table
         var oTblReport = $("#tblReportResultsDemographics")
-
         oTblReport.DataTable({
           data: aDemoItems,
           "order": [[0, "desc"]],
@@ -133,7 +123,6 @@ window.onload = function () {
                 if (type === 'display') {
                   data = '<a href=/web/order.php?id=' + aDemoItems[meta.row].email_id + '&on=' + data + '>' + data + '</a>';
                 }
-
                 return data;
               }
             },
