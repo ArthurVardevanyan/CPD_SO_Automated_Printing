@@ -1,11 +1,9 @@
 
 # log.py
 __version__ = "v20200208"
-
 import os
 import logging
 from datetime import datetime
-
 license = "20200401"
 
 
@@ -21,17 +19,14 @@ def log(fileName, logFolder):
             os.makedirs(logFolder)
     except OSError:
         print("Creation of the log directory failed")
-
     now = datetime.now()
     current_time = now.strftime("%Y%m%d%H%M%S")
     # Create and configure logger
     logging.basicConfig(filename=logFolder+fileName + "_"+current_time+".log",
                         format='%(asctime)s %(message)s',
                         filemode='w')
-
     # Creating an object
     logger = logging.getLogger()
-
     # Setting the threshold of logger to DEBUG
     logger.setLevel(logging.DEBUG)
     return logger
