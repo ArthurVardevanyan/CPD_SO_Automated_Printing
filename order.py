@@ -122,7 +122,7 @@ def process_Email(order, email_body, error_state=""):
         order.OD = order.OD + "/Error/"
     try:
         # Database Input
-        database.database_input(order.OD, JOB_INFO)
+        database.database_input(order)
     except:
         log.logger.exception("")
         print("Database Input Failed")
