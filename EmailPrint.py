@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20200302"
+__version__ = "v20200401"
 # Built-In Libraries
 import os
 import json
@@ -153,7 +153,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         # Update Json File to Show the Email Ticket was Printing
         try:
             SchoolDataJson.orderStatusExport(order, "Ticket", True)
-            database.status_change(order)
+            database.print_status(order.NUMBER, order.status)
         except:
             log.logger.exception("")
             print("Database Update Failed")

@@ -1,5 +1,5 @@
 # booklet.py
-__version__ = "v20200316"
+__version__ = "v20200401"
 
 from termcolor import colored
 import colorama
@@ -7,7 +7,7 @@ import printer
 import instructions
 
 
-def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED, COVERS):
+def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED):
     approved = 0
     COPIES_PER_SET = 0
     print("Enter How Many Sets and Copies Per Set You Would Like to Run.\nEnter 1 + Copy Count if you want to run everything at once.")
@@ -49,17 +49,17 @@ def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED,
         if(approved == 3):
             if (len(flip) == 0):
                 instructions.pjl_insert(
-                    order, COPIES_PER_SET,  COVERS)
+                    order, COPIES_PER_SET)
                 instructions.pjl_merge(order,
-                                       "PSP", MERGED, COVERS, order.FILE_NAMES)
+                                       "PSP", MERGED, order.FILE_NAMES)
             else:
                 for j in range(len(Print_Files)):
                     order.DUPLEX = "two-sided-short-edge" if flip[j] else "Two-sided (back to back)"
                     instructions.pjl_insert(
-                        order, COPIES_PER_SET,  COVERS)
+                        order, COPIES_PER_SET)
                     flip_file = [order.FILE_NAMES[j]]
                     instructions.pjl_merge(order, "PSP",
-                                           MERGED, COVERS, flip_file)
+                                           MERGED, flip_file)
             for i in range(SETS):
                 print("\n\nRunning Set " + str(i+1) + " of " + str(SETS))
                 for j in range(len(Print_Files)):
@@ -79,9 +79,8 @@ def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED,
         elif(approved == 1):
             order.DUPLEX = "two-sided-short-edge"
             instructions.pjl_insert(
-                order, 1,  COVERS)
-            instructions.pjl_merge(order, "PSP", MERGED,
-                                   COVERS, order.FILE_NAMES)
+                order, 1)
+            instructions.pjl_merge(order, "PSP", MERGED, order.FILE_NAMES)
             for j in range(len(Print_Files)):
                 lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
@@ -107,10 +106,10 @@ def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED,
                         pass
                 order.DUPLEX = "two-sided-short-edge" if flip[-1] else "Two-sided (back to back)"
                 instructions.pjl_insert(
-                    order, COPIES_PER_SET,  COVERS)
+                    order, COPIES_PER_SET)
                 flip_file = [order.FILE_NAMES[j]]
                 instructions.pjl_merge(order,
-                                       "PSP", MERGED, COVERS, flip_file)
+                                       "PSP", MERGED, flip_file)
                 lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'

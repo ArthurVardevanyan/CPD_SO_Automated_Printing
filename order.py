@@ -1,4 +1,4 @@
-__version__ = "v20200226"
+__version__ = "v20200401"
 import colorama
 from termcolor import colored
 import termcolor
@@ -139,16 +139,6 @@ def process_Email(order, email_body, error_state=""):
     except:
         log.logger.exception("")
         print("File Merge Failure")
-    # try:
-    #     if(Print.can_nup(order, False, 0)):
-    #         PostScript.pdf_conversion(order)
-    #         PostScript.nup(order)
-    #         if(instructions.merging(order)):
-    #             PostScript.file_merge_n(
-    #                 order, instructions.duplex_state(order))
-    # except:
-    #     log.logger.exception("")
-    #     print("Multi-Up Failure")
     try:
         # Create Email Html Pdf & PS
         EmailPrint.Email_Printer(order.OD, order.NAME, error_state)
