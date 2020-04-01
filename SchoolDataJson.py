@@ -1,39 +1,31 @@
 # SchoolDataJson.py
-__version__ = "v20200302"
-
+__version__ = "v20200401"
 # Built-In Libraries
 import json
 import os
 import glob
 from datetime import datetime
-
 # Downloaded Libraries
 import PyPDF2
-
 # Local Files
 import files
 import PostScript
 import order as o
 import log
-import invoice
 
 
 def school_data_json(order):
     school_data = {'Account ID': 'CHANGE ME'}
-
     school_data["Order Number"] = order.NUMBER
     school_data["Order Subject"] = order.SUBJECT
-
     FILES = files.file_list(order)
     # Imports the Email contents line by line.
     email = []
     with open("".join([order.OD, '/', order.NAME, '/', order.NAME, ".txt"]), "r") as f:
         for line in f.readlines():
             email.append(line.rstrip('\n'))
-
     school_data["Email ID"] = email[0][2:]
     school_data["Files"] = {}
-
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(FILES)):
         try:
@@ -48,13 +40,11 @@ def school_data_json(order):
                 '/'.join([order.OD, order.NAME, FILES[i]]))
             school_data["Files"]["".join(["File ", str(
                 i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf)}
-
     # Removes the duplicate portion of the email that contains html (form) code.
     for i in range(len(email)):
         if "IF YOU HAVE ANY QUESTIONS" in email[i]:
             email = email[8:-(len(email)-i)]
             break
-
             # Searchs for required elements from the form for the JSON file.
     for i in range(len(email)):
         test_string = "Timestamp"
@@ -157,14 +147,8 @@ def school_data_json(order):
             line = email[i].split(test_string)
             school_data["Deliver To Address"] = line[1]
         school_data["Status"] = order.status = "NotStarted"
-    try:
-        school_data["Cost"] = order.COST = str(
-            invoice.invoice(order, school_data))
-    except:
-        log.logging.exception("")
         school_data["Cost"] = order.COST = 0
-
-        # Creates the JSON file
+    # Creates the JSON file
     with open("".join([order.OD, '/', order.NAME, '/', order.NAME, '.json']), 'w') as outfile:
         json.dump(school_data, outfile, indent=4, separators=(',', ': '))
     return school_data
@@ -189,13 +173,11 @@ def main(OUTPUT_DIRECTORY):
     log.logInit("JSON")
     print = log.Print
     input = log.Input
-
     Start = str(input("Start #: "))
     End = str(input("End   #: "))
     folders = files.folder_list(OUTPUT_DIRECTORY)
     ORDER_NAMES = []
     for ORDER_NUMBER in range(int(Start), int(End)+1):
-
         ORDER_NUMBER = str(ORDER_NUMBER).zfill(5)
         for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
             if ORDER_NUMBER in i:

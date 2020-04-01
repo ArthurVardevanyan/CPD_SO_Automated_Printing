@@ -1,16 +1,13 @@
 # EmailPrint.py
-__version__ = "v20200302"
-
+__version__ = "v20200401"
 # Built-In Libraries
 import os
 import json
-
 # Downloaded Libraries
 import pdfkit
 import termcolor
 from termcolor import colored
 import colorama
-
 # Local Files
 import files
 import PostScript
@@ -19,10 +16,8 @@ import log
 import SchoolDataJson
 import order as o
 import database
-
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
-
 # https://micropyramid.com/blog/how-to-create-pdf-files-in-python-using-pdfkit/
 
 
@@ -61,9 +56,7 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
                 html = html.replace("".join(["File ", str(j), "<"]),
                                     "".join(["File ", str(j), ": ", Files[j-1], "<"])).replace("=E2=80=93 ", "").replace("=E2=80=93 ", "")
     style = "<head><style>html * { font-size: 1em !important; color: #000 !important; font-family: Arial !important; }</style></head>"
-
     html = "".join([style, NAME, html, temp])
-
     with open("".join([PATH, "/Tickets/", ORDER_NAME, ".html"]), "w") as text_file:
         text_file.write(html)
     options = {
@@ -88,14 +81,12 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
 
 
 def Email_Printer(OUTPUT_DIRECTORY, ORDER_NAME, error_state):
-
     files_list = []
     NAME = ""
     try:
         with open("".join([OUTPUT_DIRECTORY, '/', error_state, ORDER_NAME, '/', ORDER_NAME, '.json'])) as json_file:
             JOB_INFO = json.load(json_file)
         JOB_INFO_FILES = JOB_INFO.get('Files', False)
-
         for items in JOB_INFO_FILES:
             files_list.append("".join([
                 items, ": ", str(JOB_INFO_FILES.get(items))[20:][:-1]]))  # Remove clutter from string
@@ -125,11 +116,9 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
     if os.path.exists(PATH) == False:
         return 0
     else:
-
         # Read in Template BannerSheet PostScript File with PJL Commands for Xerox D110 Printer
         with open('PJL_Commands/BannerSheet.ps', 'rb') as f:
             pjl_lines = f.readlines()
-
         if(STACKER == "toptray"):
             for i in range(len(pjl_lines)):
                 if str('<output-bin syntax="keyword">') in str(pjl_lines[i]):
@@ -139,11 +128,9 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
                 if str('<value syntax="keyword">') in str(pjl_lines[i]):
                     pjl_lines[i] = str.encode(
                         '@PJL XCPT 	<value syntax="keyword">none</value>\n')
-
         with open('PJL_Commands/input.ps', 'wb') as f:
             for item in pjl_lines:
                 f.write(item)
-
         file_names = ['PJL_Commands/input.ps',
                       PATH, 'PJL_Commands/End.ps']
         with open("".join([PATH[:-6], "pjl.ps"]), 'wb') as outfile:
@@ -154,7 +141,6 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         print(ORDER_NAME)
         print_que.append(
             "".join([LPR, '"', PATH[:-6], "pjl.ps", '" -J "', ORDER_NAME, '"']))
-
         # TEMPORARY TILL WHOLE FILE GETS CONVERTED TO OOP
         JSON_PATH = "".join(
             [OUTPUT_DIRECTORY, '/', ORDER_NAME, '/', ORDER_NAME, '.json'])
@@ -167,7 +153,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         # Update Json File to Show the Email Ticket was Printing
         try:
             SchoolDataJson.orderStatusExport(order, "Ticket", True)
-            database.status_change(order)
+            database.print_status(order.NUMBER, order.status)
         except:
             log.logger.exception("")
             print("Database Update Failed")
@@ -221,7 +207,6 @@ def main():
         print("I have Failed due to some Error")
         print("Try Deleting the Last Order Displayed")
         log.logger.exception("")
-
     print(str(count), " Order(s) Ran")
     quit = str(input("Press Any Key To Exit"))
     print(quit)

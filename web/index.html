@@ -8,10 +8,8 @@
     <script type="text/javascript" src="chart.js"></script>
     <script type="text/javascript" src="js.js"></script>
     <link rel="stylesheet" type="text/css" href="main.css">
-
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
-
     <style>
         canvas {
             -moz-user-select: none;
@@ -19,7 +17,6 @@
             -ms-user-select: none;
         }
     </style>
-
 </head>
 
 <body>
@@ -28,12 +25,8 @@
         &nbsp&nbsp&nbsp&nbsp&nbspOrder Numbers are Clickable!</p>
     <h1 style="font-family: 'Roboto', sans-serif; text-align: center;">All Orders</h1>
     <div style="width: 35%; text-align: left; float: left;">
-
         <table id="tblReportResultsDemographics" class="display" width="100%"></table>
-
     </div>
-
-
     <div style="width: 65%; text-align: right;float: right">
         <div id="nav-bar">
             <ul class="nav">
@@ -50,10 +43,8 @@
         </div>
         <script>
             var btnContainer = document.getElementById("nav-bar");
-
             // Get all buttons with class="btn" inside the container
             var btns = btnContainer.getElementsByClassName("nav-link");
-
             // Loop through the buttons and add the active class to the current/clicked button
             for (var i = 0; i < btns.length; i++) {
                 btns[i].addEventListener("click", function () {
