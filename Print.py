@@ -1,6 +1,5 @@
 # Print.py
 __version__ = "v20200310"
-
 # Local Files
 import files
 import BannerSheet
@@ -13,23 +12,18 @@ import order as o
 import log
 import database
 import booklet
-
 # Built-In Libraries
 import os
 import glob
 import json
 import datetime
-
 # Downloaded Libraries
 import PyPDF2
 from termcolor import colored
 import colorama
-
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
-
 # Global Variables
-
 # Load Balancing
 D110_162 = 0  # Impressions ran on this machine
 D110_156 = 1  # Impressions ran on this machine
@@ -142,7 +136,6 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
                             break
                         else:
                             return order_name
-
                     except:
                         pass
                 if(ORDER_NAME != "No Order Selected"):
@@ -164,7 +157,6 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     order.NUMBER = ORDER_NUMBER
     # Calls a function in files.py, which gets a list of all the orders downladed
     FOLDERS = files.folder_list(order.OD)
-
     order.NAME = order_selection(order.NUMBER, FOLDERS, AUTORUN)
     if(any(str in order.NAME for str in ("Order DNE", "Aborted @ CO#", "ON Not Valid", "Aborted @ INT: "))):
         return order.NAME
@@ -187,13 +179,10 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                                        order.NAME, print_que, "toptray", D110_IP)
                 return "".join(["Not Supported S:  ", order.NAME])
             return "".join(["Not Supported S:  ", order.NAME])
-
     # Keeps track of how much each printer has printed for load balancing
     D110_IP = impression_counter(order, PRINTER)
-
     # This calls the function that creates the banner sheet for the given order number
     BANNER_SHEET_FILE = BannerSheet.banner_sheet(order)
-
     # Checks if the job specs can be ran
     if (not can_run(order, COLOR, BOOKLETS, COVERS)):
         print(colored("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.", "red"))
@@ -216,7 +205,6 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         print("SPECIAL INSTRUCTIONS: ", order.SPECIAL_INSTRUCTIONS)
     if(order.SLIPSHEETS):
         print("Slip or Shrink Wrap: ", order.SLIPSHEETS)
-
     SIP = instructions.Special_Instructions(order)
     if(order.SPECIAL_INSTRUCTIONS == False and order.SLIPSHEETS == False or order.BOOKLET == "Yes"):
         SETS = 1
@@ -238,7 +226,6 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         if(not AUTORUN):
             # If their are special instructions prompt the user to manually enter copies and set counts
             print("If more than one set is required, do the appropriate calculation to determine correct amount of Sets and Copies per Set")
-
             while True:
                 try:
                     SETS = int(input("\nHow Many Sets?: "))
@@ -262,9 +249,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
             if(EMAILPRINT):
                 EmailPrint.Email_Print(order.OD,
                                        order.NAME, print_que, "toptray", D110_IP)
-
             return "".join(["Not Supported SPI  : ", order.NAME])
-
     if os.path.exists(order.OD+'/' + order.NAME + '/PostScript/') == False:
         try:
             # Create PostScript File
@@ -276,7 +261,6 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         except:
             log.logger.exception("")
             print("PostScript Conversion Failed")
-
     # This gets the number of pages for every pdf file for the job.
     MERGED = False
     # Sets the correct PJL commands
@@ -284,7 +268,6 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         order, COPIES_PER_SET,  COVERS)
     if(COVERS and "cover" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
         MERGED = instructions.cover_manual(order)
-
    # Merge PostScript Header File to All Postscript Job Files
     instructions.pjl_merge(order, "PSP", MERGED, COVERS, order.FILE_NAMES)
     try:
@@ -292,19 +275,15 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     except:
         log.logger.exception("")
         print("Temp File Remove Failed")
-
     # Gets list of Files in the Postscript Print Ready Folder
     Print_Files = files.postscript_list(order.OD, order.NAME, "PSP")
-
     LPR = ["C:/Windows/system32/lpr.exe -S 10.56.54.156 -P PS ",
            "C:/Windows/system32/lpr.exe -S 10.56.54.162 -P PS "]
-
     print("\n")
     if(EMAILPRINT):
         EmailPrint.Email_Print(order.OD, order.NAME,
                                print_que, "stacker", D110_IP)
     lpr_path = ""
-
     if(nup and can_nup(order, COLOR, SETS) and SETS > 1):
         print("Running Multi Up")
         if os.path.exists(order.OD+'/' + order.NAME + '/PostScriptn/') == False:
@@ -354,7 +333,6 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                     "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
-
     else:
         if(order.BOOKLET == "Yes"):
             booklet.bookletPrint(
@@ -362,7 +340,6 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         else:
             lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
             print_que.append(lpr_path)
-
             print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
             i = 0
             while i < SETS:
@@ -386,7 +363,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     IP = ["P156", "P162"]
     try:
         SchoolDataJson.orderStatusExport(order, str(IP[D110_IP]), False)
-        database.status_change(order)
+        database.print_status(+order.NUMBER, order.status)
     except:
         log.logger.exception("")
         print("Database Update Failed")
@@ -395,7 +372,6 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
 
 def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
     # Contains the list of final commands for all the orders that were proccessed to be run.
-
     print_que = []
     Orders = []
     # Check if user wants to processes jobs with colored paper, if disabled this adds protection against accidentally running jobs on colored paper.
@@ -442,7 +418,6 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
                         orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS, nup)
                     # Does all the processing for the orders
                     printed.append(printOrder[0])
-
                     printQ.append([printOrder[1], printOrder[2]])
                 print("\n")
                 print('\n'.join(map(str, printed)))
@@ -459,7 +434,6 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
                     except:
                         log.logger.exception("")
                         pass
-
                 os.system('clear')  # on linux
                 os.system('CLS')    # on windows
                 break
@@ -472,7 +446,6 @@ if __name__ == "__main__":
     log.logInit("Print")
     print = log.Print
     input = log.Input
-
     print("Terminal Auto Printing  REV:", colored(__version__, "magenta"))
     print("Terminal Email Printing REV:",
           colored(EmailPrint.__version__, "magenta"))
@@ -482,9 +455,7 @@ if __name__ == "__main__":
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
     print(colored("Purple Paper", "magenta"),
           " (Or any bright color) should be loaded as gray plain paper.\n")
-    
     o.integrityCheck("SO/")
-
     # print("If Running " + colored("Multi-Up Jobs, Purple Paper", "magenta"),
     #       "(Or any bright color) MUST BE loaded in Tray 2 as gray plain paper.\nIn addition Load " + colored("Colored 11 by 17", "magenta") + " in the bypass as gray paper.")
     # print("White 11 by 17 Paper should also be loaded in tray 3 and/or 4, and make sure the guides are tight.\n")

@@ -1,5 +1,4 @@
 __version__ = "v20200226"
-
 import colorama
 from termcolor import colored
 import termcolor
@@ -19,13 +18,11 @@ input = log.Input
 
 
 class Files:
-
     NAME = ""
     PAGE_COUNT = ""
 
 
 class Order:
-
     OD = ""
     UID = ""
     status = ""
@@ -46,12 +43,10 @@ class Order:
     BACK_COVER = ""
     SLIPSHEETS = ""
     SPECIAL_INSTRUCTIONS = ""
-
     PAPER = ""
     PAPER_SIZE = ""
     PAPER_COLOR = ""
     PAPER_WEIGHT = ""
-
     DATE = ""
     FIRST_NAME = ""
     LAST_NAME = ""
@@ -60,14 +55,12 @@ class Order:
     BILL_TO = ""
     DELIVER_TO_NAME = ""
     DELIVER_TO_ADDRESS = ""
-
     PAGE_COUNTS = ""
     PAGE_COUNTS_LIST = ""
     FILE_NAMES = []
 
     def __init__(self):
         self.FILES = []
-
     COST = 0
 
 
@@ -96,7 +89,6 @@ def order_initialization(order, JOB_INFO):
     order.PHONE = JOB_INFO.get('Phone Number', False)
     order.DELIVER_TO_NAME = JOB_INFO.get('Deliver To Name', False)
     order.DELIVER_TO_ADDRESS = JOB_INFO.get('Deliver To Address', False)
-
     JOB_INFO_FILES = JOB_INFO.get('Files', False)
     for FILE in JOB_INFO_FILES:
         FILE_INFO = JOB_INFO_FILES.get(str(FILE), 0)
@@ -106,15 +98,12 @@ def order_initialization(order, JOB_INFO):
         order.FILES.append(F)
     order.FILE_NAMES = [i.NAME for i in order.FILES]
     order.PAGE_COUNTS, order.PAGE_COUNTS_LIST = files.page_counts(order)
-
     if(any(s in str(order.STAPLING) for s in ("Upper Left - portrait",  "Upper Left - landscape",  "Double Left - portrait",  "None"))):
         order.STAPLING_BOOL = True
-
     return order
 
 
 def process_Email(order, email_body, error_state=""):
-
     try:
         GDrive.Drive_Downloader(str(email_body), order.NUMBER,
                                 order.OD, order.SUBJECT, error_state)
@@ -133,7 +122,7 @@ def process_Email(order, email_body, error_state=""):
         order.OD = order.OD + "/Error/"
     try:
         # Database Input
-        database.database_input(order.OD, JOB_INFO)
+        database.database_input(order)
     except:
         log.logger.exception("")
         print("Database Input Failed")
@@ -174,7 +163,6 @@ def notStarted():
     if not sys.warnoptions:
         import warnings
         warnings.simplefilter("ignore")
-
     OD = "SO/"
     folders = files.folder_list(OD)
     orders = []
@@ -199,7 +187,6 @@ def notStarted():
         #order = order_initialization(order, JOB_INFO)
         if(order.status == "NotStarted"):
             orders.append(order.NAME)
-
     return orders
 
 
@@ -214,7 +201,6 @@ def integrityCheckCheck(OUTPUT_DIRECTORY, folders):
 
 
 def integrityCheck(OUTPUT_DIRECTORY):
-
     folders = files.folder_list(OUTPUT_DIRECTORY)
     for i in range(len(folders)):
         if ("Error" in folders[i] or "Archive" in folders[i]):
