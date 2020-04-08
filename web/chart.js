@@ -73,37 +73,6 @@ window.onload = function () {
     }
   })
   $.ajax({
-    url: "/web/cost.php",
-    method: "GET",
-    success: function (data) {
-      var order = [];
-      var cost = [];
-      for (var i in data) {
-        order.push(data[i].order_number);
-        cost.push(data[i].cost);
-      }
-      new Chart(document.getElementById("Price-line-chart"), {
-        type: 'line',
-        data: {
-          labels: order,
-          datasets: [{
-            data: cost,
-            label: "School Orders",
-            borderColor: "#3e95cd",
-            fill: false
-          }
-          ]
-        },
-        options: {
-          title: {
-            display: true,
-            text: 'School Orders Per Day'
-          }
-        }
-      });
-    }
-  })
-  $.ajax({
     url: "/web/recent.php",
     method: "GET",
     success: function (data) {

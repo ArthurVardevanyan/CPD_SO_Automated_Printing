@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200310"
+__version__ = "v20200401"
 # Local Files
 import files
 import BannerSheet
@@ -45,7 +45,7 @@ def impression_counter(order, PRINTER):
         return 1
 
 
-def can_run(order, COLOR, BOOKLETS, COVERS):
+def can_run(order, COLOR, BOOKLETS):
     # Determines if jobs is able to be ran or not using this script
     if(order.status == "True"):
         return False
@@ -54,9 +54,9 @@ def can_run(order, COLOR, BOOKLETS, COVERS):
             None
         else:
             return False
-    if(not COVERS and order.FRONT_COVER):
+    if(order.FRONT_COVER):
         return False
-    if(not COVERS and order.BACK_COVER):
+    if(order.BACK_COVER):
         return False
     if(order.BOOKLET == "Yes" and BOOKLETS == 0):
         return False
@@ -68,7 +68,7 @@ def can_run(order, COLOR, BOOKLETS, COVERS):
         return False
     if("color" in str.lower(str(order.SPECIAL_INSTRUCTIONS)) and ("print" in str.lower(str(order.SPECIAL_INSTRUCTIONS)) or "copy" in str.lower(str(order.SPECIAL_INSTRUCTIONS)))):
         return False
-    if(not COVERS and "cover" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
+    if("cover" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
         return False
     return True
 
@@ -149,7 +149,7 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
             return "".join(["Order DNE: ", ORDER_NAME])
 
 
-def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS, nup):
+def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS):
     # Runs the bulk of code
     order = o.Order()
     order.OD = OUTPUT_DIRECTORY
@@ -184,7 +184,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     # This calls the function that creates the banner sheet for the given order number
     BANNER_SHEET_FILE = BannerSheet.banner_sheet(order)
     # Checks if the job specs can be ran
-    if (not can_run(order, COLOR, BOOKLETS, COVERS)):
+    if (not can_run(order, COLOR, BOOKLETS)):
         print(colored("This Order Currently Does not Support AutoSelection, please double check if the order requires the normal driver.", "red"))
         if(not AUTORUN):
             if(EMAILPRINT):
@@ -264,12 +264,9 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     # This gets the number of pages for every pdf file for the job.
     MERGED = False
     # Sets the correct PJL commands
-    MERGED = instructions.pjl_insert(
-        order, COPIES_PER_SET,  COVERS)
-    if(COVERS and "cover" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
-        MERGED = instructions.cover_manual(order)
+    MERGED = instructions.pjl_insert(order, COPIES_PER_SET)
    # Merge PostScript Header File to All Postscript Job Files
-    instructions.pjl_merge(order, "PSP", MERGED, COVERS, order.FILE_NAMES)
+    instructions.pjl_merge(order, "PSP", MERGED, order.FILE_NAMES)
     try:
         os.remove("PJL_Commands/input.ps")  # remove temp file
     except:
@@ -284,47 +281,23 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         EmailPrint.Email_Print(order.OD, order.NAME,
                                print_que, "stacker", D110_IP)
     lpr_path = ""
-    if(nup and can_nup(order, COLOR, SETS) and SETS > 1):
-        print("Running Multi Up")
-        if os.path.exists(order.OD+'/' + order.NAME + '/PostScriptn/') == False:
-            PostScript.pdf_conversion(order)
-            PostScript.nup(order)
-            if(instructions.merging(order)):
-                PostScript.file_merge_n(
-                    order, instructions.duplex_state(order))
-        order.PAPER = "11 x 17 Paper White"
-        if(order.DUPLEX != 'One-sided'):
-            order.DUPLEX = "two-sided-short-edge"
-        MERGED = instructions.pjl_insert(
-            order, COPIES_PER_SET,  COVERS)
-        instructions.pjl_merge(order, "PSPn", MERGED, COVERS, order.FILE_NAMES)
-        try:
-            os.remove("PJL_Commands/input.ps")  # remove temp file
-        except:
-            log.logger.exception("")
-            print("Temp File Remove Failed")
+
+    if(order.BOOKLET == "Yes"):
+        booklet.bookletPrint(
+            log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED)
+    else:
         lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
         print_que.append(lpr_path)
         print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
         i = 0
-        while i < int(SETS / 2):
+        while i < SETS:
             i += 1
             for j in range(len(Print_Files)):
                 print("File Name: ", Print_Files[j])
         print("\n")
         print(lpr_path)
         # Change Path so only File Name Shows up on Printer per File Banner Sheet
-        for i in range(int(SETS / 2)):
-            for j in range(len(Print_Files)):
-                lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-                lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSPn/' + \
-                    Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                log.logger.debug((lpr_path.replace(
-                    "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
-                    '-P PS "C:/S/SO/', "").split("-J")[0]))
-                print_que.append(lpr_path)
-        print("\n")
-        if (SETS % 2) != 0:
+        for i in range(SETS):
             for j in range(len(Print_Files)):
                 lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
@@ -333,44 +306,19 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                     "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
-    else:
-        if(order.BOOKLET == "Yes"):
-            booklet.bookletPrint(
-                log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED, COVERS)
-        else:
-            lpr_path = LPR[D110_IP] + '"' + BANNER_SHEET_FILE + '"'
-            print_que.append(lpr_path)
-            print(BANNER_SHEET_FILE)  # Print and Run Banner Sheet
-            i = 0
-            while i < SETS:
-                i += 1
-                for j in range(len(Print_Files)):
-                    print("File Name: ", Print_Files[j])
-            print("\n")
-            print(lpr_path)
-            # Change Path so only File Name Shows up on Printer per File Banner Sheet
-            for i in range(SETS):
-                for j in range(len(Print_Files)):
-                    lpr_path = LPR[D110_IP] + '"' + Print_Files[j] + '"'
-                    lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
-                        Print_Files[j] + '" -J "' + Print_Files[j] + '"'
-                    log.logger.debug((lpr_path.replace(
-                        "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
-                        '-P PS "C:/S/SO/', "").split("-J")[0]))
-                    print_que.append(lpr_path)
-            print("\n")
+        print("\n")
     Orders.append(order.NAME)
     IP = ["P156", "P162"]
     try:
         SchoolDataJson.orderStatusExport(order, str(IP[D110_IP]), False)
-        database.print_status(+order.NUMBER, order.status)
+        database.print_status(order.NUMBER, order.status)
     except:
         log.logger.exception("")
         print("Database Update Failed")
     return "".join([order.RESULT, LPR[D110_IP][40:43], " : ", order.NAME]), order.NUMBER,  str(IP[D110_IP])
 
 
-def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
+def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
     # Contains the list of final commands for all the orders that were proccessed to be run.
     print_que = []
     Orders = []
@@ -396,26 +344,20 @@ def main(AUTORUN, SEQUENTIAL, EMAILPRINT, COLOR, BOOKLETS, COVERS, nup):
         printQ = []
         temp = ""
         while(True):
-            if(temp != "run" and SEQUENTIAL == False):
+            if(temp != "run"):
                 temp = str(input("Type In an Order Number: "))
-            if(temp != "run" and SEQUENTIAL == False and BOOKLETS == True):
+            if(temp != "run" and BOOKLETS == True):
                 ORDER_NUMBER.append(temp)
                 temp = "run"
-            if(temp != "run" and SEQUENTIAL == False):
+            if(temp != "run"):
                 ORDER_NUMBER.append(temp)
-            elif(temp != "run" and SEQUENTIAL == True):
-                Start = str(input("Start #: "))
-                End = str(input("End   #: "))
-                for ORDER_NUMBERS in range(int(Start), int(End)+1):
-                    ORDER_NUMBER.append(ORDER_NUMBERS)
-                temp = "run"
             else:
                 OUTPUT_DIRECTORY = "SO/"
                 print("\nI am Going to Run:")
                 print('\n'.join(map(str, ORDER_NUMBER)))
                 for orders in ORDER_NUMBER:
                     printOrder = printing(Orders, str(
-                        orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS, COVERS, nup)
+                        orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS)
                     # Does all the processing for the orders
                     printed.append(printOrder[0])
                     printQ.append([printOrder[1], printOrder[2]])
@@ -499,21 +441,4 @@ if __name__ == "__main__":
         except:
             log.logger.exception("")
             pass
-    # COVERS = False
-    # while True:
-    #    try:
-    #        COVERS = True if int(
-    #            input(''.join(["Enable Covers?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
-    #        break
-    #    except:
-    #        log.logger.exception("")
-    #        pass
-    # while True:
-    #    try:
-    #        nup = 1 if int(
-    #            input(''.join(["Enable Multi Up Printing?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
-    #        break
-    #    except:
-    #        log.logger.exception("")
-    #        pass
-    main(False, False, EMAILPRINT, COLOR, BOOKLETS, False, False)
+    main(False, EMAILPRINT, COLOR, BOOKLETS)
