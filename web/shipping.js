@@ -126,7 +126,7 @@ function order_selection(data, selection) {
 
 function validate_package(package) {
     for (let i = 1; i < package.length; i++) {
-        if (package[i].address !== package[0].address) {
+        if (package[i].address !== package[0].address || package[i].name !== package[0].name) {
             return [false, "Teacher MisMatch"];
         }
     }
