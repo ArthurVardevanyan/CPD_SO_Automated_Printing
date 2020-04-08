@@ -1,21 +1,17 @@
 # printer_processing
 __version__ = "v20200302"
-
 # Built-In Libraries
 import os
 import time
 import subprocess
-
 # Downloaded Libraries
 import termcolor
 import colorama
 import database
 from datetime import datetime
-
 import log
 print = log.Print
 input = log.Input
-
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
 
@@ -37,14 +33,12 @@ def order_status():
     try:
         P162 = False
         P156 = False
-
         orders = database.printingOrders()
         for order in orders:
             if order[1] == "162":
                 P162 = True
             if order[1] == "156":
                 P156 = True
-
         orderStatus = ""
         if(P162 and P156):
             status = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
@@ -66,14 +60,11 @@ def order_status():
                                        "10.56.54.156", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
             (orderStatus, err) = status.communicate(
             )  # pylint: disable=unused-variable
-
         for order in orders:
             if(str(order[0]) not in str(orderStatus)):
                 finishedOrders.append(order)
-
     except:
         print("Printer Order Status Failed")
-
     try:
         for order in finishedOrders:
             change = "Printed_" + str(datetime.now().strftime("%Y%m%d:%H%M"))

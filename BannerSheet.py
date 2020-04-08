@@ -1,10 +1,9 @@
 # BannerSheet.py
 __version__ = "v20200303"
-
-
 # Setups up BannerSheet Postscript File
-def banner_sheet(order):
 
+
+def banner_sheet(order):
     OUTPUT_PATH = "".join([order.OD, '/', order.NAME, '/'])
     NAME = "CHANGE ME"
     LOC = "CHANGE ME"
@@ -16,7 +15,6 @@ def banner_sheet(order):
         LOC = str(cred[3])
     except:
         print("Credential Failure")
-
     MEDIA_COLOR = ("white", "blue", "yellow", "green", "pink",
                    "ivory", "gray", "buff", "goldenrod,", "red", "orange")
     # Allows differnet color banner sheets. Common Pastel/Astrobrights Colors
@@ -24,19 +22,16 @@ def banner_sheet(order):
     # Read in Template BannerSheet PostScript File with PJL Commands for Xerox D110 Printer
     with open('PJL_Commands/BannerSheet.ps', 'rb') as f:
         pjl_lines = f.readlines()
-
     # Swap template color for color of choice
     for i in range(len(pjl_lines)):
         if str('<media-color syntax="keyword">') in str(pjl_lines[i]):
             pjl_lines[i] = str.encode("".join([
                 '@PJL XCPT <media-color syntax="keyword">', banner_sheet_color, '</media-color>\n']))
-
     # Get the nested dictionary for file names & page counts from main dictionary from JSON File
     files_list = []
     for i in range(len(order.FILES)):
         files_list.append(("".join(["File ",
                                     str(i+1), ": ", order.FILES[i].NAME[13:]]), "".join(["Page Count: ", str(order.FILES[i].PAGE_COUNT)])))  # Remove clutter from string
-
     # Template Postscript information
     POSTSCRIPT = (
         "".join(['\n%!PS\n', '/Arial-BoldMT findfont 75 scalefont setfont\n', '95 725 moveto (',
@@ -59,7 +54,6 @@ def banner_sheet(order):
         # Export Postscript Lines
         for line in POSTSCRIPT:
             outfile.write(str.encode(line))
-
         outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Order Subject: ", order.SUBJECT, ' ) show\n'])))
         vertical_position = int(vertical_position) - 17
@@ -102,7 +96,6 @@ def banner_sheet(order):
         outfile.write(str.encode("".join(['20 ', str(
             vertical_position), ' moveto (', "Deliver To Address: ", str(order.DELIVER_TO_ADDRESS), ' ) show\n'])))
         vertical_position = int(vertical_position) - 25
-
         # Export Files & Page Counts
         for items in files_list:
             outfile.write(str.encode("".join(['20 ', str(vertical_position),
@@ -110,7 +103,6 @@ def banner_sheet(order):
             vertical_position = int(vertical_position) - 15
             outfile.write(str.encode("".join(['20 ', str(vertical_position),
                                               ' moveto (', str(items[1]).replace("(", " ").replace(")", " ").split("', '")[0], ' ) show\n'])))
-
             vertical_position = int(vertical_position) - 17
         # Write Final Line of Postscript File
         outfile.write(str.encode('showpage\n'))

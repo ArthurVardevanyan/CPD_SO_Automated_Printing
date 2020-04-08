@@ -1,12 +1,10 @@
 # Invoicing
 __version__ = "20200310"
-
 import files
 import json
 import math
 import instructions
 import order as o
-
 invoice_headers = [
     "Order Number",
     "Teacher",
@@ -58,7 +56,6 @@ invoice_headers = [
     "Building",
     "File Cost",
     "Order Cost"
-
 ]
 invoiceList = []
 invoiceList.append(invoice_headers)
@@ -67,19 +64,15 @@ invoiceList.append(invoice_headers)
 def invoice(order, JOB_INFO):
     ORDER_NAME = order.NAME
     total = 0
-
     with open('Credentials/pricing.json') as json_file:
         PRICING = json.load(json_file)
     try:
         order = o.Order()
-
         JOB_INFO_FILES = JOB_INFO.get('Files', False)
-
         TOTAL_PAGES = 0
         for FILES in JOB_INFO_FILES:
             FILE_INFO = JOB_INFO_FILES.get(str(FILES), 0)
             TOTAL_PAGES += int(FILE_INFO.get('Page Count', 0))
-
         for FILES in JOB_INFO_FILES:
             FILE_INFO = JOB_INFO_FILES.get(str(FILES), 0)
             job = []
@@ -306,7 +299,6 @@ def invoice(order, JOB_INFO):
                 job.append("0")
                 job.append("0")
                 job.append("0")
-
             if "laminate" in (JOB_INFO.get('Slip Sheets / Shrink Wrap', "0").lower()) or "laminate" in (JOB_INFO.get('Special Instructions', "0").lower()):
                 job.append("Yes")
                 LM = PRICING.get("Lamination", 0)
@@ -322,10 +314,8 @@ def invoice(order, JOB_INFO):
             job.append(round(IMPS+PAPER+STAPLING+DRILLING +
                              FOLDING+CUTTING+BOOKLETS+LAMINATION+SLIP_SHRINK+FRONTCOVER+BACKCOVER, 2))
             invoiceList.append(job)
-
         pos = len(invoiceList) - 1
         end = len(invoiceList) - len(JOB_INFO_FILES)
-
         while (pos >= end):
             total += invoiceList[pos][len(invoiceList[pos])-1]
             pos -= 1
@@ -341,21 +331,17 @@ def invoice(order, JOB_INFO):
         job.append(ORDER_NAME.split(" ", 1)[1])
         job.append("Error")
         invoiceList.append(job)
-
     return total
 
 
 def main():
-
     order = o.Order()
     order.OD = "SO/"
-
     Start = str(input("Start #: "))
     End = str(input("End   #: "))
     folders = files.folder_list(order.OD)
     ORDER_NAMES = []
     for ORDER_NUMBER in range(int(Start), int(End)+1):
-
         ORDER_NUMBER = str(ORDER_NUMBER)  # .zfill(5)
         for i in folders:  # Searchs for Requested Order Number from list of currently downloaded orders
             if ORDER_NUMBER in i:
