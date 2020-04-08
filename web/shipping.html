@@ -19,18 +19,21 @@
 </head>
 
 <body>
-<h1>School Order Shipping System</h1>
-<p>Instructions: Enter All Order Numbers For Each Package, and add each package you want to ship.</p>
-<p>Validate: Validate Order to ensure, teachers and addresses are not mixed up within each package</p>
-<p>Process: Take the Provided CSV and upload to UPS Batch Ship, <a href="sample.com">LINK</a> </p>
+    <h1>School Order Shipping System</h1>
+    <p>Instructions: Enter All Order Numbers For Each Package, and add each package you want to ship.</p>
+    <p>Validate: Validate Order to ensure, teachers and addresses are not mixed up within each package</p>
+    <p>Process: Take the Provided CSV and upload to UPS Batch Ship, <a href="sample.com">LINK</a> </p>
+    <p>Note: Only the First 6 Order Numbers will appear on the shipping label</p>
     <form name="orderForm">
-        Order Number: <input type="text" name="fOrderNumber">
-        <button id="submit" >Add Order Number</button>
-        <button id="package" >Add Package</button>
-        <p id = "orders"></p>
-        <button id="validate" >Validate Orders</button>
+        Order Number: <input type="text" id="fOrderNumber" name="fOrderNumber">
+        <button id="submit" type="button">Add Order Number</button>
+        <button id="package" type="button">Add Package</button>
+        <p id="orders"></p>
+        <button id="clear" type="button">Clear</button>
+        <button id="validate" type="button">Validate Orders</button>
         <button id="csv" type="button">Process Orders</button>
-  </form>
+        <div id="validation"></div>
+    </form>
 </body>
 
 </html>
