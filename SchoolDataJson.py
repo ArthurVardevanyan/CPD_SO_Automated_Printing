@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20200302"
+__version__ = "v20200401"
 # Built-In Libraries
 import json
 import os
@@ -12,7 +12,6 @@ import files
 import PostScript
 import order as o
 import log
-import invoice
 
 
 def school_data_json(order):
@@ -148,13 +147,8 @@ def school_data_json(order):
             line = email[i].split(test_string)
             school_data["Deliver To Address"] = line[1]
         school_data["Status"] = order.status = "NotStarted"
-    try:
-        school_data["Cost"] = order.COST = str(
-            invoice.invoice(order, school_data))
-    except:
-        log.logging.exception("")
         school_data["Cost"] = order.COST = 0
-        # Creates the JSON file
+    # Creates the JSON file
     with open("".join([order.OD, '/', order.NAME, '/', order.NAME, '.json']), 'w') as outfile:
         json.dump(school_data, outfile, indent=4, separators=(',', ': '))
     return school_data

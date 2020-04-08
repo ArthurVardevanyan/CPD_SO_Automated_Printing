@@ -18,3 +18,4 @@ doc/.~lock.CPD_SO_AP_Time.ods#
 *.json
 pdfImposer/
 PJL_Commands/FrontCover.ps
+doc/*

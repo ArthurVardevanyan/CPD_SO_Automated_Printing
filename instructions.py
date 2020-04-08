@@ -1,4 +1,4 @@
-__version__ = "v20200304"
+__version__ = "v20200401"
 import PostScript
 import log
 import re
@@ -211,22 +211,6 @@ def size_extract(order):
 @PJL XCPT 				</media-size>\n']))
 
 
-def cover_weight_extract(PAPER):
-    # Converts Input from given form to the value the printer needs
-    paper = (str(PAPER)).lower()
-    out = "stationery-heavyweight" if "card stock" in paper else "use-ready"
-    print(out)
-    return out
-
-
-def cover_color_extract(PAPER):
-    # Converts Input from given form to the value the printer needs
-    color = (str(PAPER)).split()[-1].lower()
-    out = 'yellow' if color == 'canary' else color
-    print(out)
-    return out
-
-
 def booklet_extract(order):
     # Converts Input from given form to the value the printer needs
     if order.BOOKLET == "Yes":
@@ -234,53 +218,7 @@ def booklet_extract(order):
     return ""
 
 
-def covers(order, COVERS):
-    if(COVERS):
-        Back = ""
-        if(order.BACK_COVER):
-            print("Back Cover")
-            Back_Cover_Color = cover_color_extract(order.BACK_COVER)
-            Back_Cover_Weight = cover_weight_extract(order.BACK_COVER)
-            Back = "".join(['\
-@PJL XCPT 		<cover-back syntax="collection">\n\
-@PJL XCPT 			<cover-type syntax="keyword">print-none</cover-type>\n\
-@PJL XCPT 			<media-col syntax="collection">\n\
-@PJL XCPT 				<media-color syntax="keyword">', Back_Cover_Color, '</media-color>\n\
-@PJL XCPT 				<media-type syntax="keyword">', Back_Cover_Weight, '</media-type>\n\
-@PJL XCPT 			</media-col>\n\
-@PJL XCPT 		</cover-back>\n'])
-        Front = ""
-        if(order.FRONT_COVER):
-            print("Front Cover")
-            Front_Cover_Color = cover_color_extract(order.FRONT_COVER)
-            Front_Cover_Weight = cover_weight_extract(order.FRONT_COVER)
-            Front = "".join(['\
-@PJL XCPT <page-overrides syntax="1setOf">\n\
-@PJL XCPT 			<value syntax="collection">\n\
-@PJL XCPT 				<input-documents syntax="1setOf">\n\
-@PJL XCPT 					<value syntax="rangeOfInteger">\n\
-@PJL XCPT 						<lower-bound syntax="integer">1</lower-bound>\n\
-@PJL XCPT 						<upper-bound syntax="integer">1</upper-bound>\n\
-@PJL XCPT 					</value>\n\
-@PJL XCPT 				</input-documents>\n\
-@PJL XCPT 				<media-col syntax="collection">\n\
-@PJL XCPT 					<media-color syntax="keyword">', Front_Cover_Color, '</media-color>\n\
-@PJL XCPT 					<media-type syntax="keyword">', Front_Cover_Weight, '</media-type>\n\
-@PJL XCPT 				</media-col>\n\
-@PJL XCPT 				<pages syntax="1setOf">\n\
-@PJL XCPT 					<value syntax="rangeOfInteger">\n\
-@PJL XCPT 						<lower-bound syntax="integer">1</lower-bound>\n\
-@PJL XCPT 						<upper-bound syntax="integer">1</upper-bound>\n\
-@PJL XCPT 					</value>\n\
-@PJL XCPT 				</pages>\n\
-@PJL XCPT 				<sides syntax="keyword">one-sided</sides>\n\
-@PJL XCPT 			</value>\n\
-@PJL XCPT 		</page-overrides>\n'])
-        return ("".join([Back, Front]))
-    return ""
-
-
-def pjl_merge(order, outFOLDER, MERGED, COVERS, FILES):
+def pjl_merge(order, outFOLDER, MERGED, FILES):
     N = "n" if outFOLDER == "PSPn" else ""
     F = order.OD + "/"+order.NAME + "/" + outFOLDER
     try:
@@ -289,26 +227,7 @@ def pjl_merge(order, outFOLDER, MERGED, COVERS, FILES):
             print("Successfully created the directory ", F)
     except OSError:
         print("Creation of the directory failed ", F)
-    if COVERS == True:
-        # Add the PJL Commands to the merged file in preperation to print.
-        for i in range(len(FILES)):
-            file_names = ['PJL_Commands/input.ps',  'PJL_Commands/FrontCover.ps', order.OD+"/"+order.NAME +
-                          "/PostScript"+N+"/"+FILES[i]+".ps", 'PJL_Commands/End.ps']
-            with open(order.OD+"/"+order.NAME + "/" + outFOLDER + "/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
-                for fname in file_names:
-                    with open(fname, 'rb') as infile:
-                        if fname == file_names[0] or fname == file_names[1] or fname == file_names[len(file_names)-1]:
-                            for line in infile:
-                                outfile.write(line)
-                        else:
-                            BeginProlog = False
-                            for line in infile:
-                                if(BeginProlog):
-                                    outfile.write(line)
-                                if ("BeginProlog" in str(line)):
-                                    BeginProlog = True
-        return 1
-    elif MERGED == True:
+    if MERGED == True:
         # Add the PJL Commands to the merged file in preperation to print.
         file_names = ['PJL_Commands/input.ps', order.OD+"/" +
                       order.NAME + "/"+order.NAME+N+".ps", 'PJL_Commands/End.ps']
@@ -332,7 +251,7 @@ def pjl_merge(order, outFOLDER, MERGED, COVERS, FILES):
     return 0
 
 
-def pjl_insert(order, COPIES_PER_SET, COVERS):
+def pjl_insert(order, COPIES_PER_SET):
     print('\nChosen Options:')
     COLLATION = collation(order)
     DUPLEX, duplex_state = duplex(order)
@@ -342,10 +261,9 @@ def pjl_insert(order, COPIES_PER_SET, COVERS):
     media_color = color_extract(order)
     media_type = weight_extract(order)
     booklet = booklet_extract(order)
-    COVER = covers(order, COVERS)
     size = size_extract(order)
     COPIES_COMMAND = str.encode("".join(
-        ['@PJL XCPT <copies syntax="integer">', str(COPIES_PER_SET), '</copies>\n', COVER]))
+        ['@PJL XCPT <copies syntax="integer">', str(COPIES_PER_SET), '</copies>\n']))
     with open('PJL_Commands/PJL.ps', 'rb') as f:
         lines = f.readlines()
     # Modifies the PJL file before adding it to the postscript files
@@ -405,26 +323,3 @@ def pjl_insert(order, COPIES_PER_SET, COVERS):
     elif len(order.FILES) != 1 and order.PAGE_COUNTS == len(order.FILES):
         return True
     return False
-
-
-def cover_manual(order):
-    while True:
-        try:
-            file_order = input(
-                "Select Order of Files (Separate File Numbers by Space. EX: 1 2): ")
-            file_order = [int(s) for s in file_order.split() if s.isdigit()]
-            break
-        except:
-            log.logger.exception("")
-            pass
-    FILES = []
-    while True:
-        try:
-            DUPLEX_STATE = int(
-                input("Duplex Merge? 2 Yes - 1 No (Default: 2): "))
-            break
-        except:
-            log.logger.exception("")
-            pass
-    FILES = [i.name for i in order.FILES]
-    return PostScript.file_merge_manual(order.OD, order.NAME, DUPLEX_STATE, FILES)

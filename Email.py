@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200310"
+__version__ = "v20200401"
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 # Built-In Libraries
 import sys
@@ -73,6 +73,7 @@ def process_mailbox(M, AUTORUN, D110_IP):
         order.OD = 'SO/'
         rv, data = M.fetch(num, '(UID BODY[TEXT])')  # Email Body
         # Email Subject
+
         order.SUBJECT = subject_line(
             M.fetch(num, '(UID BODY[HEADER.FIELDS (Subject)])'))
         email_body = data[0][1]
@@ -111,7 +112,7 @@ def process_mailbox(M, AUTORUN, D110_IP):
             print_que = []
             Orders = []
             Print.printing(Orders, order.NUMBER, "SO", D110_IP, COLOR,
-                           print_que, AUTORUN, EMAILPRINT, BOOKLETS, 0, False)
+                           print_que, AUTORUN, EMAILPRINT, BOOKLETS)
             printer.print_processor(print_que)
             files.file_cleanup(Orders, order.OD)
     return emails_proccessed

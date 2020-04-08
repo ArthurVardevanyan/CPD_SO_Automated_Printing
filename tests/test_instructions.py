@@ -1,5 +1,5 @@
 # test_instructions.py
-__version__ = "v20200225"
+__version__ = "v20200401"
 
 import unittest
 import os
@@ -314,7 +314,7 @@ class Testing(unittest.TestCase):
         FILE.PAGE_COUNT = "9"
         order.PAGE_COUNTS = 9
         order.FILES.append(FILE)
-        self.assertFalse(instructions.pjl_insert(order, 30, 0))
+        self.assertFalse(instructions.pjl_insert(order, 30))
         with open('PJL_Commands/input.ps', 'r') as f:
             data = f.readlines()
         count = 0
