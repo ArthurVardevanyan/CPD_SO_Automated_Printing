@@ -1,8 +1,14 @@
-termcolor==1.1.0
-pdfkit==0.6.1
-httplib2==0.11.3
-colorama==0.4.1
-PyPDF2==1.26.0
-google_api_python_client==1.7.11
-git+git: //github.com/ArthurVardevanyan/pdfImposing@master#egg-pdfImposing
-pip3  install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib pypdf2 termcolor colorama pdfkit pandas mysql-connector pyinstaller
+termcolor
+colorama
+pdfkit
+PyPDF2
+wkhtmltopdf #Including Desktop CounterPart
+httplib2
+pyinstaller
+oauth2client
+google_api_python_client
+google-auth-httplib2 
+google-auth-oauthlib
+mysql-connector-python
+pandas
+#git+git: //github.com/ArthurVardevanyan/pdfImposing@master#egg-pdfImposing
