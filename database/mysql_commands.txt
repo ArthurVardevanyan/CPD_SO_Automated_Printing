@@ -12,3 +12,12 @@ DELETE FROM `deliver` WHERE 1;
 DELETE FROM `files` WHERE 1;
 DELETE FROM `order_data` WHERE 1;
 DELETE FROM `teachers` WHERE 1;
+
+
+CREATE EVENT 'autoDelete'
+ON SCHEDULE EVERY 1 HOUR
+DELETE FROM order_data WHERE order_data.date_ordered <  (CURDATE()-5);
+
+CREATE DEFINER=`CPD`@`localhost` EVENT `AutoDelete`
+ON SCHEDULE EVERY 1 HOUR STARTS '2020-04-19 20:28:48'
+ON COMPLETION NOT PRESERVE ENABLE DO DELETE FROM order_data WHERE order_data.date_ordered <  (CURDATE()-5)
