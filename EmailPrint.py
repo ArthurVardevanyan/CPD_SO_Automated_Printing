@@ -1,6 +1,8 @@
 # EmailPrint.py
-__version__ = "v20200401"
+__version__ = "v20200609"
 # Built-In Libraries
+from PJL_Commands.BannerSheetPS import bannerSheet
+from PJL_Commands.PJL_PS import end
 import os
 import json
 # Downloaded Libraries
@@ -117,8 +119,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         return 0
     else:
         # Read in Template BannerSheet PostScript File with PJL Commands for Xerox D110 Printer
-        with open('PJL_Commands/BannerSheet.ps', 'rb') as f:
-            pjl_lines = f.readlines()
+        pjl_lines = bannerSheet.splitlines()
         if(STACKER == "toptray"):
             for i in range(len(pjl_lines)):
                 if str('<output-bin syntax="keyword">') in str(pjl_lines[i]):
@@ -128,15 +129,17 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
                 if str('<value syntax="keyword">') in str(pjl_lines[i]):
                     pjl_lines[i] = str.encode(
                         '@PJL XCPT 	<value syntax="keyword">none</value>\n')
-        with open('PJL_Commands/input.ps', 'wb') as f:
+        with open('input.ps', 'wb') as f:
             for item in pjl_lines:
                 f.write(item)
-        file_names = ['PJL_Commands/input.ps',
-                      PATH, 'PJL_Commands/End.ps']
+        file_names = ['input.ps',
+                      PATH]
         with open("".join([PATH[:-6], "pjl.ps"]), 'wb') as outfile:
             for fname in file_names:
                 with open(fname, 'rb') as infile:
                     for line in infile:
+                        outfile.write(line)
+                    for line in end.splitlines():
                         outfile.write(line)
         print(ORDER_NAME)
         print_que.append(
@@ -158,7 +161,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
             log.logger.exception("")
             print("Database Update Failed")
         try:
-            os.remove("PJL_Commands/input.ps")  # remove temp file
+            os.remove("input.ps")  # remove temp file
         except:
             print("Temp File Remove Failed")
         return 1

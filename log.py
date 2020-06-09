@@ -4,7 +4,7 @@ __version__ = "v20200208"
 import os
 import logging
 from datetime import datetime
-license = "20200601"
+license = "202001231"
 
 
 def logInit(fileName,  logFolder="logs/"):
