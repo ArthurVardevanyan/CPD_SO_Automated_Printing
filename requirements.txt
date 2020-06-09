@@ -6,7 +6,7 @@ wkhtmltopdf #Including Desktop CounterPart
 httplib2
 pyinstaller
 oauth2client
-google_api_python_client
+google-api-python-client==1.8.0 # Newer Version(s) has an issue with pyinstaller
 google-auth-httplib2 
 google-auth-oauthlib
 mysql-connector-python
