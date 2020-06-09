@@ -1,6 +1,7 @@
 # PostScript.py
-__version__ = "v20200401"
+__version__ = "v20200609"
 # Built-In Libraries
+from PJL_Commands.PJL_PS import blank
 import files
 from PyPDF2.pdf import PageObject
 from PyPDF2 import PdfFileWriter, PdfFileReader
@@ -65,6 +66,8 @@ def postscript_conversion(order):
 
 
 def file_merge(order, DUPLEX_STATE):
+    with open('Blank.ps', 'wb') as f:
+        f.write(blank)
     FILES_path = ''
     if DUPLEX_STATE == 2:  # Adds blanks for doublesided uncollated printing
         for i in range(len(order.FILE_NAMES)):
@@ -84,7 +87,7 @@ def file_merge(order, DUPLEX_STATE):
                 src = "".join(['"', order.OD, '/',
                                order.NAME, '/', order.FILE_NAMES[i], '"'])
                 gsCMD = "".join(
-                    [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile=', output, ' ', src, ' PJL_Commands/Blank.ps -c quit'])
+                    [GHOSTSCRIPT_PATH, ' -dNOPAUSE -dBATCH -sDEVICE=ps2write -sPAPERSIZE=letter -dFIXEDMEDIA  -dPDFFitPage -sOutputFile=', output, ' ', src, ' Blank.ps -c quit'])
                 ghostscript(gsCMD)
     # Merges order.FILE_NAMES for Uncollated Printing with SlipSheets
     for FILE in order.FILE_NAMES:
