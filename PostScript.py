@@ -19,7 +19,7 @@ input = log.Input
 if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
 else:
-    GHOSTSCRIPT_PATH = 'C:/"Program Files (x86)"/gs/gs9.27/bin/gswin32c.exe'
+    GHOSTSCRIPT_PATH = 'C:/"Program Files"/gs/gs9.52/bin/gswin64c.exe' #TODO, Remove absolute version number.
 # Grayscale Ghostscript Parameter
 # https://gist.github.com/firstdoit/6390547
 
