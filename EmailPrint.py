@@ -73,7 +73,7 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
         pdfkit.from_string(html, "".join([PATH, "/Tickets/",
                                           ORDER_NAME, '.pdf']), options=options,)
     else:
-        path_wkthmltopdf = r'C:\Program Files (x86)\wkhtmltopdf\bin\wkhtmltopdf.exe'
+        path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
         config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
         pdfkit.from_string(html, "".join([PATH, "/Tickets/",
                                           ORDER_NAME, '.pdf']), options=options, configuration=config)
