@@ -1,4 +1,4 @@
-__version__ = "v20200327"
+__version__ = "v20200609"
 import mysql.connector
 import files
 import json
@@ -96,14 +96,18 @@ def database_input(order):
 
 
 def print_status(order, status):
-    db = credentials()
-    cursor = db.cursor()
-    status = "UPDATE order_data SET status = '"+status + \
-        "' WHERE order_number = '"+order+"'"
-    cursor.execute(status)
-    db.commit()
-    db.close
-    return 1
+    try:
+        db = credentials()
+        cursor = db.cursor()
+        status = "UPDATE order_data SET status = '"+status + \
+            "' WHERE order_number = '"+order+"'"
+        cursor.execute(status)
+        db.commit()
+        db.close
+        return 1
+    except:
+        print("Print Status Failure")
+        return 0
 
 
 def manual_status_change(orders="NotStarted"):
