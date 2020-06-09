@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200310"
+__version__ = "v20200609"
 # Local Files
 import files
 import BannerSheet
@@ -271,7 +271,9 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
    # Merge PostScript Header File to All Postscript Job Files
     instructions.pjl_merge(order, "PSP", MERGED, COVERS, order.FILE_NAMES)
     try:
-        os.remove("PJL_Commands/input.ps")  # remove temp file
+        # remove temp file
+        os.remove("input.ps")
+        os.remove("Blank.ps")
     except:
         log.logger.exception("")
         print("Temp File Remove Failed")

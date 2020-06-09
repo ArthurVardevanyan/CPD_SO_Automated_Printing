@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20200302"
+__version__ = "v20200408"
 # Built-In Libraries
 import json
 import os
@@ -146,7 +146,14 @@ def school_data_json(order):
         test_string = "Deliver To:"
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Deliver To Address"] = line[1]
+            line2 = ""
+            if ("@" not in email[i+1]):
+                if len(email[i+1]) == 5:
+                    line2 = " " + email[i+1]
+                else:
+                    line2 = email[i+1]
+            school_data["Deliver To Address"] = (line[1].replace(
+                "=", "").strip() + line2).strip()
         school_data["Status"] = order.status = "NotStarted"
     try:
         school_data["Cost"] = order.COST = str(

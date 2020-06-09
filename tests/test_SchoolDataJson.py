@@ -43,7 +43,7 @@ class Testing(unittest.TestCase):
             "Stapling": "Upper Left - portrait",
             "Slip Sheets / Shrink Wrap": "Shrink wrap every 30 sets",
             "Deliver To Name": "First Last",
-            "Deliver To Address": " Address=",
+            "Deliver To Address": "Address1",
             "Cost": order.COST
         })
         order.OD = "tests/SO"
@@ -75,7 +75,7 @@ class Testing(unittest.TestCase):
             "Paper": "8.5 x 11 Paper White",
             "Special Instructions": "Please make 25 copies of each page, UNCOLLATED. Please    separate the copied pages with a colored slip sheet. Please make 5 sets of the copied pages. Please separate the 5  sets with a different colored sheet of paper.",
             "Deliver To Name": "First Last",
-            "Deliver To Address": " Address=",
+            "Deliver To Address": "Address1",
             "Cost": order.COST
         })
         order.OD = "tests/SO"
@@ -140,7 +140,7 @@ class Testing(unittest.TestCase):
             "Slip Sheets / Shrink Wrap": "between every 25",
             "Special Instructions": "Please make 4 complete class sets.",
             "Deliver To Name": "First Last",
-            "Deliver To Address": " Address=",
+            "Deliver To Address": "Address1",
             "Cost": order.COST
         })
 
