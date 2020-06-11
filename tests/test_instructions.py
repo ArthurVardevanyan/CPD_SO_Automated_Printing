@@ -1,5 +1,5 @@
 # test_instructions.py
-__version__ = "v20200401"
+__version__ = "v20200609"
 
 import unittest
 import os
@@ -315,7 +315,7 @@ class Testing(unittest.TestCase):
         order.PAGE_COUNTS = 9
         order.FILES.append(FILE)
         self.assertFalse(instructions.pjl_insert(order, 30))
-        with open('PJL_Commands/input.ps', 'r') as f:
+        with open('input.ps', 'r') as f:
             data = f.readlines()
         count = 0
         for line in data:
@@ -330,7 +330,7 @@ class Testing(unittest.TestCase):
             if '@PJL XCPT <value syntax="enum">20</value>' in line:
                 count += 1
         try:
-            os.remove("PJL_Commands/input.ps")  # remove temp file
+            os.remove("input.ps")  # remove temp file
         except:
             self.fail("No File")
         if count != 4:

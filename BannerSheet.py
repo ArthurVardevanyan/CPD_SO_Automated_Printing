@@ -1,6 +1,7 @@
 # BannerSheet.py
-__version__ = "v20200303"
+__version__ = "v20200609"
 # Setups up BannerSheet Postscript File
+from PJL_Commands.BannerSheetPS import bannerSheet
 
 
 def banner_sheet(order):
@@ -20,8 +21,7 @@ def banner_sheet(order):
     # Allows differnet color banner sheets. Common Pastel/Astrobrights Colors
     banner_sheet_color = MEDIA_COLOR[6]
     # Read in Template BannerSheet PostScript File with PJL Commands for Xerox D110 Printer
-    with open('PJL_Commands/BannerSheet.ps', 'rb') as f:
-        pjl_lines = f.readlines()
+    pjl_lines = bannerSheet.splitlines()
     # Swap template color for color of choice
     for i in range(len(pjl_lines)):
         if str('<media-color syntax="keyword">') in str(pjl_lines[i]):
