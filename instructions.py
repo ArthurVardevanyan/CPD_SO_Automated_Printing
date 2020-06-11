@@ -1,5 +1,7 @@
-__version__ = "v20200401"
+__version__ = "v20200609"
 import PostScript
+from PJL_Commands.PJL_PS import end
+from PJL_Commands.PJL_PS import start
 import log
 import re
 import os
@@ -229,23 +231,27 @@ def pjl_merge(order, outFOLDER, MERGED, FILES):
         print("Creation of the directory failed ", F)
     if MERGED == True:
         # Add the PJL Commands to the merged file in preperation to print.
-        file_names = ['PJL_Commands/input.ps', order.OD+"/" +
-                      order.NAME + "/"+order.NAME+N+".ps", 'PJL_Commands/End.ps']
+        file_names = ['input.ps', order.OD+"/" +
+                      order.NAME + "/"+order.NAME+N+".ps"]
         with open(order.OD+"/"+order.NAME + "/"+outFOLDER + "/"+order.NAME+".ps", 'wb') as outfile:
             for fname in file_names:
                 with open(fname, 'rb') as infile:
                     for line in infile:
                         outfile.write(line)
+                    for line in end.splitlines():
+                        outfile.write(line)
         return 1
     elif MERGED == False:
         # Add the PJL Commands to the files in preperation to print.
         for i in range(len(FILES)):
-            file_names = ['PJL_Commands/input.ps', order.OD+"/"+order.NAME +
-                          "/PostScript"+N+"/"+FILES[i]+".ps", 'PJL_Commands/End.ps']
+            file_names = ['input.ps', order.OD+"/"+order.NAME +
+                          "/PostScript"+N+"/"+FILES[i]+".ps"]
             with open(order.OD+"/"+order.NAME + "/" + outFOLDER + "/"+FILES[i][:40][:-4]+".ps", 'wb') as outfile:
                 for fname in file_names:
                     with open(fname, 'rb') as infile:
                         for line in infile:
+                            outfile.write(line)
+                        for line in end.splitlines():
                             outfile.write(line)
         return 1
     return 0
@@ -264,8 +270,7 @@ def pjl_insert(order, COPIES_PER_SET):
     size = size_extract(order)
     COPIES_COMMAND = str.encode("".join(
         ['@PJL XCPT <copies syntax="integer">', str(COPIES_PER_SET), '</copies>\n']))
-    with open('PJL_Commands/PJL.ps', 'rb') as f:
-        lines = f.readlines()
+    lines = start.splitlines()
     # Modifies the PJL file before adding it to the postscript files
     for i in range(len(lines)):
         if str('<media-color syntax="keyword">') in str(lines[i]):
@@ -309,7 +314,7 @@ def pjl_insert(order, COPIES_PER_SET):
             lines[i] = str.encode(
                 '@PJL XCPT 		<output-bin syntax="keyword">automatic</output-bin>\n')
     # The Postscript/PJL commands file that gets inserted before the file.
-    with open('PJL_Commands/input.ps', 'wb') as f:
+    with open('input.ps', 'wb') as f:
         for item in lines:
             f.write(item)
     # If it makes sense to use merged files, it uses them.

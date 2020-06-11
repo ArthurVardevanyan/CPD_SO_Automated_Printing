@@ -1,4 +1,6 @@
-%-12345X@PJL JOB
+__version__ = "v20191211"
+
+bannerSheet = b"""%-12345X@PJL JOB
 @PJL XCPT <?xml version="1.0" encoding="UTF-8"?>
 @PJL XCPT <!DOCTYPE xpif SYSTEM "xpif-v02076.dtd">
 @PJL XCPT <xpif version="1.0" cpss-version="2.07" xml:lang="en-US">
@@ -82,4 +84,4 @@
 @PJL XCPT 		<requesting-user-name syntax="name" xml:space="preserve">Ticket</requesting-user-name>
 @PJL XCPT 	</xpif-operation-attributes>
 @PJL XCPT </xpif>
-@PJL ENTER LANGUAGE = POSTSCRIPT
+@PJL ENTER LANGUAGE = POSTSCRIPT"""
