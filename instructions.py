@@ -1,4 +1,4 @@
-__version__ = "v20200609"
+__version__ = "v20200614"
 import PostScript
 from PJL_Commands.PJL_PS import end
 from PJL_Commands.PJL_PS import start
@@ -105,7 +105,7 @@ def default(order):
     if(order.STAPLING_BOOL == False and order.DRILLING != "Yes" and order.BOOKLET != "Yes"):
         print('No Finishing')
         return str.encode(
-            '@PJL XCPT <value syntax="enum">3</value>\n')
+            '@PJL XCPT <value syntax="enum">3</value>')
     else:
         return str.encode('')
 
@@ -114,53 +114,53 @@ def collation(order):
     if(order.COLLATION != "Collated" or (len(order.FILES)) != 1 and order.PAGE_COUNTS == len(order.FILES)):
         print('UnCollated')
         return str.encode(
-            '@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')
+            '@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>')
     else:
         print('Collated')
         return str.encode(
-            '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
+            '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>')
 
 
 def duplex(order):
     if(order.DUPLEX == "Two-sided (back to back)"):
         print('Double Sided')
         return str.encode(
-            '@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>\n'), 2
+            '@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>'), 2
     elif(order.DUPLEX == "two-sided-short-edge"):
         print('Double Sided')
         return str.encode(
-            '@PJL XCPT <sides syntax="keyword">two-sided-short-edge</sides>\n'), 2
+            '@PJL XCPT <sides syntax="keyword">two-sided-short-edge</sides>'), 2
     else:
         print('Single Sided')
         return str.encode(
-            '@PJL XCPT <sides syntax="keyword">one-sided</sides>\n'), 1
+            '@PJL XCPT <sides syntax="keyword">one-sided</sides>'), 1
 
 
 def stapling(order, collation):
     if(order.STAPLING == "Upper Left - portrait"):
         stapling = str.encode(
-            '@PJL XCPT <value syntax="enum">20</value>\n')
+            '@PJL XCPT <value syntax="enum">20</value>')
         if str('<sheet-collate syntax="keyword">uncollated') in str(collation):
             collation = str.encode(
-                '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
+                '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>')
             print("Collation Overide - Collated")
         print("Staple - Upper Left - portrait")
         return stapling, collation
     elif(order.STAPLING == "Upper Left - landscape"):
         stapling = str.encode(
-            '@PJL XCPT <value syntax="enum">21</value>\n')
+            '@PJL XCPT <value syntax="enum">21</value>')
         if str('<sheet-collate syntax="keyword">uncollated') in str(collation):
             collation = str.encode(
-                '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
+                '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>')
             print("Collation Overide - Collated")
         print("Staple - Upper Left - landscape")
         return stapling, collation
     elif(order.STAPLING == "Double Left - portrait"):
         stapling = str.encode(
-            '@PJL XCPT <value syntax="enum">28</value>\n')
+            '@PJL XCPT <value syntax="enum">28</value>')
         if str('<sheet-collate syntax="keyword">uncollated') in str(collation):
             collation = str.encode(
-                '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')
+                '@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>')
             print("Collation Overide - Collated")
         print("Staple - Double Left - portrait")
         return stapling, collation
@@ -173,10 +173,10 @@ def drilling(order):
         print('Hole Punched')
         if("11 x 17" in str(order.PAPER).lower()):
             return str.encode(
-                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">94</value>\n')
+                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">94</value>')
         else:
             return str.encode(
-                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>\n')
+                '@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>')
     else:
         return str.encode('')
 
@@ -187,7 +187,7 @@ def weight_extract(order):
     out = "stationery-heavyweight" if "card stock" in paper else "use-ready"
     print(out)
     return str.encode("".join([
-        '@PJL XCPT <media-type syntax="keyword">', out, '</media-type>\n']))
+        '@PJL XCPT <media-type syntax="keyword">', out, '</media-type>']))
 
 
 def color_extract(order):
@@ -195,7 +195,7 @@ def color_extract(order):
     color = (str(order.PAPER)).split()[-1].lower()
     out = 'yellow' if color == 'canary' else color
     print(out)
-    return str.encode("".join(['@PJL XCPT <media-color syntax="keyword">', out, '</media-color>\n']))
+    return str.encode("".join(['@PJL XCPT <media-color syntax="keyword">', out, '</media-color>']))
 
 
 def size_extract(order):
@@ -210,13 +210,13 @@ def size_extract(order):
 @PJL XCPT 				<media-size syntax="collection">\n\
 @PJL XCPT 					<x-dimension syntax="integer">27940</x-dimension>\n\
 @PJL XCPT 					<y-dimension syntax="integer">43180</y-dimension>\n\
-@PJL XCPT 				</media-size>\n']))
+@PJL XCPT 				</media-size>']))
 
 
 def booklet_extract(order):
     # Converts Input from given form to the value the printer needs
     if order.BOOKLET == "Yes":
-        return str.encode("".join(['@PJL XCPT <value syntax="enum">110</value>\n']))
+        return str.encode("".join(['@PJL XCPT <value syntax="enum">110</value>']))
     return ""
 
 
@@ -238,8 +238,8 @@ def pjl_merge(order, outFOLDER, MERGED, FILES):
                 with open(fname, 'rb') as infile:
                     for line in infile:
                         outfile.write(line)
-                    for line in end.splitlines():
-                        outfile.write(line)
+            for line in end.splitlines():
+                outfile.write(line)
         return 1
     elif MERGED == False:
         # Add the PJL Commands to the files in preperation to print.
@@ -251,8 +251,8 @@ def pjl_merge(order, outFOLDER, MERGED, FILES):
                     with open(fname, 'rb') as infile:
                         for line in infile:
                             outfile.write(line)
-                        for line in end.splitlines():
-                            outfile.write(line)
+                for line in end.splitlines():
+                    outfile.write(line)
         return 1
     return 0
 
@@ -269,7 +269,7 @@ def pjl_insert(order, COPIES_PER_SET):
     booklet = booklet_extract(order)
     size = size_extract(order)
     COPIES_COMMAND = str.encode("".join(
-        ['@PJL XCPT <copies syntax="integer">', str(COPIES_PER_SET), '</copies>\n']))
+        ['@PJL XCPT <copies syntax="integer">', str(COPIES_PER_SET), '</copies>']))
     lines = start.splitlines()
     # Modifies the PJL file before adding it to the postscript files
     for i in range(len(lines)):
@@ -295,28 +295,30 @@ def pjl_insert(order, COPIES_PER_SET):
         if str('<sheet-collate syntax="keyword">uncollated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]):
             if("11 x 17" in str(order.PAPER).lower()):
                 lines[i] = str.encode(
-                    '@PJL XCPT <media-col syntax="collection">\n@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n@PJL XCPT </media-col>\n@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
+                    '@PJL XCPT <media-col syntax="collection">\n@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n@PJL XCPT </media-col>\n@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>')
             else:
                 lines[i] = str.encode(
-                    '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n@PJL XCPT 	<separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
+                    '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n@PJL XCPT 	<separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>')
             print("\nSplit-Sheeting!")
         # Add SlipSheets to Large Collated Sets
         if (order.PAGE_COUNTS / len(order.FILES) / duplex_state >= 10 and str('<sheet-collate syntax="keyword">collated') in str(COLLATION) and str('<separator-sheets-type syntax="keyword">none') in str(lines[i]) and
                 order.STAPLING_BOOL == False):
             if("11 x 17" in str(order.PAPER).lower()):
                 lines[i] = str.encode(
-                    '@PJL XCPT<media-col syntax="collection">\n@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n@PJL XCPT </media-col>\n@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
+                    '@PJL XCPT<media-col syntax="collection">\n@PJL XCPT <input-tray syntax="keyword">bypass-tray</input-tray>\n@PJL XCPT <tray-feed syntax="keyword">stack</tray-feed>\n@PJL XCPT </media-col>\n@PJL XCPT <separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>')
             else:
                 lines[i] = str.encode(
-                    '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n@PJL XCPT 	<separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>\n')
+                    '@PJL XCPT <media syntax="keyword">post-fuser-inserter</media>\n@PJL XCPT 	<separator-sheets-type syntax="keyword">end-sheet</separator-sheets-type>')
             print("\nSplit-Sheeting!")
         if str('<output-bin syntax="keyword">') in str(lines[i]) and booklet != "":
             lines[i] = str.encode(
-                '@PJL XCPT 		<output-bin syntax="keyword">automatic</output-bin>\n')
+                '@PJL XCPT 		<output-bin syntax="keyword">automatic</output-bin>')
     # The Postscript/PJL commands file that gets inserted before the file.
     with open('input.ps', 'wb') as f:
         for item in lines:
             f.write(item)
+            if len(item):
+                f.write(b"\n")
     # If it makes sense to use merged files, it uses them.
     if str('<sheet-collate syntax="keyword">uncollated') in str(COLLATION) and len(order.FILES) != 1:
         if order.PAGE_COUNTS / len(order.FILES) / duplex_state >= 5:
