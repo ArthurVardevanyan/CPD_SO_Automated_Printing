@@ -1,5 +1,5 @@
 # BannerSheet.py
-__version__ = "v20200609"
+__version__ = "v20200614"
 from PJL_Commands.BannerSheetPS import bannerSheet
 # Setups up BannerSheet Postscript File
 
@@ -27,7 +27,7 @@ def banner_sheet(order):
     for i in range(len(pjl_lines)):
         if str('<media-color syntax="keyword">') in str(pjl_lines[i]):
             pjl_lines[i] = str.encode("".join([
-                '@PJL XCPT <media-color syntax="keyword">', banner_sheet_color, '</media-color>\n']))
+                '@PJL XCPT <media-color syntax="keyword">', banner_sheet_color, '</media-color>']))
     # Get the nested dictionary for file names & page counts from main dictionary from JSON File
     files_list = []
     for i in range(len(order.FILES)):
@@ -52,6 +52,7 @@ def banner_sheet(order):
         # Export PJL Lines
         for lines in pjl_lines:
             outfile.write(lines)
+            outfile.write(b"\n")
         # Export Postscript Lines
         for line in POSTSCRIPT:
             outfile.write(str.encode(line))
