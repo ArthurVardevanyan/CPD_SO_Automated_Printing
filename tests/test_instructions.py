@@ -206,7 +206,7 @@ class Testing(unittest.TestCase):
         order.NUMBER = "11344-2704"
         order.STAPLING_BOOL = False
         self.assertEqual(instructions.default(order),
-                         str.encode('@PJL XCPT <value syntax="enum">3</value>\n'))
+                         str.encode('@PJL XCPT <value syntax="enum">3</value>'))
         order.STAPLING_BOOL = True
         self.assertEqual(instructions.default(order), str.encode(''))
         order.STAPLING_BOOL = True
@@ -223,45 +223,45 @@ class Testing(unittest.TestCase):
         order = o.Order()
         order.COLLATION = "Collated"
         self.assertEqual(instructions.collation(order),
-                         str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n'))
+                         str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>'))
         order.COLLATION = "Uncollated"
         self.assertEqual(instructions.collation(order),
-                         str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n'))
+                         str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>'))
 
     def test_duplex(self):
         order = o.Order()
         order.DUPLEX = "Two-sided (back to back)"
         self.assertEqual(instructions.duplex(order),
-                         (str.encode('@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>\n'), 2))
+                         (str.encode('@PJL XCPT <sides syntax="keyword">two-sided-long-edge</sides>'), 2))
         order.DUPLEX = "One-sided"
         self.assertEqual(instructions.duplex(order),
-                         (str.encode('@PJL XCPT <sides syntax="keyword">one-sided</sides>\n'), 1))
+                         (str.encode('@PJL XCPT <sides syntax="keyword">one-sided</sides>'), 1))
 
     def test_stapling(self):
         order = o.Order()
         order.STAPLING = ""
-        self.assertEqual(instructions.stapling(order, str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')),
-                         (str.encode(''), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
+        self.assertEqual(instructions.stapling(order, str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>')),
+                         (str.encode(''), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>')))
 
-        self.assertEqual(instructions.stapling(order, str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')),
-                         (str.encode(''), str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')))
+        self.assertEqual(instructions.stapling(order, str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>')),
+                         (str.encode(''), str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>')))
         order.STAPLING = "Upper Left - portrait"
-        self.assertEqual(instructions.stapling(order, str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')),
-                         (str.encode('@PJL XCPT <value syntax="enum">20</value>\n'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
+        self.assertEqual(instructions.stapling(order, str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>')),
+                         (str.encode('@PJL XCPT <value syntax="enum">20</value>'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>')))
 
-        self.assertEqual(instructions.stapling(order, str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')),
-                         (str.encode('@PJL XCPT <value syntax="enum">20</value>\n'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
+        self.assertEqual(instructions.stapling(order, str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>')),
+                         (str.encode('@PJL XCPT <value syntax="enum">20</value>'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>')))
         order.STAPLING = "Upper Left - landscape"
-        self.assertEqual(instructions.stapling(order, str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>\n')),
-                         (str.encode('@PJL XCPT <value syntax="enum">21</value>\n'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
-        self.assertEqual(instructions.stapling(order, str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')),
-                         (str.encode('@PJL XCPT <value syntax="enum">21</value>\n'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>\n')))
+        self.assertEqual(instructions.stapling(order, str.encode('@PJL XCPT <sheet-collate syntax="keyword">uncollated</sheet-collate>')),
+                         (str.encode('@PJL XCPT <value syntax="enum">21</value>'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>')))
+        self.assertEqual(instructions.stapling(order, str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>')),
+                         (str.encode('@PJL XCPT <value syntax="enum">21</value>'), str.encode('@PJL XCPT <sheet-collate syntax="keyword">collated</sheet-collate>')))
 
     def test_drilling(self):
         order = o.Order()
         order.DRILLING = "Yes"
         self.assertEqual(instructions.drilling(order),
-                         str.encode('@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>\n'))
+                         str.encode('@PJL XCPT  <value syntax="enum">91</value> \n@PJL XCPT <value syntax="enum">93</value>'))
         order.DRILLING = ""
         self.assertEqual(instructions.drilling(order),
                          str.encode(''))
@@ -270,37 +270,37 @@ class Testing(unittest.TestCase):
         order = o.Order()
         order.PAPER = "8.5 x 11 Paper White"
         self.assertEqual(instructions.weight_extract(order),
-                         str.encode('@PJL XCPT <media-type syntax="keyword">use-ready</media-type>\n'))
+                         str.encode('@PJL XCPT <media-type syntax="keyword">use-ready</media-type>'))
         order.PAPER = "8.5 x 11 Card Stock White"
         self.assertEqual(instructions.weight_extract(order),
-                         str.encode('@PJL XCPT <media-type syntax="keyword">stationery-heavyweight</media-type>\n'))
+                         str.encode('@PJL XCPT <media-type syntax="keyword">stationery-heavyweight</media-type>'))
 
     def test_color_extract(self):
         order = o.Order()
         order.PAPER = "8.5 x 11 Paper White"
         self.assertEqual(instructions.color_extract(order),
-                         str.encode('@PJL XCPT <media-color syntax="keyword">white</media-color>\n'))
+                         str.encode('@PJL XCPT <media-color syntax="keyword">white</media-color>'))
         order.PAPER = "8.5 x 11 Card Stock White"
         self.assertEqual(instructions.color_extract(order),
-                         str.encode('@PJL XCPT <media-color syntax="keyword">white</media-color>\n'))
+                         str.encode('@PJL XCPT <media-color syntax="keyword">white</media-color>'))
         order.PAPER = "8.5 x 11 Paper Canary"
         self.assertEqual(instructions.color_extract(order),
-                         str.encode('@PJL XCPT <media-color syntax="keyword">yellow</media-color>\n'))
+                         str.encode('@PJL XCPT <media-color syntax="keyword">yellow</media-color>'))
         order.PAPER = "8.5 x 11 Paper Yellow"
         self.assertEqual(instructions.color_extract(order),
-                         str.encode('@PJL XCPT <media-color syntax="keyword">yellow</media-color>\n'))
+                         str.encode('@PJL XCPT <media-color syntax="keyword">yellow</media-color>'))
         order.PAPER = "8.5 x 11 Paper Pink"
         self.assertEqual(instructions.color_extract(order),
-                         str.encode('@PJL XCPT <media-color syntax="keyword">pink</media-color>\n'))
+                         str.encode('@PJL XCPT <media-color syntax="keyword">pink</media-color>'))
         order.PAPER = "8.5 x 11 Paper Green"
         self.assertEqual(instructions.color_extract(order),
-                         str.encode('@PJL XCPT <media-color syntax="keyword">green</media-color>\n'))
+                         str.encode('@PJL XCPT <media-color syntax="keyword">green</media-color>'))
         order.PAPER = "8.5 x 11 Paper Blue"
         self.assertEqual(instructions.color_extract(order),
-                         str.encode('@PJL XCPT <media-color syntax="keyword">blue</media-color>\n'))
+                         str.encode('@PJL XCPT <media-color syntax="keyword">blue</media-color>'))
         order.PAPER = "8.5 x 11 Paper Ivory"
         self.assertEqual(instructions.color_extract(order),
-                         str.encode('@PJL XCPT <media-color syntax="keyword">ivory</media-color>\n'))
+                         str.encode('@PJL XCPT <media-color syntax="keyword">ivory</media-color>'))
 
     def test_pjl_insert(self):
         order = o.Order()
