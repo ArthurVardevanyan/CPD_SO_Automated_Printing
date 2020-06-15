@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20200609"
+__version__ = "v20200614"
 # Built-In Libraries
 import os
 import json
@@ -124,14 +124,15 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
             for i in range(len(pjl_lines)):
                 if str('<output-bin syntax="keyword">') in str(pjl_lines[i]):
                     pjl_lines[i] = str.encode(
-                        '@PJL XCPT 		<output-bin syntax="keyword">top</output-bin>\n')
+                        '@PJL XCPT 		<output-bin syntax="keyword">top</output-bin>')
             for i in range(len(pjl_lines)):
                 if str('<value syntax="keyword">') in str(pjl_lines[i]):
                     pjl_lines[i] = str.encode(
-                        '@PJL XCPT 	<value syntax="keyword">none</value>\n')
+                        '@PJL XCPT 	<value syntax="keyword">none</value>')
         with open('input.ps', 'wb') as f:
             for item in pjl_lines:
                 f.write(item)
+                f.write(b"\n")
         file_names = ['input.ps',
                       PATH]
         with open("".join([PATH[:-6], "pjl.ps"]), 'wb') as outfile:
@@ -139,8 +140,8 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
                 with open(fname, 'rb') as infile:
                     for line in infile:
                         outfile.write(line)
-                    for line in end.splitlines():
-                        outfile.write(line)
+            for line in end.splitlines():
+                outfile.write(line)
         print(ORDER_NAME)
         print_que.append(
             "".join([LPR, '"', PATH[:-6], "pjl.ps", '" -J "', ORDER_NAME, '"']))
