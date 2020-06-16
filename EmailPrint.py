@@ -17,7 +17,6 @@ import printer
 import log
 import SchoolDataJson
 import order as o
-import database
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
 # https://micropyramid.com/blog/how-to-create-pdf-files-in-python-using-pdfkit/
@@ -158,10 +157,9 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         # Update Json File to Show the Email Ticket was Printing
         try:
             SchoolDataJson.orderStatusExport(order, "Ticket", True)
-            database.print_status(order.NUMBER, order.status)
         except:
             log.logger.exception("")
-            print("Database Update Failed")
+            print("Order Status Update Failed")
         try:
             os.remove("input.ps")  # remove temp file
         except:

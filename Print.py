@@ -10,7 +10,6 @@ import PostScript
 import SchoolDataJson
 import order as o
 import log
-import database
 import booklet
 # Built-In Libraries
 import os
@@ -313,10 +312,9 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     IP = ["P156", "P162"]
     try:
         SchoolDataJson.orderStatusExport(order, str(IP[D110_IP]), False)
-        database.print_status(order.NUMBER, order.status)
     except:
         log.logger.exception("")
-        print("Database Update Failed")
+        print("Order Status Update Failed")
     return "".join([order.RESULT, LPR[D110_IP][40:43], " : ", order.NAME]), order.NUMBER,  str(IP[D110_IP])
 
 
@@ -369,7 +367,6 @@ def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
                 files.file_cleanup(Orders, OUTPUT_DIRECTORY)
                 print("\n")
                 print('\n'.join(map(str, printed)))
-                printer.order_status()
                 while True:
                     try:
                         loop = True if int(

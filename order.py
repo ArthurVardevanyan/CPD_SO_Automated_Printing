@@ -9,7 +9,6 @@ import os
 import log
 import GDrive
 import EmailPrint
-import database
 import instructions
 import PostScript
 print = log.Print
@@ -120,12 +119,6 @@ def process_Email(order, email_body, error_state=""):
         print("JSON File Failed")
     if(error_state == "Error/"):
         order.OD = order.OD + "/Error/"
-    try:
-        # Database Input
-        database.database_input(order)
-    except:
-        log.logger.exception("")
-        print("Database Input Failed")
     try:
         # Create PostScript File
         PostScript.postscript_conversion(order)

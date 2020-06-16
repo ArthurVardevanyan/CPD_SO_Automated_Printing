@@ -1,5 +1,5 @@
 # printer_processing
-__version__ = "v20200302"
+__version__ = "v20200616"
 # Built-In Libraries
 import os
 import time
@@ -7,7 +7,6 @@ import subprocess
 # Downloaded Libraries
 import termcolor
 import colorama
-import database
 from datetime import datetime
 import log
 print = log.Print
@@ -26,52 +25,6 @@ def print_status(ip):
         if ":" in str(line):
             count += 1
     return count
-
-
-def order_status():
-    finishedOrders = []
-    try:
-        P162 = False
-        P156 = False
-        orders = database.printingOrders()
-        for order in orders:
-            if order[1] == "162":
-                P162 = True
-            if order[1] == "156":
-                P156 = True
-        orderStatus = ""
-        if(P162 and P156):
-            status = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
-                                       "10.56.54.162", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
-            (orderStatus1, err) = status.communicate(
-            )  # pylint: disable=unused-variable
-            status1 = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
-                                        "10.56.54.156", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
-            (orderStatus2, err) = status1.communicate(
-            )  # pylint: disable=unused-variable
-            orderStatus = str(orderStatus1) + str(orderStatus2)
-        elif(P162):
-            status = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
-                                       "10.56.54.162", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
-            (orderStatus, err) = status.communicate(
-            )  # pylint: disable=unused-variable
-        elif(P156):
-            status = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
-                                       "10.56.54.156", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
-            (orderStatus, err) = status.communicate(
-            )  # pylint: disable=unused-variable
-        for order in orders:
-            if(str(order[0]) not in str(orderStatus)):
-                finishedOrders.append(order)
-    except:
-        print("Printer Order Status Failed")
-    try:
-        for order in finishedOrders:
-            change = "Printed_" + str(datetime.now().strftime("%Y%m%d:%H%M"))
-            database.print_status(order[0], change)
-    except:
-        log.logger.exception("")
-        print("Database Update Failed")
 
 
 def print_processor(print_que, orders=[]):
@@ -102,10 +55,6 @@ def print_processor(print_que, orders=[]):
                 print((str(print_que[0]).replace(
                     "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
-                for q in print_que:
-                    for order in orders:
-                        if order[0] in q:
-                            database.print_status(order[0], str(order[1]))
                 print_que.pop(0)
                 jobs_ran += 1
         else:
@@ -119,7 +68,6 @@ def main():
     from log import logger
     print = log.Print
     input = log.Input
-    order_status()
 
 
 if __name__ == "__main__":
