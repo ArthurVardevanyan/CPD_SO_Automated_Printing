@@ -10,7 +10,6 @@ import shutil
 import re
 import getpass
 import datetime
-import _thread
 # Downloaded Libraries
 import termcolor
 from termcolor import colored
@@ -118,12 +117,6 @@ def process_mailbox(M, AUTORUN, D110_IP):
     return emails_proccessed
 
 
-def order_Status():
-    while(True):
-        printer.order_status()
-        time.sleep(30)
-
-
 def main(AUTORUN, D110_IP):
     IMAP_SERVER = 'imap.gmail.com'
     EMAIL_FOLDER = "Inbox"
@@ -140,10 +133,6 @@ def main(AUTORUN, D110_IP):
     M = imaplib.IMAP4_SSL(IMAP_SERVER)
     M.login(EMAIL_ACCOUNT, PASSWORD)  # Credentials Info
     rv, data = M.select(EMAIL_FOLDER)  # pylint: disable=unused-variable
-    try:
-        _thread.start_new_thread(order_Status, ())
-    except:
-        print("Print Status Failure")
     if rv == 'OK':
         print("Processing mailbox: ", EMAIL_FOLDER)
         print("Im Resting, Check Back Later:")
