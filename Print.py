@@ -1,6 +1,7 @@
 # Print.py
-__version__ = "v20200614"
+__version__ = "v20200625"
 # Local Files
+import integrity
 import files
 import BannerSheet
 import instructions
@@ -457,6 +458,7 @@ if __name__ == "__main__":
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
     print(colored("Purple Paper", "magenta"),
           " (Or any bright color) should be loaded as gray plain paper.\n")
+    integrity.integrity()
     o.integrityCheck("SO/")
     # print("If Running " + colored("Multi-Up Jobs, Purple Paper", "magenta"),
     #       "(Or any bright color) MUST BE loaded in Tray 2 as gray plain paper.\nIn addition Load " + colored("Colored 11 by 17", "magenta") + " in the bypass as gray paper.")

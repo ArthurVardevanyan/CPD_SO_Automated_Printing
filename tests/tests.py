@@ -1,5 +1,5 @@
 # test_tests.py
-__version__ = "v20191005"
+__version__ = "v20200625"
 
 import os
 import sys
@@ -9,6 +9,7 @@ import unittest
 # https://stackoverflow.com/a/1732477
 
 testmodules = [
+    'test_integrity',
     'test_GDrive',
     'test_EmailPrint',
     'test_PostScript',
