@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20200614"
+__version__ = "v20200625"
 # Built-In Libraries
 import os
 import json
@@ -9,6 +9,7 @@ import termcolor
 from termcolor import colored
 import colorama
 # Local Files
+import integrity
 from PJL_Commands.BannerSheetPS import bannerSheet
 from PJL_Commands.PJL_PS import end
 import files
@@ -224,5 +225,6 @@ if __name__ == "__main__":
           colored(__version__, "magenta"))
     print('Make Sure White and Bright Colored Paper is loaded!\nSet Colored Paper as ',
           colored('"Other"', "magenta"))
+    integrity.integrity()
     o.integrityCheck("SO/")
     main()
