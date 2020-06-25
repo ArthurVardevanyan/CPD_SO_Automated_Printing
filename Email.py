@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200401"
+__version__ = "v20200625"
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 # Built-In Libraries
 import sys
@@ -15,6 +15,7 @@ import termcolor
 from termcolor import colored
 import colorama
 # Local Files
+import integrity
 import files
 import Print
 import EmailPrint
@@ -181,6 +182,7 @@ if __name__ == "__main__":
     print("Terminal Email Printing REV:",
           colored(EmailPrint.__version__, "magenta"))
     print("\n")
+    integrity.integrity()
     D110_IP = 1
     while True:
         try:
