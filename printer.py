@@ -16,7 +16,7 @@ colorama.init()
 
 
 def print_status(ip):
-    status = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
+    status = subprocess.Popen(["C:/Windows/System32/lpq.exe", "-S",
                                ip, "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
     (out, err) = status.communicate()  # pylint: disable=unused-variable
     out = out.splitlines()
@@ -53,7 +53,7 @@ def print_processor(print_que, orders=[]):
             if("banner" not in print_que[0]):
                 os.system(print_que[0])
                 print((str(print_que[0]).replace(
-                    "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
+                    "C:/Windows/System32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.pop(0)
                 jobs_ran += 1

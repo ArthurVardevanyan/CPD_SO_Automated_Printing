@@ -275,8 +275,8 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         print("Temp File Remove Failed")
     # Gets list of Files in the Postscript Print Ready Folder
     Print_Files = files.postscript_list(order.OD, order.NAME, "PSP")
-    LPR = ["C:/Windows/system32/lpr.exe -S 10.56.54.156 -P PS ",
-           "C:/Windows/system32/lpr.exe -S 10.56.54.162 -P PS "]
+    LPR = ["C:/Windows/System32/lpr.exe -S 10.56.54.156 -P PS ",
+           "C:/Windows/System32/lpr.exe -S 10.56.54.162 -P PS "]
     print("\n")
     if(EMAILPRINT):
         EmailPrint.Email_Print(order.OD, order.NAME,
@@ -304,7 +304,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                 log.logger.debug((lpr_path.replace(
-                    "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
+                    "C:/Windows/System32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
         print("\n")
