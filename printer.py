@@ -17,7 +17,7 @@ colorama.init()
 
 
 def print_status(ip):
-    status = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
+    status = subprocess.Popen(["C:/Windows/System32/lpq.exe", "-S",
                                ip, "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
     (out, err) = status.communicate()  # pylint: disable=unused-variable
     out = out.splitlines()
@@ -41,22 +41,22 @@ def order_status():
                 P156 = True
         orderStatus = ""
         if(P162 and P156):
-            status = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
+            status = subprocess.Popen(["C:/Windows/System32/lpq.exe", "-S",
                                        "10.56.54.162", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
             (orderStatus1, err) = status.communicate(
             )  # pylint: disable=unused-variable
-            status1 = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
+            status1 = subprocess.Popen(["C:/Windows/System32/lpq.exe", "-S",
                                         "10.56.54.156", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
             (orderStatus2, err) = status1.communicate(
             )  # pylint: disable=unused-variable
             orderStatus = str(orderStatus1) + str(orderStatus2)
         elif(P162):
-            status = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
+            status = subprocess.Popen(["C:/Windows/System32/lpq.exe", "-S",
                                        "10.56.54.162", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
             (orderStatus, err) = status.communicate(
             )  # pylint: disable=unused-variable
         elif(P156):
-            status = subprocess.Popen(["C:/Windows/system32/lpq.exe", "-S",
+            status = subprocess.Popen(["C:/Windows/System32/lpq.exe", "-S",
                                        "10.56.54.156", "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
             (orderStatus, err) = status.communicate(
             )  # pylint: disable=unused-variable
@@ -100,7 +100,7 @@ def print_processor(print_que, orders=[]):
             if("banner" not in print_que[0]):
                 os.system(print_que[0])
                 print((str(print_que[0]).replace(
-                    "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
+                    "C:/Windows/System32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 for q in print_que:
                     for order in orders:
