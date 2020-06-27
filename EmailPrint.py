@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20200625"
+__version__ = "v20200627"
 # Built-In Libraries
 import os
 import json
@@ -131,8 +131,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
                         '@PJL XCPT 	<value syntax="keyword">none</value>')
         with open('input.ps', 'wb') as f:
             for item in pjl_lines:
-                f.write(item)
-                f.write(b"\n")
+                f.write(item + b"\n")
         file_names = ['input.ps',
                       PATH]
         with open("".join([PATH[:-6], "pjl.ps"]), 'wb') as outfile:
