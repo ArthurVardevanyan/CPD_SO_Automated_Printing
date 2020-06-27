@@ -1,5 +1,5 @@
 # booklet.py
-__version__ = "v20200316"
+__version__ = "v20200627"
 
 from termcolor import colored
 import colorama
@@ -37,6 +37,7 @@ def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED,
     printer.print_processor(print_que)  # Does the printing
     print("PLEASE CHECK PROOF, if any files look incorrect, please cancel order")
     loop = True
+    flip = []
     while loop:
         try:
             approved = int(input(''.join(["Flip All & Proof?: ", colored("1", "cyan"), " | Flip Individually & Proof?: ", colored(
@@ -45,7 +46,6 @@ def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED,
         except:
             log.logger.exception("")
             pass
-        flip = []
         if(approved == 3):
             if (len(flip) == 0):
                 instructions.pjl_insert(
@@ -95,7 +95,7 @@ def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED,
             for j in range(len(Print_Files)):
                 while True:
                     try:
-                        flipT = int(input(''.join(["File: ", str(j), ": Flip?  Yes: ", colored(
+                        flipT = int(input(''.join(["File: ", str(j+1), ": Flip?  Yes: ", colored(
                             "1", "cyan"), " No: ", colored("0", "cyan"), " : "])))
                         if(flipT == 1 or flipT == 0):
                             flip.append(flipT)
@@ -107,7 +107,7 @@ def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED,
                         pass
                 order.DUPLEX = "two-sided-short-edge" if flip[-1] else "Two-sided (back to back)"
                 instructions.pjl_insert(
-                    order, COPIES_PER_SET,  COVERS)
+                    order, 1,  COVERS)
                 flip_file = [order.FILE_NAMES[j]]
                 instructions.pjl_merge(order,
                                        "PSP", MERGED, COVERS, flip_file)
