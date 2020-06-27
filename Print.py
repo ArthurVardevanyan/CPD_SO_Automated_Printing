@@ -1,6 +1,7 @@
 # Print.py
-__version__ = "v20200614"
+__version__ = "v20200625"
 # Local Files
+import integrity
 import files
 import BannerSheet
 import instructions
@@ -10,7 +11,6 @@ import PostScript
 import SchoolDataJson
 import order as o
 import log
-import database
 import booklet
 # Built-In Libraries
 import os
@@ -276,8 +276,8 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         print("Temp File Remove Failed")
     # Gets list of Files in the Postscript Print Ready Folder
     Print_Files = files.postscript_list(order.OD, order.NAME, "PSP")
-    LPR = ["C:/Windows/system32/lpr.exe -S 10.56.54.156 -P PS ",
-           "C:/Windows/system32/lpr.exe -S 10.56.54.162 -P PS "]
+    LPR = ["C:/Windows/System32/lpr.exe -S 10.56.54.156 -P PS ",
+           "C:/Windows/System32/lpr.exe -S 10.56.54.162 -P PS "]
     print("\n")
     if(EMAILPRINT):
         EmailPrint.Email_Print(order.OD, order.NAME,
@@ -305,7 +305,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 lpr_path = LPR[D110_IP] + '"' + order.OD+'/' + order.NAME + '/PSP/' + \
                     Print_Files[j] + '" -J "' + Print_Files[j] + '"'
                 log.logger.debug((lpr_path.replace(
-                    "C:/Windows/system32/lpr.exe -S 10.56.54.", "").replace(
+                    "C:/Windows/System32/lpr.exe -S 10.56.54.", "").replace(
                     '-P PS "C:/S/SO/', "").split("-J")[0]))
                 print_que.append(lpr_path)
         print("\n")
@@ -313,10 +313,9 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     IP = ["P156", "P162"]
     try:
         SchoolDataJson.orderStatusExport(order, str(IP[D110_IP]), False)
-        database.print_status(order.NUMBER, order.status)
     except:
         log.logger.exception("")
-        print("Database Update Failed")
+        print("Order Status Update Failed")
     return "".join([order.RESULT, LPR[D110_IP][40:43], " : ", order.NAME]), order.NUMBER,  str(IP[D110_IP])
 
 
@@ -369,7 +368,6 @@ def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
                 files.file_cleanup(Orders, OUTPUT_DIRECTORY)
                 print("\n")
                 print('\n'.join(map(str, printed)))
-                printer.order_status()
                 while True:
                     try:
                         loop = True if int(
@@ -399,18 +397,8 @@ if __name__ == "__main__":
     print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
     print(colored("Purple Paper", "magenta"),
           " (Or any bright color) should be loaded as gray plain paper.\n")
+    integrity.integrity()
     o.integrityCheck("SO/")
-    # print("If Running " + colored("Multi-Up Jobs, Purple Paper", "magenta"),
-    #       "(Or any bright color) MUST BE loaded in Tray 2 as gray plain paper.\nIn addition Load " + colored("Colored 11 by 17", "magenta") + " in the bypass as gray paper.")
-    # print("White 11 by 17 Paper should also be loaded in tray 3 and/or 4, and make sure the guides are tight.\n")
-    # while True:
-    #     try:
-    #         SEQUENTIAL = True if int(
-    #             input(''.join(["Enable Sequential Printing?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
-    #         break
-    #     except:
-    #         log.logger.exception("")
-    #         pass
     while True:
         try:
             EMAILPRINT = True if int(

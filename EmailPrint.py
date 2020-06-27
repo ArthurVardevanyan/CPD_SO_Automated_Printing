@@ -1,8 +1,6 @@
 # EmailPrint.py
-__version__ = "v20200614"
+__version__ = "v20200627"
 # Built-In Libraries
-from PJL_Commands.BannerSheetPS import bannerSheet
-from PJL_Commands.PJL_PS import end
 import os
 import json
 # Downloaded Libraries
@@ -11,13 +9,15 @@ import termcolor
 from termcolor import colored
 import colorama
 # Local Files
+import integrity
+from PJL_Commands.BannerSheetPS import bannerSheet
+from PJL_Commands.PJL_PS import end
 import files
 import PostScript
 import printer
 import log
 import SchoolDataJson
 import order as o
-import database
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
 # https://micropyramid.com/blog/how-to-create-pdf-files-in-python-using-pdfkit/
@@ -110,7 +110,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
     if D110_IP == 1 or D110_IP == 0:
         D110_IP = "156" if D110_IP == 0 else "162"
     LPR = "".join(
-        ["C:/Windows/system32/lpr.exe -S 10.56.54.", str(D110_IP), " -P PS "])
+        ["C:/Windows/System32/lpr.exe -S 10.56.54.", str(D110_IP), " -P PS "])
     PATH = "".join([OUTPUT_DIRECTORY, "/", ORDER_NAME,
                     "/Tickets/", ORDER_NAME, ".pdf.ps"])
     if os.path.exists(PATH) == False:
@@ -131,8 +131,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
                         '@PJL XCPT 	<value syntax="keyword">none</value>')
         with open('input.ps', 'wb') as f:
             for item in pjl_lines:
-                f.write(item)
-                f.write(b"\n")
+                f.write(item + b"\n")
         file_names = ['input.ps',
                       PATH]
         with open("".join([PATH[:-6], "pjl.ps"]), 'wb') as outfile:
@@ -158,10 +157,9 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         # Update Json File to Show the Email Ticket was Printing
         try:
             SchoolDataJson.orderStatusExport(order, "Ticket", True)
-            database.print_status(order.NUMBER, order.status)
         except:
             log.logger.exception("")
-            print("Database Update Failed")
+            print("Order Status Update Failed")
         try:
             os.remove("input.ps")  # remove temp file
         except:
@@ -225,5 +223,6 @@ if __name__ == "__main__":
           colored(__version__, "magenta"))
     print('Make Sure White and Bright Colored Paper is loaded!\nSet Colored Paper as ',
           colored('"Other"', "magenta"))
+    integrity.integrity()
     o.integrityCheck("SO/")
     main()

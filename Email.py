@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200401"
+__version__ = "v20200627"
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 # Built-In Libraries
 import sys
@@ -10,12 +10,12 @@ import shutil
 import re
 import getpass
 import datetime
-import _thread
 # Downloaded Libraries
 import termcolor
 from termcolor import colored
 import colorama
 # Local Files
+import integrity
 import files
 import Print
 import EmailPrint
@@ -57,6 +57,20 @@ def order_number_extract(email_body, RANDOM):
         print("This Email is Not Standard, Will Still Attempt to Download Files.")
         error_state = "Error/"
         return "", error_state
+
+
+def autorun(AUTORUN, order):
+    if(AUTORUN):
+        COLOR = 0
+        BOOKLETS = 0
+        EMAILPRINT = True
+        print_que = []
+        Orders = []
+        Print.printing(Orders, order.NUMBER, "SO", D110_IP, COLOR,
+                       print_que, AUTORUN, EMAILPRINT, BOOKLETS)
+        printer.print_processor(print_que)
+        files.file_cleanup(Orders, order.OD)
+    return 1
 
 
 def process_mailbox(M, AUTORUN, D110_IP):
@@ -105,23 +119,8 @@ def process_mailbox(M, AUTORUN, D110_IP):
             # Calls Google Drive Link Extractor
         order = o.process_Email(order, email_body, error_state)
         emails_proccessed += 1
-        if(AUTORUN):
-            COLOR = 0
-            BOOKLETS = 0
-            EMAILPRINT = True
-            print_que = []
-            Orders = []
-            Print.printing(Orders, order.NUMBER, "SO", D110_IP, COLOR,
-                           print_que, AUTORUN, EMAILPRINT, BOOKLETS)
-            printer.print_processor(print_que)
-            files.file_cleanup(Orders, order.OD)
+        autorun(AUTORUN, order)
     return emails_proccessed
-
-
-def order_Status():
-    while(True):
-        printer.order_status()
-        time.sleep(30)
 
 
 def main(AUTORUN, D110_IP):
@@ -140,10 +139,6 @@ def main(AUTORUN, D110_IP):
     M = imaplib.IMAP4_SSL(IMAP_SERVER)
     M.login(EMAIL_ACCOUNT, PASSWORD)  # Credentials Info
     rv, data = M.select(EMAIL_FOLDER)  # pylint: disable=unused-variable
-    try:
-        _thread.start_new_thread(order_Status, ())
-    except:
-        print("Print Status Failure")
     if rv == 'OK':
         print("Processing mailbox: ", EMAIL_FOLDER)
         print("Im Resting, Check Back Later:")
@@ -192,6 +187,7 @@ if __name__ == "__main__":
     print("Terminal Email Printing REV:",
           colored(EmailPrint.__version__, "magenta"))
     print("\n")
+    integrity.integrity()
     D110_IP = 1
     while True:
         try:
