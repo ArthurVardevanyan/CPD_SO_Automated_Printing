@@ -117,8 +117,8 @@ def print_processor(print_que, orders=[]):
 def main():
     log.logInit("Status")
     from log import logger
-    print = log.Print
-    input = log.Input
+    print = log.Print  # pylint: disable=unused-variable
+    input = log.Input  # pylint: disable=unused-variable
     order_status()
 
 

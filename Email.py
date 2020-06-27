@@ -60,6 +60,20 @@ def order_number_extract(email_body, RANDOM):
         return "", error_state
 
 
+def autorun(AUTORUN, order):
+    if(AUTORUN):
+        COLOR = 0
+        BOOKLETS = 0
+        EMAILPRINT = True
+        print_que = []
+        Orders = []
+        Print.printing(Orders, order.NUMBER, "SO", D110_IP, COLOR,
+                       print_que, AUTORUN, EMAILPRINT, BOOKLETS, 0, False)
+        printer.print_processor(print_que)
+        files.file_cleanup(Orders, order.OD)
+    return 1
+
+
 def process_mailbox(M, AUTORUN, D110_IP):
     # Gets all the UNSEEN emails from the INBOX
     rv, data = M.search(None, 'UNSEEN')
@@ -105,16 +119,7 @@ def process_mailbox(M, AUTORUN, D110_IP):
             # Calls Google Drive Link Extractor
         order = o.process_Email(order, email_body, error_state)
         emails_proccessed += 1
-        if(AUTORUN):
-            COLOR = 0
-            BOOKLETS = 0
-            EMAILPRINT = True
-            print_que = []
-            Orders = []
-            Print.printing(Orders, order.NUMBER, "SO", D110_IP, COLOR,
-                           print_que, AUTORUN, EMAILPRINT, BOOKLETS, 0, False)
-            printer.print_processor(print_que)
-            files.file_cleanup(Orders, order.OD)
+        autorun(AUTORUN, order)
     return emails_proccessed
 
 
