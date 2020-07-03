@@ -6,8 +6,8 @@ from PJL_Commands.BannerSheetPS import bannerSheet
 
 def banner_sheet(order):
     OUTPUT_PATH = "".join([order.OD, '/', order.NAME, '/'])
-    NAME = "CHANGE ME"
-    LOC = "CHANGE ME"
+    NAME = "", "Print & Copy"
+    LOC = ""
     try:
         with open("Credentials/creds.txt") as f:
             cred = f.readlines()
@@ -51,8 +51,7 @@ def banner_sheet(order):
     with open("".join([OUTPUT_PATH,  order.NUMBER, ' Banner ',  order.FIRST_NAME, ' ', order.LAST_NAME, '.ps']), 'wb') as outfile:
         # Export PJL Lines
         for lines in pjl_lines:
-            outfile.write(lines)
-            outfile.write(b"\n")
+            outfile.write(lines + b"\n")
         # Export Postscript Lines
         for line in POSTSCRIPT:
             outfile.write(str.encode(line))
