@@ -1,5 +1,5 @@
 # printer_processing
-__version__ = "v20200616"
+__version__ = "v20200709"
 # Built-In Libraries
 import os
 import time
@@ -16,6 +16,7 @@ colorama.init()
 
 
 def print_status(ip):
+    # Gets how many jobs are currently on the requested printer.
     status = subprocess.Popen(["C:/Windows/System32/lpq.exe", "-S",
                                ip, "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
     (out, err) = status.communicate()  # pylint: disable=unused-variable
@@ -66,8 +67,8 @@ def print_processor(print_que, orders=[]):
 def main():
     log.logInit("Status")
     from log import logger
-    print = log.Print # pylint: disable=unused-variable
-    input = log.Input # pylint: disable=unused-variable
+    print = log.Print  # pylint: disable=unused-variable
+    input = log.Input  # pylint: disable=unused-variable
 
 
 if __name__ == "__main__":

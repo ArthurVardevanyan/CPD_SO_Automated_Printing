@@ -1,5 +1,5 @@
 # booklet.py
-__version__ = "v20200627"
+__version__ = "v20200709"
 
 from termcolor import colored
 import colorama
@@ -8,6 +8,7 @@ import instructions
 
 
 def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED):
+    # Logic for Printing Booklets
     approved = 0
     COPIES_PER_SET = 0
     print("Enter How Many Sets and Copies Per Set You Would Like to Run.\nEnter 1 + Copy Count if you want to run everything at once.")
@@ -117,4 +118,3 @@ def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED)
             printer.print_processor(print_que)  # Does the printing
         elif(approved == 0):
             loop = False
-

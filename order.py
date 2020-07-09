@@ -1,4 +1,4 @@
-__version__ = "v20200401"
+__version__ = "v20200709"
 import colorama
 from termcolor import colored
 import termcolor
@@ -13,15 +13,16 @@ import instructions
 import PostScript
 print = log.Print
 input = log.Input
-# Downloaded Libraries
 
 
 class Files:
+    # Contains the list of files and how many pages each file is.
     NAME = ""
     PAGE_COUNT = ""
 
 
 class Order:
+    # Contains all the details regarding the order.
     OD = ""
     UID = ""
     status = ""
@@ -64,6 +65,7 @@ class Order:
 
 
 def order_initialization(order, JOB_INFO):
+    # Converts the JSON File into a Object
     order.UID = JOB_INFO.get('Email_ID', False)
     order.status = JOB_INFO.get('Status', False)
     order.NUMBER = JOB_INFO.get('Order Number', False)
@@ -104,6 +106,7 @@ def order_initialization(order, JOB_INFO):
 
 def process_Email(order, email_body, error_state=""):
     try:
+        # Downloads Files
         GDrive.Drive_Downloader(str(email_body), order.NUMBER,
                                 order.OD, order.SUBJECT, error_state)
     except:
@@ -113,6 +116,7 @@ def process_Email(order, email_body, error_state=""):
     try:
         # Create JSON file with Job Requirements
         JOB_INFO = SchoolDataJson.school_data_json(order)
+        # Creates the Object from the Dictionary/JSON
         order = order_initialization(order, JOB_INFO)
     except:
         log.logger.exception("")
@@ -120,7 +124,7 @@ def process_Email(order, email_body, error_state=""):
     if(error_state == "Error/"):
         order.OD = order.OD + "/Error/"
     try:
-        # Create PostScript File
+        # Create PostScript File(s)
         PostScript.postscript_conversion(order)
     except:
         log.logger.exception("")
@@ -142,6 +146,8 @@ def process_Email(order, email_body, error_state=""):
 
 
 def notStarted():
+    # Checks for orders that have not been started yet.
+    # Main purpose is to print all unprinted tickets.
     import sys
     if not sys.warnoptions:
         import warnings
@@ -174,6 +180,7 @@ def notStarted():
 
 
 def integrityCheckCheck(OUTPUT_DIRECTORY, folders):
+    # Checks to make sure cirtical files for orders exist.
     orders = []
     for folder in folders:
         filePath = "".join(
@@ -184,6 +191,8 @@ def integrityCheckCheck(OUTPUT_DIRECTORY, folders):
 
 
 def integrityCheck(OUTPUT_DIRECTORY):
+    # Checks to make sure cirtical files for orders exist.
+    # Attempts to "recover" orders with issues.
     folders = files.folder_list(OUTPUT_DIRECTORY)
     for i in range(len(folders)):
         if ("Error" in folders[i] or "Archive" in folders[i]):

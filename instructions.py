@@ -1,4 +1,4 @@
-__version__ = "v20200614"
+__version__ = "v20200709"
 import PostScript
 from PJL_Commands.PJL_PS import end
 from PJL_Commands.PJL_PS import start
@@ -8,6 +8,7 @@ import os
 
 
 def duplex_state(order):
+    # Checks if the Order is set to Duplex or not.
     if(order.DUPLEX == "Two-sided (back to back)"):
         print('Double Sided')
         return 2
@@ -17,6 +18,7 @@ def duplex_state(order):
 
 
 def merging(order):
+    # Determines if the job should be merged or not.
     if order.COLLATION == "Uncollated" and order.STAPLING != "Upper Left - portrait" and len(order.FILES) != 1:
         if order.PAGE_COUNTS / len(order.FILES) / duplex_state(order) >= 5:
             print("DUE TO PAGE COUNT, MERGED TURNED OFF")
@@ -33,6 +35,9 @@ def merging(order):
 
 
 def Special_Instructions_Processing(QTY, str):
+    # This reads the Special instructions section of the form,
+    # to determine how many sets and copies per set to run.
+    # This Function does the actual validation.
     if(str == False):
         return 0, 0
     # Remove Unwanted Characters
@@ -102,6 +107,7 @@ def Special_Instructions(order):
 
 
 def default(order):
+    # Sets the flag for no Finishing for the printer.
     if(order.STAPLING_BOOL == False and order.DRILLING != "Yes" and order.BOOKLET != "Yes"):
         print('No Finishing')
         return str.encode(
@@ -111,6 +117,7 @@ def default(order):
 
 
 def collation(order):
+    # Determines wether the order is collated or uncollated.
     if(order.COLLATION != "Collated" or (len(order.FILES)) != 1 and order.PAGE_COUNTS == len(order.FILES)):
         print('UnCollated')
         return str.encode(
@@ -122,6 +129,7 @@ def collation(order):
 
 
 def duplex(order):
+    # Determines if Single Or Double Sided
     if(order.DUPLEX == "Two-sided (back to back)"):
         print('Double Sided')
         return str.encode(
@@ -137,6 +145,7 @@ def duplex(order):
 
 
 def stapling(order, collation):
+    # Determines if and what stapling is required.
     if(order.STAPLING == "Upper Left - portrait"):
         stapling = str.encode(
             '@PJL XCPT <value syntax="enum">20</value>')
@@ -169,6 +178,7 @@ def stapling(order, collation):
 
 
 def drilling(order):
+    # Checks if the order should be Three-Hole Punched.
     if(order.DRILLING == "Yes"):
         print('Hole Punched')
         if("11 x 17" in str(order.PAPER).lower()):
@@ -182,7 +192,7 @@ def drilling(order):
 
 
 def weight_extract(order):
-    # Converts Input from given form to the value the printer needs
+    # Checks if the order is on paper or cardstock.
     paper = (str(order.PAPER)).lower()
     out = "stationery-heavyweight" if "card stock" in paper else "use-ready"
     print(out)
@@ -191,7 +201,7 @@ def weight_extract(order):
 
 
 def color_extract(order):
-    # Converts Input from given form to the value the printer needs
+    # Checks the color of the paper.
     color = (str(order.PAPER)).split()[-1].lower()
     out = 'yellow' if color == 'canary' else color
     print(out)
@@ -199,7 +209,7 @@ def color_extract(order):
 
 
 def size_extract(order):
-    # Converts Input from given form to the value the printer needs
+    # Checks the size of the paper
     paper = (str(order.PAPER)).lower()
     if "8.5 x 11" in paper:
         print("letter")
@@ -214,13 +224,14 @@ def size_extract(order):
 
 
 def booklet_extract(order):
-    # Converts Input from given form to the value the printer needs
+    # Determines if the order is a booklet
     if order.BOOKLET == "Yes":
         return str.encode("".join(['@PJL XCPT <value syntax="enum">110</value>']))
     return ""
 
 
 def pjl_merge(order, outFOLDER, MERGED, FILES):
+    # Merges multiples files together
     N = "n" if outFOLDER == "PSPn" else ""
     F = order.OD + "/"+order.NAME + "/" + outFOLDER
     try:
@@ -258,6 +269,7 @@ def pjl_merge(order, outFOLDER, MERGED, FILES):
 
 
 def pjl_insert(order, COPIES_PER_SET):
+    # Inserts the Printer Commands into the final print ready file(s).
     print('\nChosen Options:')
     COLLATION = collation(order)
     DUPLEX, duplex_state = duplex(order)
