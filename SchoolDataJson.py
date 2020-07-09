@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20200408"
+__version__ = "v20200709"
 # Built-In Libraries
 import json
 import os
@@ -35,7 +35,7 @@ def school_data_json(order):
                 i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf.getNumPages())}
             f.close()
         except:
-            log.logger.exception("")
+            log.logger.exception("Using Alternative Page Count Source")
             pdf = files.page_count(
                 '/'.join([order.OD, order.NAME, FILES[i]]))
             school_data["Files"]["".join(["File ", str(
@@ -45,7 +45,7 @@ def school_data_json(order):
         if "IF YOU HAVE ANY QUESTIONS" in email[i]:
             email = email[8:-(len(email)-i)]
             break
-            # Searchs for required elements from the form for the JSON file.
+    # Searchs for required elements from the form for the JSON file.
     for i in range(len(email)):
         test_string = "Timestamp"
         if test_string in email[i]:

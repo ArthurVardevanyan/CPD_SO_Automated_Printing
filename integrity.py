@@ -1,4 +1,4 @@
-__version__ = "v20200625"
+__version__ = "v20200709"
 import colorama
 from termcolor import colored
 import termcolor
@@ -12,6 +12,7 @@ input = log.Input
 
 
 def lpr():
+    # Check if LPR for Line printer Daemon (LPD) is enabled on the System
     if(os.name == "posix"):
         LPR_PATH = 'lpr'
         output = which(LPR_PATH) is not None
@@ -24,6 +25,7 @@ def lpr():
 
 
 def lpq():
+    # Check if LPQ for Line printer Daemon (LPD) is enabled on the System
     if(os.name == "posix"):
         LPQ_PATH = 'lpq'
         output = which(LPQ_PATH) is not None
@@ -36,6 +38,7 @@ def lpq():
 
 
 def ghostscript():
+    # Check if Ghostscript is Installed
     if(os.name == "posix"):
         GHOSTSCRIPT_PATH = 'gs'
         output = which(GHOSTSCRIPT_PATH) is not None
@@ -49,6 +52,7 @@ def ghostscript():
 
 
 def wkhtmltopdf():
+    # Check if wkhtmltopdf is Installed
     if(os.name == "posix"):
         WKHTMLTOPDF_PATH = 'gs'
         output = which(WKHTMLTOPDF_PATH) is not None
@@ -61,10 +65,10 @@ def wkhtmltopdf():
 
 
 def ansicon():
+    # Check if ansicon (Terminal Color) is Installed
     if(os.name == "posix"):
         output = True  # Not Relevant for Linux
     else:
-        # TODO, Remove absolute version number.
         ANSICON_PATH = 'C:/ansi189-bin/x64/ansicon.exe'
         output = os.path.exists(ANSICON_PATH)
     if(not output):
@@ -73,6 +77,7 @@ def ansicon():
 
 
 def internet():
+    #Check if Valid Internet Connection
     # https://stackoverflow.com/questions/50558000/test-internet-connection-for-python3
     try:
         urlopen('https://8.8.8.8', timeout=10)
@@ -88,7 +93,7 @@ def integrity():
     integrityChecks.append(lpq())
     integrityChecks.append(ghostscript())
     integrityChecks.append(wkhtmltopdf())
-    integrityChecks.append(internet())
+    #integrityChecks.append(internet()) #TODO Sometimes Failing on Windows
     if(False in integrityChecks):
         print(colored(
             "Please resolve the above the error\nThe Software will now Exit", "red"))
@@ -96,7 +101,8 @@ def integrity():
         exit()
     else:
         return True
-    
+
+
 def main():
     log.logInit("Integrity")
     from log import logger

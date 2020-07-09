@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200627"
+__version__ = "v20200709"
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 # Built-In Libraries
 import sys
@@ -188,6 +188,12 @@ if __name__ == "__main__":
           colored(EmailPrint.__version__, "magenta"))
     print("\n")
     integrity.integrity()
+    try:
+        # Creates the Directory for Output
+        if not os.path.exists("SO/"):
+            os.makedirs("SO/")
+    except OSError:
+        print("Creation of the Order directory failed")
     D110_IP = 1
     while True:
         try:

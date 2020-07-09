@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200609"
+__version__ = "v20200709"
 # Built-In Libraries
 from PJL_Commands.PJL_PS import blank
 import files
@@ -18,9 +18,12 @@ input = log.Input
 if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
 else:
-    GHOSTSCRIPT_PATH = 'C:/"Program Files"/gs/gs9.52/bin/gswin64c.exe' #TODO, Remove absolute version number.
+    # TODO, Remove absolute version number.
+    GHOSTSCRIPT_PATH = 'C:/"Program Files"/gs/gs9.52/bin/gswin64c.exe'
+
 
 def ghostscript(gsCMD):
+    # Processes the inputted GhostScript Request / Command
     output = subprocess.Popen(gsCMD, stdout=subprocess.PIPE, shell=True)
     (out, err) = output.communicate()  # pylint: disable=unused-variable
     out = str(out).replace("b'GPL Ghostscript 9.27 (2019-04-04)\\nCopyright (C) 2018 Artifex Software, Inc.  All rights reserved.\\nThis software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:\\nsee the file COPYING for details.\\n", "")
@@ -31,6 +34,7 @@ def ghostscript(gsCMD):
 
 
 def ticket_conversion(PATH):
+    # Converts the Tickets from PDF TO PS
     # https://stackoverflow.com/questions/39574096/how-to-delete-pages-from-pdf-file-using-python
     pdf = PyPDF2.PdfFileReader(PATH, "rb")
     output = PyPDF2.PdfFileWriter()
@@ -45,6 +49,7 @@ def ticket_conversion(PATH):
 
 
 def postscript_conversion(order):
+    # Converts order PDF files to PS
     F = "".join([order.OD,
                  "/", order.NAME, "/PostScript"])
     try:
@@ -63,6 +68,7 @@ def postscript_conversion(order):
 
 
 def file_merge(order, DUPLEX_STATE):
+    # If needed, merges multiple files together
     with open('Blank.ps', 'wb') as f:
         f.write(blank)
     FILES_path = ''

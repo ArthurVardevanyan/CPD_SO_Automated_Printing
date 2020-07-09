@@ -1,5 +1,5 @@
 # files.py
-__version__ = "v20200226"
+__version__ = "v20200709"
 # Built-In Libraries
 import os
 import glob
@@ -11,10 +11,7 @@ import subprocess
 import shutil
 # Local Files
 import log
-if(os.name == "posix"):
-    GHOSTSCRIPT_PATH = 'gs'
-else:
-    GHOSTSCRIPT_PATH = 'C:/Program Files (x86)/gs/gs9.27/bin/gswin32c.exe'
+from PostScript import GHOSTSCRIPT_PATH
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
 
@@ -56,7 +53,7 @@ def page_counts(order):
             pdf = pdf.getNumPages()
             f.close()
         except:
-            log.logger.exception("")
+            log.logger.exception("Using Alternative Page Count Source")
             pdf = page_count(
                 '/'.join([order.OD, '/', order.NAME, '/', files[i]]))
         orderCounts.append("".join(["Page Count: ", colored(str(pdf),
@@ -66,6 +63,7 @@ def page_counts(order):
 
 
 def page_count(path):
+    # Alternative Method to Calculating Document Page Count
     args = [GHOSTSCRIPT_PATH, "-q", "-dNODISPLAY", '-c',
             '"('+path + ') (r) file runpdfbegin pdfpagecount = quit"']
     if(os.name == "posix"):
@@ -79,6 +77,7 @@ def page_count(path):
 
 
 def file_cleanup(Orders, OUTPUT_DIRECTORY):
+    # Cleans up Temporary Files after order finishes.
     try:
         for order in Orders:
             orderPath = "".join([OUTPUT_DIRECTORY, "/", order])

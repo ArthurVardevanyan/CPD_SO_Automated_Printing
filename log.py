@@ -1,13 +1,15 @@
 
 # log.py
-__version__ = "v20200208"
+__version__ = "v20200709"
 import os
 import logging
 from datetime import datetime
 license = "20201231"
+logger = None
 
 
 def logInit(fileName,  logFolder="logs/"):
+    # Initialize Logging System
     global logger
     logger = log(fileName, logFolder)
 
@@ -33,11 +35,13 @@ def log(fileName, logFolder):
 
 
 def Print(obj0, obj1="", obj2=""):
+    # Abstract Print Command to Log to File and Display to Screen
     print(obj0, obj1, obj2)
     logger.debug("".join([str(obj0), str(obj1), str(obj2)]))
 
 
 def Input(obj):
+    # Abstract Input to also Log to File
     logger.debug(str(obj))
     IN = input(obj)
     logger.debug(str(IN))

@@ -7,7 +7,7 @@ from oauth2client import file, client, tools
 # Built-In Libraries
 import re
 import log
-__version__ = "v20200310"
+__version__ = "v20200709"
 # Source https://developers.google.com/drive/api/v3/quickstart/python
 # Source https://stackoverflow.com/questions/52211886/downloading-file-from-google-drive-using-api-nameerror-name-service-is-not-d
 # If modifying these scopes, delete the file token.json.
@@ -50,7 +50,7 @@ def Drive_Downloader(email_body, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
     file_links = link_extractor(email_body)
     file_links = link_cleanup(file_links)
     if(len(file_links)):
-        # Calls the Google Drive Downloader Function in GDrive.py
+        # Calls the Downloader for each file.
         count = 0
         for ids in file_links:
             count += 1
@@ -58,11 +58,12 @@ def Drive_Downloader(email_body, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
                 ids, OrderNumber, OUTPUT_DIRECTORY, Subject, count, Error)
         return 1
     else:
-        print("This Isn't A School Order")
+        print("This Isn't A Compatible Order")
         return 0
 
 
 def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, count, ERROR_STATE):
+    # Get the AUTH Token, or request a new token.
     store = file.Storage('Credentials/token.json')
     creds = store.get()
     if not creds or creds.invalid:
@@ -87,10 +88,8 @@ def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, c
         file_name = re.sub(r'[\\/:;?\"<>*|]', "", file_name)
         file_name = file_name.replace(
             "Multifunction Printer", "").replace("&", "and").replace("ñ", "n").replace("ó", "")
-        if("pdf" in file_name):
-            ext = ""
-        else:
-            ext = ".pdf"
+        # Adds file extension if missing.
+        ext = "" if("pdf" in file_name) else ".pdf"
         # will write file using the file_name
         if count < 10:
             count = "".join([str("0"), str(count)])

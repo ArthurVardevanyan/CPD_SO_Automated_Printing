@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200625"
+__version__ = "v20200709"
 # Local Files
 import integrity
 import files
@@ -30,6 +30,7 @@ D110_156 = 1  # Impressions ran on this machine
 
 
 def impression_counter(order, PRINTER):
+    # Keeps Track of how many impressions (copies) are sent to each printer. Used when load balancing.
     if PRINTER == 0:
         return 0
     if PRINTER == 1:
@@ -73,32 +74,8 @@ def can_run(order, COLOR, BOOKLETS):
     return True
 
 
-def can_nup(order, COLOR, SETS):
-    if(order.STAPLING_BOOL):
-        return False
-    if(order.FRONT_COVER):
-        return False
-    if(order.BACK_COVER):
-        return False
-    if(order.BOOKLET):
-        return False
-    if("11 x 17" in order.PAPER):
-        return False
-    if(order.PAPER != "8.5 x 11 Paper White" and COLOR == 0):
-        return False
-    if("color" in str.lower(str(order.SLIPSHEETS)) and "print" in str.lower(str(order.SLIPSHEETS))):
-        return False
-    if("color" in str.lower(str(order.SPECIAL_INSTRUCTIONS)) and "print" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
-        return False
-    if("cover" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
-        return False
-    if (SETS == 1):
-        print(colored("Only One Set, Running Normally", "red"))
-        return False
-    return True
-
-
 def order_selection(ORDER_NUMBER, Folders, AUTORUN):
+    # Finds and returns the intended order.
     ORDER_NAME = "No Order Selected"  # Default Value
     ORDER_NAMES = []
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
