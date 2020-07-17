@@ -8,5 +8,4 @@ oauth2client
 google-api-python-client==1.8.0 # Newer Version(s) has an issue with pyinstaller
 google-auth-httplib2 
 google-auth-oauthlib
-mysql-connector-python
 
