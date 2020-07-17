@@ -389,10 +389,10 @@ if __name__ == "__main__":
     while True:
         try:
             COLOR = 1 if int(
-                input(''.join(["Enable Colored Paper?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
+                input(''.join(["Enable Colored Paper / Cardstock?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
             if(COLOR):
                 print(
-                    "Make sure to load colored paper before submitting jobs, otherwise banner sheets will all print first!")
+                    "Make sure to load colored paper / cardstock before submitting jobs, otherwise banner sheets will all print first!")
             break
         except:
             log.logger.exception("")
