@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200709"
+__version__ = "v20200718"
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 # Built-In Libraries
 import sys
@@ -16,10 +16,8 @@ from termcolor import colored
 import colorama
 # Local Files
 import integrity
-import files
 import Print
 import EmailPrint
-import printer
 import order as o
 import log
 # use Colorama to make Termcolor work on Windows too
@@ -27,7 +25,18 @@ colorama.init()
 
 
 def subject_line(subject):
-    # Stripping Unwanted Content
+    """
+    Cleans up the subject line from the current email.
+
+    The subject line contains unnecessary information that is removed.
+    In addition, charcaters that may pose a problem for windows are also removed.
+
+    Parameters: 
+        subject (string): The subject line to be cleaned up.
+
+    Returns: 
+        string: The cleaned up subject line.
+    """
     subject = str(subject[1][0][1]).replace(
         "Subject: ", "").replace("Copy Job - ", "")
     subject = subject[2:-9].strip()
@@ -39,11 +48,40 @@ def subject_line(subject):
 
 
 def order_number_random():
+    """
+    Generators a "random" order number.
+
+    Customer occasionally supplies duplicate order numbers.
+    This appends the minutes & seconds to the end of the order number.
+    This sufficiently resolves the duplicate order number issue.
+
+    Parameters: 
+        N/A
+
+    Returns: 
+        string: A String containing a hyphen and the current time in -MMSS.
+    """
     time = datetime.datetime.today().strftime('%M%S')
     return "".join(["-", time])
 
 
 def order_number_extract(email_body, RANDOM):
+    """
+    Extract the order number from the body of the email.
+
+    If the order number cannot be determined, or does not exist, 
+    a non fatal error flag is thrown and the contents of the email 
+    will still be saved but moved to another folder.
+    This occurs usually when a email is received that isn't actually an order.
+
+    Parameters: 
+        email_body  (str): The body of the email.
+        random      (str): "Random" number to append to the end of the order number.
+
+    Returns: 
+        string: The order number
+        string: The error state
+    """
     try:  # Checks if Email is Indeed A School Order, Strips Unwanted Information
         email_body = email_body.split("Order Number:", 1)
         ORDER_NUMBER = str(email_body[1])
@@ -60,7 +98,25 @@ def order_number_extract(email_body, RANDOM):
 
 
 def autorun(AUTORUN, order):
+    """
+    Automatically attempts to run an order.
+
+    Used mostly for show, however this does work in production.
+    High order loads will be to tougher for human operators to keep up with the printers.
+    Orders that can be automatically run get ran.
+    Orders that can not be automatically ran, get only the ticket printed, 
+    to a separate tray on the printer.
+
+    Parameters: 
+        AUTORUN (bool)  : The flag for wether to autorun or not.
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        bool: Unused return.
+    """
     if(AUTORUN):
+        import files
+        import printer
         COLOR = 0
         BOOKLETS = 0
         EMAILPRINT = True
@@ -74,6 +130,20 @@ def autorun(AUTORUN, order):
 
 
 def process_mailbox(M, AUTORUN, D110_IP):
+    """
+    Checks the Gmail account for new emails and proceeds to operate on all unread emails.
+
+    All the operations that prep an order to be run later are here or called from here.
+    This function is main the sequel.
+
+    Parameters: 
+        M       (object): The Gmail connection object.
+        AUTORUN (bool)  : The flag for wether to autorun or not.
+        D110_IP (int)   : Which IP to use form the LPR list.
+
+    Returns: 
+        int: The number of emails the are processed. 
+    """
     # Gets all the UNSEEN emails from the INBOX
     rv, data = M.search(None, 'UNSEEN')
     # '(SINCE "01-Jan-2012" BEFORE "02-Jan-2012")',  'UNSEEN'
@@ -124,6 +194,16 @@ def process_mailbox(M, AUTORUN, D110_IP):
 
 
 def main(AUTORUN, D110_IP):
+    """
+    Preps the connection to the Gmail account, as well as runs the loop to check for new orders.
+
+    Parameters: 
+        AUTORUN (bool)  : The flag for wether to autorun or not.
+        D110_IP (int)   : Which IP to use form the LPR list.
+
+    Returns: 
+        N/A
+    """
     IMAP_SERVER = 'imap.gmail.com'
     EMAIL_FOLDER = "Inbox"
     PASSWORD = getpass.getpass()

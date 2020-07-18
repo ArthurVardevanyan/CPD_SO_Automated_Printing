@@ -1,5 +1,5 @@
 # booklet.py
-__version__ = "v20200709"
+__version__ = "v20200718"
 
 from termcolor import colored
 import colorama
@@ -8,7 +8,28 @@ import instructions
 
 
 def bookletPrint(log, order, print_que, Print_Files, SETS, LPR, D110_IP, MERGED):
-    # Logic for Printing Booklets
+    """
+    Logic & workflow for printing saddle-stitched booklets.
+
+    Saddle-stitched bookelts require a differnet workflow.
+    Booklets also require extra validation before running.
+    Booklets also only get ran one-set at a time. 
+    This can handle that.
+
+    Parameters: 
+        log         (object): The object that allows the software to log itself.
+        order       (object): The object containing all the information for the current order.
+        print_que   (list)  : The list of print ready files waiting to be run. (Used when Bulk Printing)
+        Print_Files (list)  : The location of all the postscript files for the current job.
+        SETS        (int)   : How many sets to run.
+        LPR         (list)  : The front portion of the LPR command for each printer.
+        D110_IP     (int)   : Which IP to use form the LPR list.
+        MERGED      (bool)  : The flag for knowing if all the files are merged together.
+                        
+
+    Returns: 
+        N/A
+    """
     approved = 0
     COPIES_PER_SET = 0
     print("Enter How Many Sets and Copies Per Set You Would Like to Run.\nEnter 1 + Copy Count if you want to run everything at once.")

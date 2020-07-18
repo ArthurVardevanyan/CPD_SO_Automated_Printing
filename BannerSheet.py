@@ -1,10 +1,22 @@
 # BannerSheet.py
-__version__ = "v20200627"
+__version__ = "v20200718"
 # Setups up BannerSheet Postscript File
 from PJL_Commands.BannerSheetPS import bannerSheet
 
 
 def banner_sheet(order):
+    """
+    Generates A Custom Postscript Banner Sheet
+
+    Generates a custom banner sheet for running these jobs. 
+    Outputted in front of each job before all the files get outputted.
+
+    Parameters: 
+        order (object): The object for the current order.
+
+    Returns: 
+        string: The path to the banner sheet file.
+    """
     OUTPUT_PATH = "".join([order.OD, '/', order.NAME, '/'])
     NAME = "", "Print & Copy"
     LOC = ""
