@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20200627"
+__version__ = "v20200718"
 # Built-In Libraries
 import os
 import json
@@ -24,6 +24,22 @@ colorama.init()
 
 
 def Email_Html(ORDER_NAME, PATH, NAME, Files):
+    """
+    Creates an HTML Ticket, and a PDF Ticket
+
+    The HTML portion of the Email is extracted and saved for use as a printable ticket.
+    The page count for each file is also added to the HTML table.
+    The person who is being billed is also added to the top of the ticket.
+
+    Parameters: 
+        ORDER_NAME  (str)   : The name of the order.
+        PATH        (str)   : Location of the order.
+        NAME        (str)   : The html for the person that is being billed for the order that will be inserted into the html.
+        Files       (list)  : The html list of filenames and page counts that will be inserted into the html.
+
+    Returns: 
+        bool: unused return
+    """
     F = "".join([PATH, "/Tickets"])
     try:
         if not os.path.exists(F):
@@ -83,6 +99,20 @@ def Email_Html(ORDER_NAME, PATH, NAME, Files):
 
 
 def Email_Printer(OUTPUT_DIRECTORY, ORDER_NAME, error_state):
+    """
+    Loads the requested order, and generates Bill Name and Page Count Html
+
+    Generates the html that gets inserted for the current orders ticket.
+    Bill TO: and Page Counts for each file.
+
+    Parameters: 
+        OUTPUT_DIRECTORY    (str): Location of the order.
+        ORDER_NAME          (str): The name of the order.
+        error_state         (str): The flag that determines where to pull the order from.
+
+    Returns: 
+        bool: unused return
+    """
     files_list = []
     NAME = ""
     try:
@@ -107,6 +137,19 @@ print_count_2 = 0
 
 
 def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
+    """
+    Facialites the process of generating and printing order tickets.
+
+    Parameters: 
+        OUTPUT_DIRECTORY   (str)   : Location of the order.
+        ORDER_NAME         (str)   : The name of the order.
+        print_que          (list)  : The list of print ready files waiting to be run. (Used when Bulk Printing)
+        STACKER            (str)   : Which Tray of the Printer to print the ticket out of.
+        D110_IP            (int)   : Which IP to use form the LPR list.
+
+    Returns: 
+        bool: unused return
+    """
     if D110_IP == 1 or D110_IP == 0:
         D110_IP = "156" if D110_IP == 0 else "162"
     LPR = "".join(
