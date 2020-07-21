@@ -1,4 +1,4 @@
-__version__ = "v20200709"
+__version__ = "v20200721"
 import colorama
 from termcolor import colored
 import termcolor
@@ -65,7 +65,16 @@ class Order:
 
 
 def order_initialization(order, JOB_INFO):
-    # Converts the JSON File into a Object
+    """
+    This initializes the order from the local json file into a runtime object.
+
+    Parameters: 
+        order  (object)   : The object containing all the information for the current order.
+        json   (json/dict): The json/dict containing all the information for the current order.
+
+    Returns: 
+        object: The object containing all the information for the current order.
+    """
     order.UID = JOB_INFO.get('Email_ID', False)
     order.status = JOB_INFO.get('Status', False)
     order.NUMBER = JOB_INFO.get('Order Number', False)
@@ -105,6 +114,17 @@ def order_initialization(order, JOB_INFO):
 
 
 def process_Email(order, email_body, error_state=""):
+    """
+    The handles all the functions that process the email during download.
+
+    Parameters: 
+        order       (object): Empty Order Object
+        email_body  (str)   : The body of the email for the current order.
+        error_state (str)   : The flag that determines where to store the order.
+
+    Returns: 
+        object: The object containing all the information for the current order.
+    """
     try:
         # Downloads Files
         GDrive.Drive_Downloader(str(email_body), order.NUMBER,
@@ -146,8 +166,17 @@ def process_Email(order, email_body, error_state=""):
 
 
 def notStarted():
-    # Checks for orders that have not been started yet.
-    # Main purpose is to print all unprinted tickets.
+    """
+    Checks for orders that have not been started yet.
+
+    Main purpose is to print all unprinted tickets.
+
+    Parameters: 
+        N/A
+
+    Returns: 
+        list: The orders that have not yet been printed, or had thier tickets printed.
+    """
     import sys
     if not sys.warnoptions:
         import warnings
@@ -180,7 +209,18 @@ def notStarted():
 
 
 def integrityCheckCheck(OUTPUT_DIRECTORY, folders):
-    # Checks to make sure cirtical files for orders exist.
+    """
+    Checks to make sure cirtical files for orders exist.
+
+    Main purpose is to print all unprinted tickets.
+
+    Parameters: 
+        OUTPUT_DIRECTORY (str)  : The location of the orders.
+        folders          (list) : List of all the orders currently downloaded.
+
+    Returns: 
+        list: The orders that have issues.
+    """
     orders = []
     for folder in folders:
         filePath = "".join(
@@ -191,8 +231,18 @@ def integrityCheckCheck(OUTPUT_DIRECTORY, folders):
 
 
 def integrityCheck(OUTPUT_DIRECTORY):
-    # Checks to make sure cirtical files for orders exist.
-    # Attempts to "recover" orders with issues.
+    """
+    Checks to make sure cirtical files for orders exist.
+
+    Attempts to "recover" orders with issues.
+
+    Parameters: 
+        OUTPUT_DIRECTORY (str)  : The location of the orders.
+
+    Returns: 
+        void: Unused Return.
+    """
+
     folders = files.folder_list(OUTPUT_DIRECTORY)
     for i in range(len(folders)):
         if ("Error" in folders[i] or "Archive" in folders[i]):

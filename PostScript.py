@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200709"
+__version__ = "v20200721"
 # Built-In Libraries
 from PJL_Commands.PJL_PS import blank
 import files
@@ -23,7 +23,15 @@ else:
 
 
 def ghostscript(gsCMD):
-    # Processes the inputted GhostScript Request / Command
+    """
+    Processes the requested ghostscript command through the ghostscript program.
+
+    Parameters: 
+        gsCMD (str): The Ghostscript command to be processed.
+
+    Returns: 
+        bool: Unused output.
+    """
     output = subprocess.Popen(gsCMD, stdout=subprocess.PIPE, shell=True)
     (out, err) = output.communicate()  # pylint: disable=unused-variable
     out = str(out).replace("b'GPL Ghostscript 9.27 (2019-04-04)\\nCopyright (C) 2018 Artifex Software, Inc.  All rights reserved.\\nThis software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:\\nsee the file COPYING for details.\\n", "")
@@ -34,7 +42,15 @@ def ghostscript(gsCMD):
 
 
 def ticket_conversion(PATH):
-    # Converts the Tickets from PDF TO PS
+    """
+    Converts the Tickets from PDF TO PS
+
+    Parameters: 
+        PATH (str): The Path of the PDF Ticket to be Converted.
+
+    Returns: 
+        void: Unused output
+    """
     # https://stackoverflow.com/questions/39574096/how-to-delete-pages-from-pdf-file-using-python
     pdf = PyPDF2.PdfFileReader(PATH, "rb")
     output = PyPDF2.PdfFileWriter()
@@ -49,7 +65,17 @@ def ticket_conversion(PATH):
 
 
 def postscript_conversion(order):
-    # Converts order PDF files to PS
+    """
+    Converts order PDF files to PS
+
+    During Email download, pdf files are converted to postscript.
+
+    Parameters: 
+        order  (object)   : The object containing all the information for the current order.
+
+    Returns: 
+        bool: Unused output
+    """
     F = "".join([order.OD,
                  "/", order.NAME, "/PostScript"])
     try:
@@ -68,7 +94,19 @@ def postscript_conversion(order):
 
 
 def file_merge(order, DUPLEX_STATE):
-    # If needed, merges multiple files together
+    """
+    If needed, merges multiple files together
+
+    Some orders get all files merged into one big file.
+    If duplex, blank pages are added to the end of all odd number documents.
+
+    Parameters: 
+        order           (object): The object containing all the information for the current order.
+        DUPLEX_STATE    (str)   : Whether the order is duplex or not.
+
+    Returns: 
+        bool: Unused output
+    """
     with open('Blank.ps', 'wb') as f:
         f.write(blank)
     FILES_path = ''

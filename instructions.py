@@ -1,4 +1,4 @@
-__version__ = "v20200709"
+__version__ = "v20200721"
 import PostScript
 from PJL_Commands.PJL_PS import end
 from PJL_Commands.PJL_PS import start
@@ -8,7 +8,15 @@ import os
 
 
 def duplex_state(order):
-    # Checks if the Order is set to Duplex or not.
+    """
+    Checks if the Order is set to Duplex or not.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        int: Duplex State
+    """
     if(order.DUPLEX == "Two-sided (back to back)"):
         print('Double Sided')
         return 2
@@ -18,7 +26,15 @@ def duplex_state(order):
 
 
 def merging(order):
-    # Determines if the job should be merged or not.
+    """
+    Determines if the job should be merged or not.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        bool: Merge status
+    """
     if order.COLLATION == "Uncollated" and order.STAPLING != "Upper Left - portrait" and len(order.FILES) != 1:
         if order.PAGE_COUNTS / len(order.FILES) / duplex_state(order) >= 5:
             print("DUE TO PAGE COUNT, MERGED TURNED OFF")
@@ -35,9 +51,17 @@ def merging(order):
 
 
 def Special_Instructions_Processing(QTY, str):
-    # This reads the Special instructions section of the form,
-    # to determine how many sets and copies per set to run.
-    # This Function does the actual validation.
+    """
+    Determines the amount of sets, and copies per set for a given string and quantity.
+
+    Parameters: 
+        QTY (int): The total copy quantity of the job.
+        str (str): The string that needs to be analyzed.
+
+    Returns: 
+        int: The amount of sets.
+        int: The amount of copies per set.
+    """
     if(str == False):
         return 0, 0
     # Remove Unwanted Characters
@@ -79,6 +103,24 @@ def Special_Instructions_Processing(QTY, str):
 
 
 def Special_Instructions(order):
+    """
+    Determines the amount of sets, and copies per set for an order.
+
+    Using the Special Instructions Field,
+    and the Shrink Wrap / Slip Sheets Field,
+    and the Total Copies Field,
+    The amount of sets, and copies per set are calculated.
+
+    If the output cannot be determined, it defaults to human input later.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        int: The amount of sets.
+        int: The amount of copies per set.
+        (Or 0,0 for inconclusive)
+    """
    # Get Information from JSON file, QTY, Comment Line #1 & #2
    # Process the information from both comment sections
     QTY = order.COPIES
@@ -107,7 +149,15 @@ def Special_Instructions(order):
 
 
 def default(order):
-    # Sets the flag for no Finishing for the printer.
+    """
+    Sets the flag for no Finishing for the printer.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        str: PJL Code
+    """
     if(order.STAPLING_BOOL == False and order.DRILLING != "Yes" and order.BOOKLET != "Yes"):
         print('No Finishing')
         return str.encode(
@@ -117,7 +167,18 @@ def default(order):
 
 
 def collation(order):
-    # Determines wether the order is collated or uncollated.
+    """
+    Determines whether the order is collated or uncollated.
+
+    Based on the the resquest of the customer, and how many and how long the documents are,
+    the job will either be run collated, or uncollated.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        str: PJL Code
+    """
     if(order.COLLATION != "Collated" or (len(order.FILES)) != 1 and order.PAGE_COUNTS == len(order.FILES)):
         print('UnCollated')
         return str.encode(
@@ -129,7 +190,20 @@ def collation(order):
 
 
 def duplex(order):
-    # Determines if Single Or Double Sided
+    """
+    Determines whether the order is duplex or not.
+
+    Depending on the order, it can be either
+    Single Sided
+    Double Sided Long Edge
+    Double SIded Short Edge
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        str: PJL Code
+    """
     if(order.DUPLEX == "Two-sided (back to back)"):
         print('Double Sided')
         return str.encode(
@@ -145,7 +219,23 @@ def duplex(order):
 
 
 def stapling(order, collation):
-    # Determines if and what stapling is required.
+    """
+    Determines if and what stapling is required.
+
+    Depending on the order, it can be either
+    Top Left Portait
+    Top Left Landscape
+    Double Left Staple
+    Based on the order, collation and/or stapling 
+    can be overridden if input is unreasonable.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        str: PJL Code for Stapling
+        str: PJL Code for Collation
+    """
     if(order.STAPLING == "Upper Left - portrait"):
         stapling = str.encode(
             '@PJL XCPT <value syntax="enum">20</value>')
@@ -178,7 +268,15 @@ def stapling(order, collation):
 
 
 def drilling(order):
-    # Checks if the order should be Three-Hole Punched.
+    """
+    Checks if the order should be Three-Hole Punched.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        str: PJL Code
+    """
     if(order.DRILLING == "Yes"):
         print('Hole Punched')
         if("11 x 17" in str(order.PAPER).lower()):
@@ -192,7 +290,15 @@ def drilling(order):
 
 
 def weight_extract(order):
-    # Checks if the order is on paper or cardstock.
+    """
+    Determines if the order is on paper or cardstock.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        str: PJL Code
+    """
     paper = (str(order.PAPER)).lower()
     out = "stationery-heavyweight" if "card stock" in paper else "use-ready"
     print(out)
@@ -201,7 +307,15 @@ def weight_extract(order):
 
 
 def color_extract(order):
-    # Checks the color of the paper.
+    """
+    Determines the color of the paper.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        str: PJL Code
+    """
     color = (str(order.PAPER)).split()[-1].lower()
     out = 'yellow' if color == 'canary' else color
     print(out)
@@ -209,6 +323,15 @@ def color_extract(order):
 
 
 def size_extract(order):
+    """
+    Determines the size of the paper.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        str: PJL Code
+    """
     # Checks the size of the paper
     paper = (str(order.PAPER)).lower()
     if "8.5 x 11" in paper:
@@ -224,6 +347,15 @@ def size_extract(order):
 
 
 def booklet_extract(order):
+    """
+    Determines wether the order needs to be saddle-stitched or not.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        str: PJL Code
+    """
     # Determines if the order is a booklet
     if order.BOOKLET == "Yes":
         return str.encode("".join(['@PJL XCPT <value syntax="enum">110</value>']))
@@ -231,7 +363,19 @@ def booklet_extract(order):
 
 
 def pjl_merge(order, outFOLDER, MERGED, FILES):
-    # Merges multiples files together
+    """
+    Merges the Postscript files with the custom PJL header file to create Print Ready Postscript Files.
+
+    Parameters: 
+        order       (object): The object containing all the information for the current order.
+        outFOLDER   (str)   : The output folder to store the Print Ready files inside.
+        MERGED      (bool)  : Determines if thier is a single merged document or individual Files.
+        FILES       (list)  : The list of files that will be merged.
+
+    Returns: 
+        bool: unused return.
+    """
+    # TODO: merged default param
     N = "n" if outFOLDER == "PSPn" else ""
     F = order.OD + "/"+order.NAME + "/" + outFOLDER
     try:
@@ -269,7 +413,17 @@ def pjl_merge(order, outFOLDER, MERGED, FILES):
 
 
 def pjl_insert(order, COPIES_PER_SET):
-    # Inserts the Printer Commands into the final print ready file(s).
+    """
+    Generates the Custom PJL Header File and
+    Inserts the Printer Commands into the final print ready file(s).
+
+    Parameters: 
+        order           (object): The object containing all the information for the current order.
+        COPIES_PER_SET  (str)   : The amount of copies per set.
+
+    Returns: 
+        bool: unused return.
+    """
     print('\nChosen Options:')
     COLLATION = collation(order)
     DUPLEX, duplex_state = duplex(order)

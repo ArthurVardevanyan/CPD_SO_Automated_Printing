@@ -1,5 +1,5 @@
 # SchoolDataJson.py
-__version__ = "v20200709"
+__version__ = "v20200721"
 # Built-In Libraries
 import json
 import os
@@ -15,6 +15,15 @@ import log
 
 
 def school_data_json(order):
+    """
+    Generates the JSON/DICT for the current order.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+
+    Returns: 
+        json/dict: The JSON/DICT for the order.
+    """
     school_data = {'Account ID': 'CHANGE ME'}
     school_data["Order Number"] = order.NUMBER
     school_data["Order Subject"] = order.SUBJECT
@@ -162,6 +171,19 @@ def school_data_json(order):
 
 
 def orderStatusExport(order, STATUS, DATE):
+    """
+    Exports the Status of the order with the date time.
+
+    Puts in the JSON file wether the Ticker or the Order has been printed.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+        STATUS  (str)   : The status of the order.
+        DATE    (str)   : The Date which it was modified.
+
+    Returns: 
+        void: Unused Return
+    """
     JSON_PATH = "".join(
         [order.OD, '/', order.NAME, '/', order.NAME, '.json'])
     with open(JSON_PATH) as json_file:
