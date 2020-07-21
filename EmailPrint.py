@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20200718"
+__version__ = "v20200721"
 # Built-In Libraries
 import os
 import json
@@ -211,6 +211,18 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
 
 
 def main():
+    """
+    Facialites the process of handeling which orders need thier tickets printed.
+
+    Asks the operator to select printer and enter order number range.
+    Can also print all unprinted orders.
+
+    Parameters: 
+        N/A
+
+    Returns: 
+        void: unused return
+    """
     OUTPUT_DIRECTORY = 'SO'
     print_que = []
     count = 0

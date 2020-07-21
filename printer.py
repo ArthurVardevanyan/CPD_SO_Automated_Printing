@@ -1,5 +1,5 @@
 # printer_processing
-__version__ = "v20200709"
+__version__ = "v20200721"
 # Built-In Libraries
 import os
 import time
@@ -16,7 +16,15 @@ colorama.init()
 
 
 def print_status(ip):
-    # Gets how many jobs are currently on the requested printer.
+    """
+    Gets how many jobs are currently on the requested printer.
+
+    Parameters: 
+        ip (str): The IP Address of the printer to check.
+
+    Returns: 
+        int: The amount of jobs on the printer.
+    """
     status = subprocess.Popen(["C:/Windows/System32/lpq.exe", "-S",
                                ip, "-P", "PS", "-l"], stdout=subprocess.PIPE, shell=True)
     (out, err) = status.communicate()  # pylint: disable=unused-variable
@@ -28,8 +36,16 @@ def print_status(ip):
     return count
 
 
-def print_processor(print_que, orders=[]):
-    # Runs through the list of files to send to the printers, pausing for input as needed.
+def print_processor(print_que):
+    """
+    Runs through the list of files to send to the printers, pausing for input as needed.
+
+    Parameters: 
+        print_que (list): The list of files and thier path that need to be printed.
+
+    Returns: 
+        void: Unused Return
+    """
     print(termcolor.colored("!--DO NOT CLOSE--!", "red"))
     print(len(print_que))
     ID_LIMIT = 40

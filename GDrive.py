@@ -7,7 +7,7 @@ from oauth2client import file, client, tools
 # Built-In Libraries
 import re
 import log
-__version__ = "v20200709"
+__version__ = "v20200721"
 # Source https://developers.google.com/drive/api/v3/quickstart/python
 # Source https://stackoverflow.com/questions/52211886/downloading-file-from-google-drive-using-api-nameerror-name-service-is-not-d
 # If modifying these scopes, delete the file token.json.
@@ -16,7 +16,15 @@ SCOPES = 'https://www.googleapis.com/auth/drive.readonly'
 
 
 def link_cleanup(file_links):
- # Removing Unwanted Characters
+    """
+    Removes unwanted characters from Google Drive File Links.
+    
+    Parameters: 
+        file_links (list): The list containing all the unmodified Google Drive Links
+                
+    Returns: 
+        list: The cleaned up Google Drive Links.
+    """
     if(len(file_links) != 0):
         for i in range(len(file_links)):
             file_links[i] = file_links[i][2:].strip()
@@ -29,9 +37,18 @@ def link_cleanup(file_links):
         return []
 
 
-def link_extractor(file_links):
-    # This Function extracts the Google Drive FileIDs from the contents of the Email
-    # Checks if the email is indeed a School Order and not something else.
+def link_extractor(email_body):
+    """
+    This Function extracts the Google Drive FileIDs from the contents of the Email
+    Checks if the email is indeed an Order and not something else.
+    
+    Parameters: 
+        email_body (str): The body of the email for the current order.
+                
+    Returns: 
+        list: Extraced Google Drive Links.
+    """
+    file_links = email_body
     if ("Attach your file(s) in PDF format." in file_links):
         file_links = file_links.split("Number of Copies Needed per File", 1)
         file_links.pop(1)
@@ -47,6 +64,21 @@ def link_extractor(file_links):
 
 
 def Drive_Downloader(email_body, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
+    """
+    The main driver function for downloading files.
+
+    Calls necessary functions to get Google File Links, calls the downloader for each file.
+
+    Parameters: 
+        email_body          (str): The body of the email for the current order.
+        OUTPUT_DIRECTORY    (str): Location of the order.
+        OrderNumber         (str): The Order Number.
+        Subject             (str): The Subject Line fo the Email.
+        error_state         (str): The flag that determines where to store the order.
+                
+    Returns: 
+        bool: unused return
+    """
     file_links = link_extractor(email_body)
     file_links = link_cleanup(file_links)
     if(len(file_links)):
@@ -63,6 +95,22 @@ def Drive_Downloader(email_body, OrderNumber, OUTPUT_DIRECTORY, Subject, Error):
 
 
 def Google_Drive_Downloader(DRIVE_ID, ORDER_NUMBER, OUTPUT_DIRECTORY, SUBJECT, count, ERROR_STATE):
+    """
+    Downloads the Google Drive file.
+
+    Downloads the file, cleans up the filename, and increments each file.
+
+    Parameters: 
+        DRIVE_ID            (str): The Google Drive ID of the file being downloaded.
+        ORDER_NUMBER        (str): The Order Number.
+        OUTPUT_DIRECTORY    (str): Location of the order.
+        Subject             (str): The Subject Line fo the Email.
+        count               (int): Knows which file is being downloaded, is added to the file name.
+        error_state         (str): The flag that determines where to store the order.
+                
+    Returns: 
+        bool: unused return
+    """
     # Get the AUTH Token, or request a new token.
     store = file.Storage('Credentials/token.json')
     creds = store.get()

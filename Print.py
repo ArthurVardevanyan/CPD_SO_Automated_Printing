@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200709"
+__version__ = "v20200721"
 # Local Files
 import integrity
 import files
@@ -30,7 +30,17 @@ D110_156 = 1  # Impressions ran on this machine
 
 
 def impression_counter(order, PRINTER):
-    # Keeps Track of how many impressions (copies) are sent to each printer. Used when load balancing.
+    """
+    Keeps Track of how many impressions (copies) are sent to each printer. 
+    Used when load balancing.
+
+    Parameters: 
+        order   (object): The object containing all the information for the current order.
+        PRINTER (int)   : Determines which printer to use, or both.
+
+    Returns: 
+        bool: Return which printer to use.
+    """
     if PRINTER == 0:
         return 0
     if PRINTER == 1:
@@ -47,7 +57,20 @@ def impression_counter(order, PRINTER):
 
 
 def can_run(order, COLOR, BOOKLETS):
-    # Determines if jobs is able to be ran or not using this script
+    """
+    Determines if jobs is able to be ran automatically or not.
+
+    Color / Heavyweight Paper, and Booklet overrides exist, 
+    so under normal conditions they do not get attempted to run accidentally.
+
+    Parameters: 
+        order       (object): The object containing all the information for the current order.
+        COLOR       (bool)  : Color / HeavyWeight Paper Override
+        BOOKLETS    (bool)  : Booklet Printing Overide.
+
+    Returns: 
+        bool: Whether the order can be ran or not.
+    """
     if(order.status == "True"):
         return False
     if(order.STAPLING):
@@ -75,7 +98,17 @@ def can_run(order, COLOR, BOOKLETS):
 
 
 def order_selection(ORDER_NUMBER, Folders, AUTORUN):
-    # Finds and returns the intended order.
+    """
+    Finds and returns the intended order.
+
+    Parameters: 
+        ORDER_NUMBER   (str)    : The inputted order number to look for.
+        Folders        (list)   : All the orders currently downloaded.
+        AUTORUN        (int)    : The autorun flag, that skips any input requests.
+
+    Returns: 
+        str: Returns the Order Name, or an Error Message
+    """
     ORDER_NAME = "No Order Selected"  # Default Value
     ORDER_NAMES = []
     for i in Folders:  # Searchs for Requested Order Number from list of currently downloaded orders
@@ -127,6 +160,23 @@ def order_selection(ORDER_NUMBER, Folders, AUTORUN):
 
 
 def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS):
+    """
+    The Main function for handling printing.
+
+    Parameters: 
+        Orders              (list)  : List of Orders that are successfully ran.
+        ORDER_NUMBER        (str)   : The inputted order number to look for.
+        OUTPUT_DIRECTORY    (str)   : The directory where all the order reside.
+        PRINTER             (int)   : Flag for which printer or printer(s) to use.
+        COLOR               (bool)  : Color / HeavyWeight Paper Override
+        print_que           (list)  : The list of files that need will need to be printed.
+        AUTORUN             (int)   : The autorun flag, that skips any input requests.
+        EMAILPRINT          (bool)  : Email/Ticket Printing Printing Overide.
+        BOOKLETS            (bool)  : Booklet Printing Overide.      
+
+    Returns: 
+        str: Returns the output status of the job.
+    """
     # Runs the bulk of code
     order = o.Order()
     order.OD = OUTPUT_DIRECTORY
@@ -297,6 +347,18 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
 
 
 def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
+    """
+    Sets up the pre run conditions.
+
+    Parameters: 
+        AUTORUN             (int)   : The autorun flag, that skips any input requests.
+        EMAILPRINT          (bool)  : Email/Ticket Printing Printing Overide.
+        COLOR               (bool)  : Color / HeavyWeight Paper Override
+        BOOKLETS            (bool)  : Booklet Printing Overide.      
+
+    Returns: 
+        bool: Unused Return.
+    """
     # Contains the list of final commands for all the orders that were proccessed to be run.
     print_que = []
     Orders = []
@@ -319,7 +381,6 @@ def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
         ORDER_NUMBER = []  # The List of order numbers to validate and run
         # Contains the list of orders that were processed and also displays the state of them. ex, ran automatically, with manual input, invalid, aborted, etc.
         printed = []
-        printQ = []
         temp = ""
         while(True):
             if(temp != "run"):
@@ -338,10 +399,9 @@ def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
                         orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS)
                     # Does all the processing for the orders
                     printed.append(printOrder[0])
-                    printQ.append([printOrder[1], printOrder[2]])
                 print("\n")
                 print('\n'.join(map(str, printed)))
-                printer.print_processor(print_que, printQ)  # Does the printing
+                printer.print_processor(print_que)  # Does the printing
                 files.file_cleanup(Orders, OUTPUT_DIRECTORY)
                 print("\n")
                 print('\n'.join(map(str, printed)))
