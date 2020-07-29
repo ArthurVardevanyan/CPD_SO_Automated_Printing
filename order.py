@@ -1,10 +1,10 @@
-__version__ = "v20200721"
+__version__ = "v20200801"
 import colorama
 from termcolor import colored
 import termcolor
 import files
 import json
-import SchoolDataJson
+import jsonData
 import os
 import log
 import GDrive
@@ -135,7 +135,7 @@ def process_Email(order, email_body, error_state=""):
         return
     try:
         # Create JSON file with Job Requirements
-        JOB_INFO = SchoolDataJson.school_data_json(order)
+        JOB_INFO = jsonData.json_data(order)
         # Creates the Object from the Dictionary/JSON
         order = order_initialization(order, JOB_INFO)
     except:
@@ -200,7 +200,7 @@ def notStarted():
             with open(JSON_PATH) as json_file:
                 JOB_INFO = json.load(json_file)
         else:
-            JOB_INFO = SchoolDataJson.school_data_json(order)
+            JOB_INFO = jsonData.json_data(order)
         order.status = JOB_INFO.get("Status", "")
         #order = order_initialization(order, JOB_INFO)
         if(order.status == "NotStarted"):

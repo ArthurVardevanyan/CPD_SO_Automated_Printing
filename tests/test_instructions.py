@@ -158,7 +158,7 @@ class Testing(unittest.TestCase):
         self.assertEqual(instructions.Special_Instructions(order), (4, 25))
         order = o.Order()
         order.COPIES = 90
-        order.SLIPSHEETS = "Please divide into 3 sets going to 3 different teachers."
+        order.SLIPSHEETS = "Please divide into 3 sets going to 3 different."
         order.SPECIAL_INSTRUCTIONS = "both are 2-sided"
         self.assertEqual(instructions.Special_Instructions(order), (3, 30))
 

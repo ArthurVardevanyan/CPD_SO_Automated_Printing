@@ -1,5 +1,5 @@
 # booklet.py
-__version__ = "v20200718"
+__version__ = "v20200801"
 
 from termcolor import colored
 import colorama

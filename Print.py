@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200721"
+__version__ = "v20200801"
 # Local Files
 import integrity
 import files
@@ -8,7 +8,7 @@ import instructions
 import EmailPrint
 import printer
 import PostScript
-import SchoolDataJson
+import jsonData
 import order as o
 import log
 import booklet
@@ -194,7 +194,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
                 order = o.order_initialization(order, json.load(json_file))
         else:
             order = o.order_initialization(
-                order, SchoolDataJson.school_data_json(order))
+                order, jsonData.json_data(order))
     except:
         log.logger.exception("")
         if(not AUTORUN):
@@ -281,7 +281,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
         try:
             # Create PostScript File
             print(colored(
-                "This was an Archived School Order, PostsScript files are being Regenerated.", 'green'))
+                "This was an Archived Order, PostsScript files are being Regenerated.", 'green'))
             PostScript.postscript_conversion(order)
             if(instructions.merging(order)):
                 PostScript.file_merge(order, instructions.duplex_state(order))
@@ -339,7 +339,7 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     Orders.append(order.NAME)
     IP = ["P156", "P162"]
     try:
-        SchoolDataJson.orderStatusExport(order, str(IP[D110_IP]), False)
+        jsonData.orderStatusExport(order, str(IP[D110_IP]), False)
     except:
         log.logger.exception("")
         print("Order Status Update Failed")
@@ -431,7 +431,7 @@ if __name__ == "__main__":
     print('Type Your Order Number and Hit Enter,\nType ', colored(
         '"run"', 'green'), ' then hit enter when your all set. \n')
     print("Compatible Jobs will AutoRun, jobs will pause for requested input if needed.")
-    print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Teacher Input or Invalid Requests.")
+    print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Input or Invalid Requests.")
     print(colored("Purple Paper", "magenta"),
           " (Or any bright color) should be loaded as gray plain paper.\n")
     integrity.integrity()
