@@ -1,5 +1,5 @@
-# SchoolDataJson.py
-__version__ = "v20200721"
+# jsonData.py
+__version__ = "v20200801"
 # Built-In Libraries
 import json
 import os
@@ -14,7 +14,7 @@ import order as o
 import log
 
 
-def school_data_json(order):
+def json_data(order):
     """
     Generates the JSON/DICT for the current order.
 
@@ -24,30 +24,30 @@ def school_data_json(order):
     Returns: 
         json/dict: The JSON/DICT for the order.
     """
-    school_data = {'Account ID': 'CHANGE ME'}
-    school_data["Order Number"] = order.NUMBER
-    school_data["Order Subject"] = order.SUBJECT
+    json_Data = {'Account ID': 'CHANGE ME'}
+    json_Data["Order Number"] = order.NUMBER
+    json_Data["Order Subject"] = order.SUBJECT
     FILES = files.file_list(order)
     # Imports the Email contents line by line.
     email = []
     with open("".join([order.OD, '/', order.NAME, '/', order.NAME, ".txt"]), "r") as f:
         for line in f.readlines():
             email.append(line.rstrip('\n'))
-    school_data["Email ID"] = email[0][2:]
-    school_data["Files"] = {}
+    json_Data["Email ID"] = email[0][2:]
+    json_Data["Files"] = {}
     # This gets the number of pages for every pdf file for the job.
     for i in range(len(FILES)):
         try:
             f = open('/'.join([order.OD, order.NAME, FILES[i]]), "rb")
             pdf = PyPDF2.PdfFileReader(f)
-            school_data["Files"]["".join(["File ", str(
+            json_Data["Files"]["".join(["File ", str(
                 i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf.getNumPages())}
             f.close()
         except:
             log.logger.exception("Using Alternative Page Count Source")
             pdf = files.page_count(
                 '/'.join([order.OD, order.NAME, FILES[i]]))
-            school_data["Files"]["".join(["File ", str(
+            json_Data["Files"]["".join(["File ", str(
                 i+1)])] = {"File Name": FILES[i],  "Page Count": str(pdf)}
     # Removes the duplicate portion of the email that contains html (form) code.
     for i in range(len(email)):
@@ -59,63 +59,63 @@ def school_data_json(order):
         test_string = "Timestamp"
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Date Ordered"] = line[1]
+            json_Data["Date Ordered"] = line[1]
         test_string = "*Timestamp: *"
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Date Ordered"] = line[1]
+            json_Data["Date Ordered"] = line[1]
         test_string = "Email address "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Email"] = line[1]
+            json_Data["Email"] = line[1]
         test_string = "Your Last Name "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Last Name"] = line[1]
+            json_Data["Last Name"] = line[1]
         test_string = "Your First Name "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["First Name"] = line[1]
+            json_Data["First Name"] = line[1]
         test_string = "Your Call Back Number "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Phone Number"] = line[1]
+            json_Data["Phone Number"] = line[1]
         test_string = "Your building "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Building"] = line[1]
+            json_Data["Building"] = line[1]
         test_string = "Number of Copies Needed per File "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Copies"] = line[1]
+            json_Data["Copies"] = line[1]
         test_string = "Printing Setup "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Duplex"] = line[1]
+            json_Data["Duplex"] = line[1]
         test_string = "Collated or Uncollated "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Collation"] = line[1]
+            json_Data["Collation"] = line[1]
         test_string = "Paper Size, Type, and Color "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Paper"] = line[1].replace("=E2=80=93 ", "")
+            json_Data["Paper"] = line[1].replace("=E2=80=93 ", "")
         test_string = "Stapling "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Stapling"] = line[1]
+            json_Data["Stapling"] = line[1]
         test_string = "Drilling - Three Hole Punch "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Drilling"] = line[1]
+            json_Data["Drilling"] = line[1]
         test_string = "Folding "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Folding"] = line[1]
+            json_Data["Folding"] = line[1]
         test_string = "Cutting "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Cutting"] = line[1]
+            json_Data["Cutting"] = line[1]
         test_string = "Slip Sheets and/or Shrink Wrap "
         if test_string in email[i]:
             line = email[i].split(test_string)
@@ -124,7 +124,7 @@ def school_data_json(order):
             while(not ("Special Instructions " in email[i+j] or "Deliver to: " in email[i+j])):
                 extra = "".join([" ", extra, " ", email[i+j]])
                 j += 1
-            school_data["Slip Sheets / Shrink Wrap"] = "".join(
+            json_Data["Slip Sheets / Shrink Wrap"] = "".join(
                 [line[1], extra])
         test_string = "Special Instructions "
         if test_string in email[i]:
@@ -134,23 +134,23 @@ def school_data_json(order):
             while(not("Deliver to: " in email[i+j])):
                 extra = "".join([" ", extra, " ", email[i+j]])
                 j += 1
-            school_data["Special Instructions"] = "".join([line[1], extra])
+            json_Data["Special Instructions"] = "".join([line[1], extra])
         test_string = "Booklet Fold and Staple "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Booklets"] = line[1]
+            json_Data["Booklets"] = line[1]
         test_string = "Front Cover "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Front Cover"] = line[1].replace("=E2=80=93 ", "")
+            json_Data["Front Cover"] = line[1].replace("=E2=80=93 ", "")
         test_string = "Back Cover "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Back Cover"] = line[1].replace("=E2=80=93 ", "")
+            json_Data["Back Cover"] = line[1].replace("=E2=80=93 ", "")
         test_string = "Deliver to: (Staff Member's Name) "
         if test_string in email[i]:
             line = email[i].split(test_string)
-            school_data["Deliver To Name"] = line[1]
+            json_Data["Deliver To Name"] = line[1]
         test_string = "Deliver To:"
         if test_string in email[i]:
             line = email[i].split(test_string)
@@ -160,14 +160,14 @@ def school_data_json(order):
                     line2 = " " + email[i+1]
                 else:
                     line2 = email[i+1]
-            school_data["Deliver To Address"] = (line[1].replace(
+            json_Data["Deliver To Address"] = (line[1].replace(
                 "=", "").strip() + line2).strip()
-        school_data["Status"] = order.status = "NotStarted"
-        school_data["Cost"] = order.COST = 0
+        json_Data["Status"] = order.status = "NotStarted"
+        json_Data["Cost"] = order.COST = 0
     # Creates the JSON file
     with open("".join([order.OD, '/', order.NAME, '/', order.NAME, '.json']), 'w') as outfile:
-        json.dump(school_data, outfile, indent=4, separators=(',', ': '))
-    return school_data
+        json.dump(json_Data, outfile, indent=4, separators=(',', ': '))
+    return json_Data
 
 
 def orderStatusExport(order, STATUS, DATE):
@@ -218,7 +218,7 @@ def main(OUTPUT_DIRECTORY):
         order.NUMBER = ORDER_NAME[:10]
         order.SUBJECT = ORDER_NAME[11:]
         order.OD = OUTPUT_DIRECTORY
-        school_data_json(order)
+        json_data(order)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20200721"
+__version__ = "v20200801"
 # Built-In Libraries
 import os
 import json
@@ -16,7 +16,7 @@ import files
 import PostScript
 import printer
 import log
-import SchoolDataJson
+import jsonData
 import order as o
 # use Colorama to make Termcolor work on Windows too
 colorama.init()
@@ -199,7 +199,7 @@ def Email_Print(OUTPUT_DIRECTORY, ORDER_NAME, print_que, STACKER, D110_IP):
         order.OD = OUTPUT_DIRECTORY
         # Update Json File to Show the Email Ticket was Printing
         try:
-            SchoolDataJson.orderStatusExport(order, "Ticket", True)
+            jsonData.orderStatusExport(order, "Ticket", True)
         except:
             log.logger.exception("")
             print("Order Status Update Failed")

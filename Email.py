@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200718"
+__version__ = "v20200801"
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 # Built-In Libraries
 import sys
@@ -82,7 +82,7 @@ def order_number_extract(email_body, RANDOM):
         string: The order number
         string: The error state
     """
-    try:  # Checks if Email is Indeed A School Order, Strips Unwanted Information
+    try:  # Checks if Email is Indeed A Order, Strips Unwanted Information
         email_body = email_body.split("Order Number:", 1)
         ORDER_NUMBER = str(email_body[1])
         ORDER_NUMBER = ORDER_NUMBER[:9].strip()
@@ -236,7 +236,7 @@ def main(AUTORUN, D110_IP):
                 print("Emails Proccessed: ", EMAILS_PROCCESSED)
                 print("Im Resting, Check Back Later:")
                 print(colored("!--DO NOT CLOSE--!", "red"))
-                print("School Order Downloader Revision: ",
+                print("Order Downloader Revision: ",
                       colored(__version__, "magenta"))
                 print("Running Again") if rv == 'OK' else print(
                     "ERROR: Unable to open mailbox ", rv)
@@ -260,7 +260,7 @@ if __name__ == "__main__":
     from log import logger
     print = log.Print
     input = log.Input
-    print("\nSchool Order Downloader REV:",
+    print("\nOrder Downloader REV:",
           colored(__version__, "magenta"))
     print("Terminal Auto Printing  REV:",
           colored(Print.__version__, "magenta"))

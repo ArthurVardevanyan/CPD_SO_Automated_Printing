@@ -34,7 +34,7 @@ It processes the final commands that are sent to the printer, and also checks th
 Grabs list of files and folders
 #### PostScript.py 
 Converts the PDFS to PS Files, also merges postscript files when needed.
-#### SchoolDataJson.py
+#### jsonData.py
 Converts the Email text into a JSON file.
 #### GDrive.py  
 Downloads the files for the order from Google Drive
@@ -73,4 +73,4 @@ This file is a PJL template file for how the job files print. The file gets modi
 This folder contains all the test code and test files for running tests.
 
 
-Last Updated: 20200703
+Last Updated: 20200801
