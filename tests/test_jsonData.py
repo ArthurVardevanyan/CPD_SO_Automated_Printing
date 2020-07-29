@@ -5,19 +5,19 @@ import unittest
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-import SchoolDataJson
+import jsonData
 import order as o
 
 
 class Testing(unittest.TestCase):
-    def test_school_data(self):
+    def test_json_data(self):
         self.maxDiff = None
         order = o.Order()
         order.OD = "tests/SO"
         order.NUMBER = "11344-2704"
         order.SUBJECT = "First Last - Test 1"
         order.NAME = "".join([ order.NUMBER, " ",  order.SUBJECT])
-        self.assertEqual(SchoolDataJson.school_data_json(order),
+        self.assertEqual(jsonData.json_data(order),
                          {
             "Account ID": "CHANGE ME",
             "Order Number": "11344-2704",
@@ -50,7 +50,7 @@ class Testing(unittest.TestCase):
         order.NUMBER = "11345-3704"
         order.SUBJECT = "First Last - Test 2"
         order.NAME = "".join([ order.NUMBER, " ",  order.SUBJECT])
-        self.assertEqual(SchoolDataJson.school_data_json(order),
+        self.assertEqual(jsonData.json_data(order),
                          {
             "Account ID": "CHANGE ME",
             "Order Number": "11345-3704",
@@ -82,7 +82,7 @@ class Testing(unittest.TestCase):
         order.NUMBER = "11349-0311"
         order.SUBJECT = "First Last - Test 3"
         order.NAME = "".join([ order.NUMBER, " ",  order.SUBJECT])
-        self.assertEqual(SchoolDataJson.school_data_json(order),
+        self.assertEqual(jsonData.json_data(order),
                          {
             "Account ID": "CHANGE ME",
             "Order Number": "11349-0311",
