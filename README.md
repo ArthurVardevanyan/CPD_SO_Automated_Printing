@@ -20,6 +20,9 @@ however their may be portions that can be used, adapted, or spark ideas to fit y
 * No Jobs with Front or Back Covers (Low Volume, Job files Inconsistent, need to be able to detect blank pages, and determine when and where to insert them.)
 * No Coil Books, Color Jobs or Posters (Low Volume)
 
+### Documentation
+For more detailed documentation, refer to the doc folder.
+
 #### Email.py 
 Fetches The Emails and calls other functions to setup and preprocess jobs.
 #### Print.py 

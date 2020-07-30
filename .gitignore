@@ -1,4 +1,3 @@
-School_Orders/
 /SO/
 /tests/SO/*/Tickets
 /tests/SO/*/PSP
@@ -12,12 +11,11 @@ __pycache__/
 *.csv
 /web/node_modules
 /dist/
-/doc/CPD_SO_AP_Time.ods
-doc/.~lock.CPD_SO_AP_Time.ods#
+/doc/CPD_SO_AP_Time_Log.xls
+doc/.~lock.CPD_SO_AP_Time_Log.xls#
 *.log
 *.json
 pdfImposer/
 PJL_Commands/FrontCover.ps
-doc/*
 Blank.ps
 /doc/presentation
