@@ -5,14 +5,6 @@ Custom Software for Running a Customers High Volume Print Orders
 The Program as whole will unlikely be of any use to anyone, 
 however their may be portions that can be used, adapted, or spark ideas to fit your needs.
 
-
-### TODO
-* Documentation
-* Tiding Up Code
-* Stability 
-* More Testing
-* More Environment Checks
-
 ### Known Bugs:
 * If the Order has Invalid* or Unrealistic inputs, if a human does not catch it, the order will be wrong. (Some/Most Invalid inputs will be caught by the script)
 * Can't Print Password Locked or Corrupt Files.
