@@ -7,7 +7,7 @@ from datetime import datetime
 license = "20201231"
 logger = None
 
-
+'''
 def reporting(folder="reports"):
     try:
         # Creates the Directory for Output
@@ -30,12 +30,12 @@ def report(fileName, lines, log):
         print("Report Generation Error")
         log.logger.exception("")
 
-
+'''
 def logInit(fileName,  logFolder="logs/"):
     # Initialize Logging System
     global logger
     logger = log(fileName, logFolder)
-    reporting()
+    #reporting()
 
 
 def log(fileName, logFolder):

@@ -406,7 +406,7 @@ def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
                 files.file_cleanup(Orders, OUTPUT_DIRECTORY)
                 print("\n")
                 print('\n'.join(map(str, printed)))
-                log.report("print", printed, log)
+                #log.report("print", printed, log)
                 while True:
                     try:
                         loop = True if int(
