@@ -1,5 +1,5 @@
 # test_Print.py
-__version__ = "v20200401"
+__version__ = "v20200829"
 import unittest
 from unittest import mock
 import os
@@ -119,11 +119,11 @@ class Testing(unittest.TestCase):
     def test_printing(self):
         log.logInit("test_printing", "tests/logs/")
         self.assertEqual(Print.printing([], "11344", "tests/SO", 1, 0, [], True, False, 0),
-                         ('SUCCESS SPI! : 162 : 11344-2704 First Last - Test 1', '11344-2704', 'P162'))
+                         ('SUCCESS SPI! : 162 : 11344-2704 First Last - Test 1'))#, '11344-2704', 'P162'))
         self.assertEqual(Print.printing([], "11345", "tests/SO", 1, 0, [], True, False, 0),
-                         ('SUCCESS SPI! : 162 : 11345-3704 First Last - Test 2', '11345-3704', 'P162'))
+                         ('SUCCESS SPI! : 162 : 11345-3704 First Last - Test 2'))#, '11345-3704', 'P162'))
         self.assertEqual(Print.printing([], "11349", "tests/SO", 1, 0, [], True, False, 0),
-                         ('SUCCESS SPI! : 162 : 11349-0311 First Last - Test 3', '11349-0311', 'P162'))
+                         ('SUCCESS SPI! : 162 : 11349-0311 First Last - Test 3'))#, '11349-0311', 'P162'))
 
     def test_main(self):
         log.logInit("test_main", "tests/logs/")
