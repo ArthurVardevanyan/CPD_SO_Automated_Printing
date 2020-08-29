@@ -1,6 +1,6 @@
 
 # log.py
-__version__ = "v20200709"
+__version__ = "v20200829"
 import os
 import logging
 from datetime import datetime
@@ -8,10 +8,34 @@ license = "20201231"
 logger = None
 
 
+def reporting(folder="reports"):
+    try:
+        # Creates the Directory for Output
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+    except OSError:
+        print("Creation of the log directory failed")
+
+
+def report(fileName, lines, log):
+    try:
+        now = datetime.now()
+        current_time = now.strftime("%Y%m%d%H%M%S")
+        with open("reports/" + fileName + "_" + current_time + ".txt", 'w') as f:
+            for item in lines:
+                if("Not Supported" in item or "ON Not Valid" in item):
+                    continue
+                f.write("%s\n" % item)
+    except:
+        print("Report Generation Error")
+        log.logger.exception("")
+
+
 def logInit(fileName,  logFolder="logs/"):
     # Initialize Logging System
     global logger
     logger = log(fileName, logFolder)
+    reporting()
 
 
 def log(fileName, logFolder):
