@@ -265,7 +265,7 @@ def main():
         print("I have Failed due to some Error")
         print("Try Deleting the Last Order Displayed")
         log.logger.exception("")
-    log.report("emailPrint", ORDER_NAMES, log)
+    #log.report("emailPrint", ORDER_NAMES, log)
     print(str(count), " Order(s) Ran")
     quit = str(input("Press Any Key To Exit"))
     print(quit)
