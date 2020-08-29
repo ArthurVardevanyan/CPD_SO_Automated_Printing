@@ -343,7 +343,8 @@ def printing(Orders, ORDER_NUMBER, OUTPUT_DIRECTORY, PRINTER, COLOR, print_que, 
     except:
         log.logger.exception("")
         print("Order Status Update Failed")
-    return "".join([order.RESULT, LPR[D110_IP][40:43], " : ", order.NAME]), order.NUMBER,  str(IP[D110_IP])
+    # , order.NUMBER,  str(IP[D110_IP])
+    return "".join([order.RESULT, LPR[D110_IP][40:43], " : ", order.NAME])
 
 
 def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
@@ -398,13 +399,14 @@ def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
                     printOrder = printing(Orders, str(
                         orders), OUTPUT_DIRECTORY, D110_IP, COLOR, print_que, AUTORUN, EMAILPRINT, BOOKLETS)
                     # Does all the processing for the orders
-                    printed.append(printOrder[0])
+                    printed.append(printOrder)  # [0])
                 print("\n")
                 print('\n'.join(map(str, printed)))
                 printer.print_processor(print_que)  # Does the printing
                 files.file_cleanup(Orders, OUTPUT_DIRECTORY)
                 print("\n")
                 print('\n'.join(map(str, printed)))
+                log.report("print", printed, log)
                 while True:
                     try:
                         loop = True if int(
