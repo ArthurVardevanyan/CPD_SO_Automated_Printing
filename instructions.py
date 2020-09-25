@@ -1,4 +1,4 @@
-__version__ = "v20200721"
+__version__ = "v20200925"
 import PostScript
 from PJL_Commands.PJL_PS import end
 from PJL_Commands.PJL_PS import start
@@ -67,6 +67,7 @@ def Special_Instructions_Processing(QTY, str):
     # Remove Unwanted Characters
     str = re.sub(r'[.\-!\",]', " ", str.lower())
     str = str.replace('th ', " ").replace(
+        '1 to 2 sided', " ").replace(
         '2 sided', " ").replace('1 sided', " ")
     # https://stackoverflow.com/a/4289557
     # Separate Integers From Strings

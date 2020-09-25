@@ -19,7 +19,7 @@ if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
 else:
     # TODO, Remove absolute version number.
-    GHOSTSCRIPT_PATH = 'C:/"Program Files"/gs/gs9.52/bin/gswin64c.exe'
+    GHOSTSCRIPT_PATH = 'C:/"Program Files"/gs/gs9.53.2/bin/gswin64c.exe'
 
 
 def ghostscript(gsCMD):

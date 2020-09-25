@@ -1,5 +1,5 @@
 # test_instructions.py
-__version__ = "v20200609"
+__version__ = "v20200925"
 
 import unittest
 import os
@@ -161,6 +161,14 @@ class Testing(unittest.TestCase):
         order.SLIPSHEETS = "Please divide into 3 sets going to 3 different."
         order.SPECIAL_INSTRUCTIONS = "both are 2-sided"
         self.assertEqual(instructions.Special_Instructions(order), (3, 30))
+        order.COPIES = 100
+        order.SLIPSHEETS = "Please copy 1 to 2 sided in stapled packets. When finished, please place a divider sheet after every 25 packets. There should be 4 sets of 25. Thank you!"
+        order.SPECIAL_INSTRUCTIONS = "Please copy 1 to 2 sided in stapled packets. When finished, please place a divider sheet after every 25 packets. There should be 4 sets of 25. Thank you!"
+        self.assertEqual(instructions.Special_Instructions(order), (4, 25))
+        order.COPIES = 100
+        order.SLIPSHEETS = "Please copy 1 to 2 sided in stapled packets. Please place a divider sheet after every 25 packets. Thank you!"
+        order.SPECIAL_INSTRUCTIONS = "Please copy 1 to 2 sided in stapled packets. Please place a divider sheet after every 25 packets. Thank you!"
+        self.assertEqual(instructions.Special_Instructions(order), (4, 25))
 
     def test_manual_input(self):
         order = o.Order()
