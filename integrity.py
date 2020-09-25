@@ -44,7 +44,7 @@ def ghostscript():
         output = which(GHOSTSCRIPT_PATH) is not None
     else:
         # TODO, Remove absolute version number.
-        GHOSTSCRIPT_PATH = 'C:/Program Files/gs/gs9.52/bin/gswin64c.exe'
+        GHOSTSCRIPT_PATH = 'C:/Program Files/gs/gs9.53.2/bin/gswin64c.exe'
         output = os.path.exists(GHOSTSCRIPT_PATH)
     if(not output):
         print(colored("Ghostscript Integrity Check Failed", "yellow"))
