@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200801"
+__version__ = "v20201112"
 # Local Files
 import integrity
 import files
@@ -422,8 +422,6 @@ def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
 
 
 if __name__ == "__main__":
-    if (datetime.datetime.today().date() > datetime.datetime.strptime(log.license, "%Y%m%d").date()):
-        exit()
     log.logInit("Print")
     print = log.Print
     input = log.Input
@@ -438,16 +436,6 @@ if __name__ == "__main__":
           " (Or any bright color) should be loaded as gray plain paper.\n")
     integrity.integrity()
     o.integrityCheck("SO/")
-    while True:
-        try:
-            EMAILPRINT = True if int(
-                input(''.join(["Print Emails with Jobs?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
-            if(EMAILPRINT):
-                print("Make Sure White and Bright Colored Paper is loaded!")
-            break
-        except:
-            log.logger.exception("")
-            pass
     while True:
         try:
             COLOR = 1 if int(
@@ -470,4 +458,4 @@ if __name__ == "__main__":
         except:
             log.logger.exception("")
             pass
-    main(False, EMAILPRINT, COLOR, BOOKLETS)
+    main(False, 0, COLOR, BOOKLETS)
