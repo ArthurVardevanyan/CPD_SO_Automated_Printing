@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20200801"
+__version__ = "v20201112"
 # Local Files
 import integrity
 import files
@@ -422,36 +422,24 @@ def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
 
 
 if __name__ == "__main__":
-    if (datetime.datetime.today().date() > datetime.datetime.strptime(log.license, "%Y%m%d").date()):
-        exit()
     log.logInit("Print")
     print = log.Print
     input = log.Input
-    print("Terminal Auto Printing  REV:", colored(__version__, "magenta"))
-    print("Terminal Email Printing REV:",
-          colored(EmailPrint.__version__, "magenta"))
-    print('Type Your Order Number and Hit Enter,\nType ', colored(
+    print("\n\nTerminal Auto Printing  REV:", colored(__version__, "magenta"))
+    print('\nType Your Order Number and Hit Enter,\nType ', colored(
         '"run"', 'green'), ' then hit enter when your all set. \n')
     print("Compatible Jobs will AutoRun, jobs will pause for requested input if needed.")
-    print("ALWAYS Skim Outputs, Page Counts, etc, for Invalid Input or Invalid Requests.")
-    print(colored("Purple Paper", "magenta"),
-          " (Or any bright color) should be loaded as gray plain paper.\n")
+    print(colored("ALWAYS", "yellow") +" Skim Outputs, Page Counts, etc, for Invalid Input or Invalid Requests.")
+    print("Ensure " + colored("Bright Colored Paper", "magenta"),
+          "should be loaded as gray plain paper.\n"+ colored("WARNING:", "yellow")+ " If printer runs out of paper all tickets will be immediately promoted to run next.")
+    print("Ensure" + colored(" Banner Sheet ",
+                             "magenta") + "Tray is Full of Paper\n")
     integrity.integrity()
     o.integrityCheck("SO/")
     while True:
         try:
-            EMAILPRINT = True if int(
-                input(''.join(["Print Emails with Jobs?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else False
-            if(EMAILPRINT):
-                print("Make Sure White and Bright Colored Paper is loaded!")
-            break
-        except:
-            log.logger.exception("")
-            pass
-    while True:
-        try:
             COLOR = 1 if int(
-                input(''.join(["Enable Colored Paper / Cardstock?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
+                input(''.join(["Enable Colored Paper & Cardstock?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default) "]))) == 1 else 0
             if(COLOR):
                 print(
                     "Make sure to load colored paper / cardstock before submitting jobs, otherwise banner sheets will all print first!")
@@ -470,4 +458,4 @@ if __name__ == "__main__":
         except:
             log.logger.exception("")
             pass
-    main(False, EMAILPRINT, COLOR, BOOKLETS)
+    main(False, 0, COLOR, BOOKLETS)
