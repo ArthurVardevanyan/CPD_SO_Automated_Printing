@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20200801"
+__version__ = "v20201112"
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 # Built-In Libraries
 import sys
@@ -97,39 +97,7 @@ def order_number_extract(email_body, RANDOM):
         return "", error_state
 
 
-def autorun(AUTORUN, order):
-    """
-    Automatically attempts to run an order.
-
-    Used mostly for show, however this does work in production.
-    High order loads will be to tougher for human operators to keep up with the printers.
-    Orders that can be automatically run get ran.
-    Orders that can not be automatically ran, get only the ticket printed, 
-    to a separate tray on the printer.
-
-    Parameters: 
-        AUTORUN (bool)  : The flag for wether to autorun or not.
-        order   (object): The object containing all the information for the current order.
-
-    Returns: 
-        bool: Unused return.
-    """
-    if(AUTORUN):
-        import files
-        import printer
-        COLOR = 0
-        BOOKLETS = 0
-        EMAILPRINT = True
-        print_que = []
-        Orders = []
-        Print.printing(Orders, order.NUMBER, "SO", D110_IP, COLOR,
-                       print_que, AUTORUN, EMAILPRINT, BOOKLETS)
-        printer.print_processor(print_que)
-        files.file_cleanup(Orders, order.OD)
-    return 1
-
-
-def process_mailbox(M, AUTORUN, D110_IP):
+def process_mailbox(M):
     """
     Checks the Gmail account for new emails and proceeds to operate on all unread emails.
 
@@ -189,11 +157,10 @@ def process_mailbox(M, AUTORUN, D110_IP):
             # Calls Google Drive Link Extractor
         order = o.process_Email(order, email_body, error_state)
         emails_proccessed += 1
-        autorun(AUTORUN, order)
     return emails_proccessed
 
 
-def main(AUTORUN, D110_IP):
+def main():
     """
     Preps the connection to the Gmail account, as well as runs the loop to check for new orders.
 
@@ -231,7 +198,7 @@ def main(AUTORUN, D110_IP):
                 rv, data = M.select(
                     EMAIL_FOLDER)  # pylint: disable=unused-variable
                 # Starts Executing the Bulk of the program
-                EMAILS_PROCCESSED = process_mailbox(M, AUTORUN, D110_IP)
+                EMAILS_PROCCESSED = process_mailbox(M)
                 print("\n\n\n\n\n\n\n\n")
                 print("Emails Proccessed: ", EMAILS_PROCCESSED)
                 print("Im Resting, Check Back Later:")
@@ -254,17 +221,15 @@ def main(AUTORUN, D110_IP):
 
 
 if __name__ == "__main__":
-    if (datetime.datetime.today().date() > datetime.datetime.strptime(log.license, "%Y%m%d").date()):
-        exit()
     log.logInit("Email")
     from log import logger
     print = log.Print
     input = log.Input
-    print("\nOrder Downloader REV:",
+    print("\n\nTerminal Order Downloader REV:",
           colored(__version__, "magenta"))
-    print("Terminal Auto Printing  REV:",
+    print("Terminal Auto  Printing   REV:",
           colored(Print.__version__, "magenta"))
-    print("Terminal Email Printing REV:",
+    print("Terminal Email Printing   REV:",
           colored(EmailPrint.__version__, "magenta"))
     print("\n")
     integrity.integrity()
@@ -274,25 +239,4 @@ if __name__ == "__main__":
             os.makedirs("SO/")
     except OSError:
         print("Creation of the Order directory failed")
-    D110_IP = 1
-    while True:
-        try:
-            AUTORUN = True if int(
-                input("".join(["Enable Print While Download?  Yes : ", colored("1", "cyan"), " | No : ", colored("0", "cyan"), " (default/recommended) "]))) == 1 else False
-            if(AUTORUN):
-                while True:
-                    try:
-                        D110_IP = int(
-                            input(''.join(["Choose a Printer: 156 (", colored("0", "cyan"), "), 162 (", colored("1", "cyan"), "), Auto (", colored("2", "cyan"), "): "])))
-                        if D110_IP == 1 or D110_IP == 2 or D110_IP == 0:
-                            break
-                        else:
-                            pass
-                    except:
-                        logger.exception("")
-                        pass
-            break
-        except:
-            logger.exception("")
-            pass
-    main(AUTORUN, D110_IP)
+    main()

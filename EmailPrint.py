@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20200829"
+__version__ = "v20201112"
 # Built-In Libraries
 import os
 import json
@@ -239,7 +239,7 @@ def main():
             pass
     try:
         unread = o.notStarted()
-        print("".join(["Their are ", str(len(unread)),
+        print("".join(["\nTheir are ", str(len(unread)),
                        " unprinted orders, Enter 0, 0 to run "]))
     except:
         unread = None
@@ -275,9 +275,9 @@ if __name__ == "__main__":
     log.logInit("EmailPrint")
     print = log.Print
     input = log.Input
-    print("\nTerminal Email Printing REV: ",
+    print("\n\nTerminal Email Printing REV: ",
           colored(__version__, "magenta"))
-    print('Make Sure White and Bright Colored Paper is loaded!\nSet Colored Paper as ',
+    print('\nMake Sure White and Bright Colored Paper are loaded!\nSet Colored Paper as ',
           colored('"Other"', "magenta"))
     integrity.integrity()
     o.integrityCheck("SO/")

@@ -18,8 +18,8 @@ input = log.Input
 if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
 else:
-    # TODO, Remove absolute version number.
-    GHOSTSCRIPT_PATH = 'C:/"Program Files"/gs/gs9.53.2/bin/gswin64c.exe'
+    GHOSTSCRIPT_VERSION = os. listdir('C:/Program Files/gs/')[-1]
+    GHOSTSCRIPT_PATH = 'C:/Program Files/gs/'+GHOSTSCRIPT_VERSION+'/bin/gswin64c.exe'
 
 
 def ghostscript(gsCMD):
