@@ -225,11 +225,11 @@ if __name__ == "__main__":
     from log import logger
     print = log.Print
     input = log.Input
-    print("\nOrder Downloader REV:",
+    print("\n\nTerminal Order Downloader REV:",
           colored(__version__, "magenta"))
-    print("Terminal Auto Printing  REV:",
+    print("Terminal Auto  Printing   REV:",
           colored(Print.__version__, "magenta"))
-    print("Terminal Email Printing REV:",
+    print("Terminal Email Printing   REV:",
           colored(EmailPrint.__version__, "magenta"))
     print("\n")
     integrity.integrity()
