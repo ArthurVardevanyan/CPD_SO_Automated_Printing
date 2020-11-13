@@ -1,5 +1,5 @@
 # PostScript.py
-__version__ = "v20200721"
+__version__ = "v20201113"
 # Built-In Libraries
 from PJL_Commands.PJL_PS import blank
 import files
@@ -19,7 +19,7 @@ if(os.name == "posix"):
     GHOSTSCRIPT_PATH = 'gs'
 else:
     GHOSTSCRIPT_VERSION = os. listdir('C:/Program Files/gs/')[-1]
-    GHOSTSCRIPT_PATH = 'C:/Program Files/gs/'+GHOSTSCRIPT_VERSION+'/bin/gswin64c.exe'
+    GHOSTSCRIPT_PATH = 'C:/"Program Files"/gs/'+GHOSTSCRIPT_VERSION+'/bin/gswin64c.exe'
 
 
 def ghostscript(gsCMD):
