@@ -1,2 +1,2 @@
-cd C:\S\
+cd C:\S\EmailPrint\
 "EmailPrint.exe"

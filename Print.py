@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20201112"
+__version__ = "v20201113"
 # Local Files
 import integrity
 import files
@@ -422,6 +422,8 @@ def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
 
 
 if __name__ == "__main__":
+    if(os.name != "posix"):
+        os.chdir('..')
     log.logInit("Print")
     print = log.Print
     input = log.Input
