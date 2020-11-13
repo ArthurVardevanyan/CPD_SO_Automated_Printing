@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20201112"
+__version__ = "v20201113"
 # Built-In Libraries
 import os
 import json
@@ -272,6 +272,8 @@ def main():
 
 
 if __name__ == "__main__":
+    if(os.name != "posix"):
+        os.chdir('..')
     log.logInit("EmailPrint")
     print = log.Print
     input = log.Input
