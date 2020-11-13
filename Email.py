@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20201112"
+__version__ = "v20201113"
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 # Built-In Libraries
 import sys
@@ -221,6 +221,8 @@ def main():
 
 
 if __name__ == "__main__":
+    if(os.name != "posix"):
+        os.chdir('..')
     log.logInit("Email")
     from log import logger
     print = log.Print
