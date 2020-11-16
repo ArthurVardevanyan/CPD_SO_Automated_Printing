@@ -1,5 +1,5 @@
 # EmailPrint.py
-__version__ = "v20201113"
+__version__ = "v20201115"
 # Built-In Libraries
 import os
 import json

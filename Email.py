@@ -1,5 +1,5 @@
 # Email.py
-__version__ = "v20201113"
+__version__ = "v20201115"
 # Source for email fetch https://gist.github.com/robulouski/7442321#file-gmail_imap_dump_eml-py
 # Built-In Libraries
 import sys
