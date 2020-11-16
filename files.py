@@ -1,5 +1,5 @@
 # files.py
-__version__ = "v20200721"
+__version__ = "v20201115"
 # Built-In Libraries
 import os
 import glob
@@ -20,10 +20,10 @@ def folder_list(folder):
     """
     Grabs the list of folders in the requested directory.
 
-    Parameters: 
+    Parameters:
         folder    (str): The folder to search
-        
-    Returns: 
+
+    Returns:
         list: The list of folders.
     """
     fileList = sorted(glob.glob("".join([folder, "/*"])))
@@ -36,10 +36,10 @@ def file_list(order):
     """
     Grabs the list of all pdfs for the requested order.
 
-    Parameters: 
+    Parameters:
         order   (object): The object containing all the information for the current order.
-        
-    Returns: 
+
+    Returns:
         list: The list of all pdfs for requested order..
     """
     # Grabs the PDF's in the requested order
@@ -57,15 +57,15 @@ def postscript_list(folder, OName, sub):
     The function will either look for the converted postscript files,
     or the Print Ready Postscript files. Depending on which sub folder is passed to it.
 
-    Parameters: 
+    Parameters:
         folder  :(str) The directory where all orders are located.
         OName   :(str) The Name of the folder that the current order resides in.
         sub     :(str) The sub folder to look inside within the current order.
-        
-    Returns: 
+
+    Returns:
         list: The list of all postscript files in the requested sub folder for requested order..
     """
-    # 
+
     fileList = sorted(
         glob.glob("".join([folder, "/", OName, "/", sub, "/", "*.ps"])))
     Stripped_List = [os.path.basename(x) for x in fileList]
@@ -76,10 +76,10 @@ def page_counts(order):
     """
     Generates Page Counts for an Order
 
-    Parameters: 
+    Parameters:
         order   (object): The object containing all the information for the current order.
-        
-    Returns: 
+
+    Returns:
         counts      (int) : Total page Count of entire order.
         orderCounts (list): The page count for each file.
     """
@@ -111,11 +111,11 @@ def page_count(path):
 
     Parameters: 
         path   (str): Path to the file that needs page counts calculated.
-        
+
     Returns: 
         out (int): The page count
     """
-    args = [GHOSTSCRIPT_PATH, "-q", "-dNODISPLAY", '-c',
+    args = [GHOSTSCRIPT_PATH.replace('"', ""), "-dNOSAFER", "-q", "-dNODISPLAY", '-c',
             '"('+path + ') (r) file runpdfbegin pdfpagecount = quit"']
     if(os.name == "posix"):
         status = subprocess.Popen(args, stdout=subprocess.PIPE)
@@ -134,7 +134,7 @@ def file_cleanup(Orders, OUTPUT_DIRECTORY):
     Parameters: 
         Orders              (list): The object containing all the information for the current order.
         OUTPUT_DIRECTORY    (str) : The directory where all orders are located.
-        
+
     Returns: 
         bool: unused return
     """
