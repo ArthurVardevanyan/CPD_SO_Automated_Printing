@@ -11,8 +11,6 @@ def logInit(fileName,  logFolder="logs/"):
     # Initialize Logging System
     global logger
     logger = log(fileName, logFolder)
-    #reporting()
-
 
 def log(fileName, logFolder):
     try:
