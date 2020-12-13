@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20201115"
+__version__ = "v20201212"
 # Local Files
 import integrity
 import files
@@ -93,6 +93,8 @@ def can_run(order, COLOR, BOOKLETS):
     if("color" in str.lower(str(order.SPECIAL_INSTRUCTIONS)) and ("print" in str.lower(str(order.SPECIAL_INSTRUCTIONS)) or "copy" in str.lower(str(order.SPECIAL_INSTRUCTIONS)))):
         return False
     if("cover" in str.lower(str(order.SPECIAL_INSTRUCTIONS))):
+        return False
+    if("8.5 x 14" in order.PAPER):
         return False
     return True
 
