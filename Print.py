@@ -1,5 +1,5 @@
 # Print.py
-__version__ = "v20201212"
+__version__ = "v20210115"
 # Local Files
 import integrity
 import files
@@ -386,12 +386,12 @@ def main(AUTORUN, EMAILPRINT, COLOR, BOOKLETS):
         printed = []
         temp = ""
         while(True):
-            if(temp != "run"):
+            if(not(temp == "run" or temp == "+")):
                 temp = str(input("Type In an Order Number: "))
-            if(temp != "run" and BOOKLETS == True):
+            if(not(temp == "run" or temp == "+") and BOOKLETS == True):
                 ORDER_NUMBER.append(temp)
                 temp = "run"
-            if(temp != "run"):
+            if(not(temp == "run" or temp == "+")):
                 ORDER_NUMBER.append(temp)
             else:
                 OUTPUT_DIRECTORY = "SO/"
@@ -430,12 +430,14 @@ if __name__ == "__main__":
     print = log.Print
     input = log.Input
     print("\n\nTerminal Auto Printing  REV:", colored(__version__, "magenta"))
-    print('\nType Your Order Number and Hit Enter,\nType ', colored(
-        '"run"', 'green'), ' then hit enter when your all set. \n')
+    print('\nType Your Order Number and Hit Enter,\nType', (colored(
+        '"run"', 'green') + ' or ' + colored(
+        '"+"', 'green')), 'then hit enter when your all set. \n')
     print("Compatible Jobs will AutoRun, jobs will pause for requested input if needed.")
-    print(colored("ALWAYS", "yellow") +" Skim Outputs, Page Counts, etc, for Invalid Input or Invalid Requests.")
+    print(colored("ALWAYS", "yellow") +
+          " Skim Outputs, Page Counts, etc, for Invalid Input or Invalid Requests.")
     print("Ensure " + colored("Bright Colored Paper", "magenta"),
-          "should be loaded as gray plain paper.\n"+ colored("WARNING:", "yellow")+ " If printer runs out of paper all tickets will be immediately promoted to run next.")
+          "should be loaded as gray plain paper.\n" + colored("WARNING:", "yellow") + " If printer runs out of paper all tickets will be immediately promoted to run next.")
     print("Ensure" + colored(" Banner Sheet ",
                              "magenta") + "Tray is Full of Paper\n")
     integrity.integrity()
